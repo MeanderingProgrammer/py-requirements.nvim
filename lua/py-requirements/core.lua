@@ -1,3 +1,4 @@
+local api = require('py-requirements.api')
 local requirements = require('py-requirements.requirements')
 
 local M = {}
@@ -9,6 +10,7 @@ local function handle()
     for _, module in ipairs(modules) do
         P(module)
     end
+    P(api.get_versions('termcolor'))
 end
 
 function M.load()
