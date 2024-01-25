@@ -1,20 +1,19 @@
 local api = require('py-requirements.api')
 local requirements = require('py-requirements.requirements')
+local ui = require('py-requirements.ui')
 
 local M = {}
 
 local function handle()
     local buf = vim.api.nvim_get_current_buf()
     local modules = requirements.parse_modules(buf)
-    print('MODULES')
     for _, module in ipairs(modules) do
-        P(module)
+        module.versions = api.get_versions(module.name)
     end
-    P(api.get_versions('termcolor'))
+    ui.display(buf, modules)
 end
 
 function M.load()
-    print('LOADING')
     handle()
 end
 

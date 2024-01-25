@@ -27,10 +27,11 @@ local DependencyKind = {
 }
 
 ---@class PythonModule
----@field line_number integer
+---@field line_number integer 0-indexed
 ---@field name string
----@field version string
 ---@field kind DependencyKind
+---@field version string
+---@field versions string[]
 
 ---@param line_number integer
 ---@param line string
@@ -42,8 +43,9 @@ local function parse_module(line_number, line)
         return {
             line_number = line_number,
             name = name,
-            version = version,
             kind = DependencyKind.EQUAL,
+            version = version,
+            versions = {},
         }
     end
     return nil
@@ -63,7 +65,7 @@ function M.parse_modules(buf)
         line = uncomment(line)
         line = remove_whitespace(line)
         if line:len() > 0 then
-            local module = parse_module(i, line)
+            local module = parse_module(i - 1, line)
             if module then
                 table.insert(modules, module)
             end
