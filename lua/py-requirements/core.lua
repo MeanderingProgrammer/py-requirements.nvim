@@ -13,7 +13,6 @@ local function handle()
             end)
         end)
     end
-    ui.display(buf, modules)
 end
 
 local M = {}
@@ -23,8 +22,7 @@ function M.load()
 end
 
 function M.update()
-    print('UPDATING')
-    print('TODO')
+    handle()
 end
 
 return M
