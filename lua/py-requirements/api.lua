@@ -1,20 +1,7 @@
 local curl = require('plenary.curl')
 
-local M = {}
-
----@param name string
 ---@return string[]
-function M.get_versions(name)
-    -- curl \
-    --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
-    --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
-    --   https://pypi.org/simple/{name}/
-    local headers = {
-        ['Accept'] = 'application/vnd.pypi.simple.v1+json',
-        ['User-Agent'] = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)',
-    }
-    local url = string.format('https://pypi.org/simple/%s/', name)
-    local result = curl.get(url, { headers = headers })
+local function parse_versions(result)
     if result == nil or result.status ~= 200 then
         return {}
     end
@@ -23,6 +10,26 @@ function M.get_versions(name)
         return {}
     end
     return json.versions
+end
+
+local M = {}
+
+---@param name string
+---@param callback fun(versions: string[])
+function M.get_versions(name, callback)
+    -- curl \
+    --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
+    --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
+    --   https://pypi.org/simple/{name}/
+    curl.get(string.format('https://pypi.org/simple/%s/', name), {
+        headers = {
+            ['Accept'] = 'application/vnd.pypi.simple.v1+json',
+            ['User-Agent'] = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)',
+        },
+        callback = function(result)
+            callback(parse_versions(result))
+        end,
+    })
 end
 
 return M
