@@ -13,11 +13,6 @@ local function remove_whitespace(line)
     return result
 end
 
----@enum JobKind
-local DependencyKind = {
-    EQUAL = 1,
-}
-
 ---@param line string
 ---@return string|nil
 ---@return string|nil
@@ -26,11 +21,24 @@ local function equal_dependency(line)
     return name, version
 end
 
+---@enum DependencyKind
+local DependencyKind = {
+    EQUAL = 1,
+}
+
+---@class PythonModule
+---@field line_number integer
+---@field name string
+---@field version string
+---@field kind DependencyKind
+
 ---@param line_number integer
 ---@param line string
+---@return PythonModule|nil
 local function parse_module(line_number, line)
     local name, version = equal_dependency(line)
     if name and version then
+        ---@type PythonModule
         return {
             line_number = line_number,
             name = name,
@@ -38,11 +46,13 @@ local function parse_module(line_number, line)
             kind = DependencyKind.EQUAL,
         }
     end
+    return nil
 end
 
 local M = {}
 
 ---@param buf integer
+---@return PythonModule[]
 function M.parse_modules(buf)
     local modules = {}
 

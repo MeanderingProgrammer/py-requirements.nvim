@@ -3,6 +3,7 @@ local curl = require('plenary.curl')
 local M = {}
 
 ---@param name string
+---@return string[]
 function M.get_versions(name)
     -- curl \
     --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
