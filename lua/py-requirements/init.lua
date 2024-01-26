@@ -1,10 +1,21 @@
+local cmp = require('py-requirements.cmp')
 local core = require('py-requirements.core')
 
 local M = {}
 
+---@class UserConfig
+---@field public enable_cmp? boolean
+
+---@param opts UserConfig|nil
 function M.setup(opts)
-    -- No options currently exist
-    opts = opts or {}
+    local default_opts = {
+        enable_cmp = true,
+    }
+    opts = vim.tbl_deep_extend('force', default_opts, opts or {})
+
+    if opts.enable_cmp then
+        cmp.setup()
+    end
 
     local group = vim.api.nvim_create_augroup('PyRequirements', { clear = true })
     local pattern = 'requirements.txt'

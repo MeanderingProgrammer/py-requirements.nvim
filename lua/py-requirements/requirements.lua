@@ -33,10 +33,18 @@ local DependencyKind = {
 ---@field version string
 ---@field versions string[]
 
+local M = {}
+
 ---@param line_number integer
 ---@param line string
 ---@return PythonModule|nil
-local function parse_module(line_number, line)
+function M.parse_module(line_number, line)
+    line = uncomment(line)
+    line = remove_whitespace(line)
+    if line:len() == 0 then
+        return nil
+    end
+
     local name, version = equal_dependency(line)
     if name and version then
         ---@type PythonModule
@@ -51,8 +59,6 @@ local function parse_module(line_number, line)
     return nil
 end
 
-local M = {}
-
 ---@param buf integer
 ---@return PythonModule[]
 function M.parse_modules(buf)
@@ -62,13 +68,9 @@ function M.parse_modules(buf)
     -- Supports ignoring comments and equality versions
     local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
     for i, line in ipairs(lines) do
-        line = uncomment(line)
-        line = remove_whitespace(line)
-        if line:len() > 0 then
-            local module = parse_module(i - 1, line)
-            if module then
-                table.insert(modules, module)
-            end
+        local module = M.parse_module(i - 1, line)
+        if module then
+            table.insert(modules, module)
         end
     end
 
