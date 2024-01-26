@@ -35,7 +35,7 @@ Neovim plugin that helps manage python requirements.
 }
 ```
 
-## Install `requirements` parser
+## Install `requirements` Parser
 
 ```lua
 require('nvim-treesitter.configs').setup({
@@ -49,7 +49,7 @@ require('nvim-treesitter.configs').setup({
 })
 ```
 
-## Add completion source
+## Add Completion Source
 
 ```lua
 local cmp = require('cmp')
@@ -64,7 +64,7 @@ cmp.setup({
 })
 ```
 
-# Related projects
+# Related Projects
 
 * [crates.nvim](https://github.com/Saecki/crates.nvim): Many ideas were taken from this
   project and translated to work with Python modules rather than Rust crates.
