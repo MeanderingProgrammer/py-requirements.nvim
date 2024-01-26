@@ -6,23 +6,20 @@ local function handle()
     local buf = vim.api.nvim_get_current_buf()
     local modules = requirements.parse_modules(buf)
     for _, module in ipairs(modules) do
-        api.get_versions(module.name, function(versions)
-            module.versions = versions
-            vim.schedule(function()
-                ui.display(buf, modules)
-            end)
-        end)
+        local versions = api.get_versions(module.name)
+        module.versions = versions
     end
+    ui.display(buf, modules)
 end
 
 local M = {}
 
 function M.load()
-    handle()
+    vim.schedule(handle)
 end
 
 function M.update()
-    handle()
+    vim.schedule(handle)
 end
 
 return M
