@@ -1,25 +1,12 @@
 ---@param line string
----@return string
-local function uncomment(line)
-    -- Capture everything before a #
-    -- If nothing mathces (no # exists) return the input
-    return line:match('^([^#]*)#.*$') or line
-end
-
----@param line string
----@return string
-local function remove_whitespace(line)
-    local result, _ = line:gsub('%s+', '')
-    return result
-end
-
----@param line string
----@param operator string
+---@param query string
 ---@return string|nil
----@return string|nil
-local function dependency(line, operator)
-    local name, version = line:match('^(.*)' .. operator .. '(.*)$')
-    return name, version
+local function run_query(root, line, query)
+    local parsed_query = vim.treesitter.query.parse('requirements', query)
+    for _, node in parsed_query:iter_captures(root, line, 0, -1) do
+        return vim.treesitter.get_node_text(node, line)
+    end
+    return nil
 end
 
 ---@enum DependencyKind
@@ -36,7 +23,7 @@ local DependencyKind = {
 ---@field line_number integer 0-indexed
 ---@field name string
 ---@field kind DependencyKind
----@field version string
+---@field version string|nil
 ---@field versions string[]
 
 local M = {}
@@ -45,17 +32,16 @@ local M = {}
 ---@param line string
 ---@return PythonModule|nil
 function M.parse_module(line_number, line)
-    -- Reference
-    -- https://pip.pypa.io/en/stable/reference/requirements-file-format/
-    -- https://pip.pypa.io/en/stable/reference/requirement-specifiers/
-
-    line = uncomment(line)
-    line = remove_whitespace(line)
-    if line:len() == 0 then
+    --Adding a blank line at the end generally helps parser pull more information
+    line = line .. '\n'
+    local root = vim.treesitter.get_string_parser(line, 'requirements'):parse()[1]:root()
+    local name = run_query(root, line, '(requirement (package) @package)')
+    local cmp = run_query(root, line, '(requirement (version_spec (version_cmp) @cmp))')
+    local version = run_query(root, line, '(requirement (version_spec (version) @version))')
+    if name == nil then
         return nil
     end
-
-    local dependency_operator = {
+    local cmp_mapping = {
         ['=='] = DependencyKind.EQUAL,
         ['<'] = DependencyKind.LESS,
         ['<='] = DependencyKind.LESS_OR_EQUAL,
@@ -63,22 +49,14 @@ function M.parse_module(line_number, line)
         ['>'] = DependencyKind.GREATER,
         ['~='] = DependencyKind.COMPATIBLE,
     }
-
-    for operator, kind in pairs(dependency_operator) do
-        local name, version = dependency(line, operator)
-        if name and version then
-            ---@type PythonModule
-            return {
-                line_number = line_number,
-                name = name,
-                kind = kind,
-                version = version,
-                versions = {},
-            }
-        end
-    end
-
-    return nil
+    ---@type PythonModule
+    return {
+        line_number = line_number,
+        name = name,
+        kind = cmp_mapping[cmp],
+        version = version,
+        versions = {},
+    }
 end
 
 ---@param buf integer
