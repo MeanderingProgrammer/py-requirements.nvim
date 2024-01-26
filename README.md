@@ -12,6 +12,12 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
 - Displays diagnostics in `normal` mode with warnings for not using latest version
 - Cache `pypi` responses within a session to improve performance
 
+# Limitations
+
+- Only supports `requirements.txt` files, if there's interest this can be expanded
+- No support to auto update dependencies
+- `nvim-cmp` ordering is not good
+
 # Dependencies
 
 - `curl` on your system: Used to get version information from pypi
