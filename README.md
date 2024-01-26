@@ -24,7 +24,7 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
 - [plenary.nvim](https://github.com/nvim-lua/plenary.nvim): Used to run `curl` command
 - [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements) parser for
   [treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/master): Used to
-  parse `requirements.txt` file.
+  parse `requirements.txt` file
 
 # Install
 
@@ -75,6 +75,6 @@ cmp.setup({
 # Related Projects
 
 - [crates.nvim](https://github.com/Saecki/crates.nvim): Many ideas were taken from this
-  project and translated to work with Python modules rather than Rust crates.
+  project and translated to work with Python modules rather than Rust crates
 - [cmp-pypi](https://github.com/vrslev/cmp-pypi): Found this one rather late, similar
-  idea but built to work with `pyproject.toml` files.
+  idea but built to work with `pyproject.toml` files
