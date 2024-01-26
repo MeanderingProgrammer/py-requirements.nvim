@@ -6,7 +6,7 @@ Neovim plugin that helps manage python requirements.
 
 * `curl` on your system: Used to get version information from pypi
 * [plenary.nvim](https://github.com/nvim-lua/plenary.nvim): Used to run `curl` command
-* [requirements parser](https://github.com/ObserverOfTime/tree-sitter-requirements) for
+* [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements) parser for
   [treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/master): Used to
   parse `requirements.txt` file.
 

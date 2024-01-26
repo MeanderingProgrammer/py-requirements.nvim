@@ -6,14 +6,20 @@ local M = {}
 ---@class UserConfig
 ---@field public enable_cmp? boolean
 
+---@class State
+---@field config UserConfig
+
+---@type State
+local state = {
+    config = {
+        enable_cmp = true,
+    },
+}
+
 ---@param opts UserConfig|nil
 function M.setup(opts)
-    local default_opts = {
-        enable_cmp = true,
-    }
-    opts = vim.tbl_deep_extend('force', default_opts, opts or {})
-
-    if opts.enable_cmp then
+    state.config = vim.tbl_deep_extend('force', state.config, opts or {})
+    if M.get_config().enable_cmp then
         cmp.setup()
     end
 
@@ -22,13 +28,18 @@ function M.setup(opts)
     vim.api.nvim_create_autocmd('BufRead', {
         group = group,
         pattern = pattern,
-        callback = core.load,
+        callback = core.update,
     })
     vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' }, {
         group = group,
         pattern = pattern,
         callback = core.update,
     })
+end
+
+---@return UserConfig
+function M.get_config()
+    return state.config
 end
 
 return M

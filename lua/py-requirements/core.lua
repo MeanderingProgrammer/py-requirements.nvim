@@ -16,10 +16,6 @@ end
 
 local M = {}
 
-function M.load()
-    handle()
-end
-
 function M.update()
     handle()
 end

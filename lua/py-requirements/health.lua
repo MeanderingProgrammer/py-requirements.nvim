@@ -1,3 +1,5 @@
+local py_requirments = require('py-requirements')
+
 ---@param name string
 local function plugin_installed(name)
     local ok = pcall(require, name)
@@ -35,6 +37,9 @@ local M = {}
 function M.check()
     vim.health.start('Checking required plugins')
     plugin_installed('plenary')
+    if py_requirments.get_config().enable_cmp then
+        plugin_installed('cmp')
+    end
 
     vim.health.start('Checking required treesitter parsers')
     parser_installed('requirements')
