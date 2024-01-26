@@ -2,6 +2,8 @@
 
 Neovim plugin that helps manage python requirements.
 
+https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ffce2f2-b1e6-4191-9cbe-e968e7766a97
+
 # Features
 
 * Integrated with `nvim-cmp`
