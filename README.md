@@ -2,6 +2,11 @@
 
 Neovim plugin that helps manage python requirements.
 
+# Dependencies
+
+* `curl` on your system: Used to get version information from pypi
+* [plenary.nvim](https://github.com/nvim-lua/plenary.nvim): Used to run `curl` command
+
 # Tests To Add
 
 ## Parsing requirements
