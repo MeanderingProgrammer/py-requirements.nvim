@@ -32,6 +32,10 @@ local M = {}
 ---@param line string
 ---@return PythonModule|nil
 function M.parse_module(line_number, line)
+    if string.match(line, '^%s*--hash') then
+        return nil
+    end
+
     --Adding a blank line at the end generally helps parser pull more information
     line = line .. '\n'
     local root = vim.treesitter.get_string_parser(line, 'requirements'):parse()[1]:root()

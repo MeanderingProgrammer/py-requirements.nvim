@@ -38,6 +38,8 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
         require('py-requirements').setup({
             -- Enabled by default if you do not use `nvim-cmp` set to false
             enable_cmp = true,
+            -- Specify what file patterns to apply the plugin to, for use with for example pip-tools.
+            requirements_files = { 'requirements.txt' },
         })
     end,
 }

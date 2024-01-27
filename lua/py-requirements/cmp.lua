@@ -23,7 +23,15 @@ local M = {}
 
 ---@return boolean
 function M:is_available()
-    return vim.fn.expand('%:t') == 'requirements.txt'
+    local requirements_files = require('py-requirements').get_config().requirements_files or {}
+
+    for _, requirements_file in ipairs(requirements_files) do
+        if vim.fn.expand('%:t') == requirements_file then
+            return true
+        end
+    end
+
+    return false
 end
 
 ---@return string
