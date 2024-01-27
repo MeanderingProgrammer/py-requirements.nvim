@@ -1,4 +1,4 @@
-local py_requirments = require('py-requirements')
+local state = require('py-requirements.state')
 
 ---@param name string
 local function plugin_installed(name)
@@ -37,7 +37,7 @@ local M = {}
 function M.check()
     vim.health.start('Checking required plugins')
     plugin_installed('plenary')
-    if py_requirments.get_config().enable_cmp then
+    if state.config.enable_cmp then
         plugin_installed('cmp')
     end
 
