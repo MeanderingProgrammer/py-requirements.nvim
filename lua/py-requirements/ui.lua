@@ -6,7 +6,7 @@ local function to_diagnostic(module)
     local severity = vim.diagnostic.severity.INFO
     local latest_version = module.versions[#module.versions]
     if latest_version then
-        if latest_version ~= module.version then
+        if latest_version ~= module.version.version then
             severity = vim.diagnostic.severity.WARN
         end
         latest_version = ' ' .. latest_version

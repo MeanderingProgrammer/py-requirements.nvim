@@ -1,6 +1,7 @@
 local cmp = require('py-requirements.cmp')
 local core = require('py-requirements.core')
 local state = require('py-requirements.state')
+local update = require('py-requirements.update')
 
 local M = {}
 
@@ -27,6 +28,16 @@ function M.setup(opts)
         group = group,
         pattern = pattern,
         callback = core.update,
+    })
+
+    vim.api.nvim_create_autocmd('Filetype', {
+        group = group,
+        pattern = 'requirements',
+        callback = function(ev)
+            vim.api.nvim_buf_create_user_command(ev.buf, 'PyRequirementsUpdate', function(args)
+                update.update(ev.buf, args.line1 - 1, args.line2)
+            end, { range = true })
+        end,
     })
 end
 
