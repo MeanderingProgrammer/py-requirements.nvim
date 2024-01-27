@@ -2,7 +2,7 @@ local curl = require('plenary.curl')
 
 ---@return string[]
 local function parse_versions(result)
-    if result == nil or result.status ~= 200 then
+    if result == nil or (result.status ~= 200 and result.status ~= 301) then
         return {}
     end
     local json = vim.json.decode(result.body)
@@ -38,6 +38,7 @@ function M.get_versions(name)
             ['Accept'] = 'application/vnd.pypi.simple.v1+json',
             ['User-Agent'] = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)',
         },
+        raw = { '--location' },
     })
     local versions = parse_versions(result)
     cache.versions[name] = versions
