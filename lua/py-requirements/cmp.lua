@@ -23,7 +23,9 @@ local M = {}
 
 ---@return boolean
 function M:is_available()
-    return vim.fn.expand('%:t') == 'requirements.txt'
+    local file_patterns = require('py-requirements').get_config().file_patterns or {}
+
+    return vim.tbl_contains(file_patterns, vim.fn.expand('%:t'))
 end
 
 ---@return string

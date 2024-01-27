@@ -5,6 +5,7 @@ local M = {}
 
 ---@class UserConfig
 ---@field public enable_cmp? boolean
+---@field public file_patterns? string[]
 
 ---@class State
 ---@field config UserConfig
@@ -13,6 +14,7 @@ local M = {}
 local state = {
     config = {
         enable_cmp = true,
+        file_patterns = { 'requirements.txt' },
     },
 }
 
@@ -24,7 +26,7 @@ function M.setup(opts)
     end
 
     local group = vim.api.nvim_create_augroup('PyRequirements', { clear = true })
-    local pattern = 'requirements.txt'
+    local pattern = M.get_config().file_patterns
     vim.api.nvim_create_autocmd('BufRead', {
         group = group,
         pattern = pattern,
