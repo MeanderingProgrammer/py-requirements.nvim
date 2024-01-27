@@ -78,3 +78,8 @@ cmp.setup({
   project and translated to work with Python modules rather than Rust crates
 - [cmp-pypi](https://github.com/vrslev/cmp-pypi): Found this one rather late, similar
   idea but built to work with `pyproject.toml` files
+
+# TODO
+
+- Add unit tests, mostly around parser
+- Support `pyproject.toml` / `poetry`
