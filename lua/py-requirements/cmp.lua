@@ -25,13 +25,7 @@ local M = {}
 function M:is_available()
     local requirements_files = require('py-requirements').get_config().requirements_files or {}
 
-    for _, requirements_file in ipairs(requirements_files) do
-        if vim.fn.expand('%:t') == requirements_file then
-            return true
-        end
-    end
-
-    return false
+    return vim.tbl_contains(requirements_files, vim.fn.expand('%:t'))
 end
 
 ---@return string
