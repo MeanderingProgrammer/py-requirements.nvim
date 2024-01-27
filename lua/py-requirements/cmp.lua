@@ -23,9 +23,9 @@ local M = {}
 
 ---@return boolean
 function M:is_available()
-    local requirements_files = require('py-requirements').get_config().requirements_files or {}
+    local file_patterns = require('py-requirements').get_config().file_patterns or {}
 
-    return vim.tbl_contains(requirements_files, vim.fn.expand('%:t'))
+    return vim.tbl_contains(file_patterns, vim.fn.expand('%:t'))
 end
 
 ---@return string
