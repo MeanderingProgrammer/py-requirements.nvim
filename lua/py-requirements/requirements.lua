@@ -1,10 +1,11 @@
----@param line string
+---@param source (integer|string)
+---@param root TSNode
 ---@param query string
 ---@return string|nil
-local function run_query(root, line, query)
+local function run_query(source, root, query)
     local parsed_query = vim.treesitter.query.parse('requirements', query)
-    for _, node in parsed_query:iter_captures(root, line, 0, -1) do
-        return vim.treesitter.get_node_text(node, line)
+    for _, node in parsed_query:iter_captures(root, source, 0, -1) do
+        return vim.treesitter.get_node_text(node, source)
     end
     return nil
 end
@@ -22,29 +23,28 @@ local DependencyKind = {
 ---@class PythonModule
 ---@field line_number integer 0-indexed
 ---@field name string
----@field kind DependencyKind
----@field version string|nil
+---@field kind? DependencyKind
+---@field version? string
 ---@field versions string[]
 
 local M = {}
 
----@param line_number integer
 ---@param line string
 ---@return PythonModule|nil
-function M.parse_module(line_number, line)
-    if string.match(line, '^%s*--hash') then
-        return nil
-    end
+function M.parse_module_string(line)
+    local tree = vim.treesitter.get_string_parser(line, 'requirements')
+    return M.parse_module(line, tree:parse()[1]:root())
+end
 
-    --Adding a blank line at the end generally helps parser pull more information
-    line = line .. '\n'
-    local root = vim.treesitter.get_string_parser(line, 'requirements'):parse()[1]:root()
-    local name = run_query(root, line, '(requirement (package) @package)')
-    local cmp = run_query(root, line, '(requirement (version_spec (version_cmp) @cmp))')
-    local version = run_query(root, line, '(requirement (version_spec (version) @version))')
+---@param source (integer|string)
+---@param root TSNode
+---@return PythonModule|nil
+function M.parse_module(source, root)
+    local name = run_query(source, root, '(requirement (package) @package)')
     if name == nil then
         return nil
     end
+    local cmp_query = '(requirement (version_spec (version_cmp) @cmp))'
     local cmp_mapping = {
         ['=='] = DependencyKind.EQUAL,
         ['<'] = DependencyKind.LESS,
@@ -53,12 +53,13 @@ function M.parse_module(line_number, line)
         ['>'] = DependencyKind.GREATER,
         ['~='] = DependencyKind.COMPATIBLE,
     }
+    local version_query = '(requirement (version_spec (version) @version))'
     ---@type PythonModule
     return {
-        line_number = line_number,
+        line_number = root:start(),
         name = name,
-        kind = cmp_mapping[cmp],
-        version = version,
+        kind = cmp_mapping[run_query(source, root, cmp_query)],
+        version = run_query(source, root, version_query),
         versions = {},
     }
 end
@@ -67,9 +68,10 @@ end
 ---@return PythonModule[]
 function M.parse_modules(buf)
     local modules = {}
-    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-    for i, line in ipairs(lines) do
-        local module = M.parse_module(i - 1, line)
+    local tree = vim.treesitter.get_parser(buf, 'requirements')
+    local query = vim.treesitter.query.parse('requirements', '((requirement) @requirement)')
+    for _, node in query:iter_captures(tree:parse()[1]:root(), buf, 0, -1) do
+        local module = M.parse_module(buf, node)
         if module then
             table.insert(modules, module)
         end
