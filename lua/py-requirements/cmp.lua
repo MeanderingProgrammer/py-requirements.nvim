@@ -36,16 +36,17 @@ end
 ---@return string[]
 function M:get_trigger_characters()
     local characters = {}
-    vim.list_extend(characters, { '.', '<', '>', '=', '^', '~' })
+    vim.list_extend(characters, { '.', '<', '>', '=', '^', '~', ' ' })
     vim.list_extend(characters, { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' })
     return characters
 end
 
 function M:complete(params, callback)
-    local line = params.context.cursor_line
-    local module = requirements.parse_module(-1, line)
-    if module == nil then
-        callback()
+    --Adding a 0 at the end as if we started typing a version number
+    local line = params.context.cursor_line .. '0'
+    local module = requirements.parse_module_string(line)
+    if module == nil or module.kind == nil then
+        callback(nil)
     else
         vim.schedule(function()
             local items = get_completion_items(module)
