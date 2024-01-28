@@ -36,7 +36,11 @@ function M.setup(opts)
         callback = function(ev)
             vim.api.nvim_buf_create_user_command(ev.buf, 'PyRequirementsUpdate', function(args)
                 update.update(ev.buf, args.line1 - 1, args.line2)
-            end, { range = true })
+            end, { range = true, desc = 'py-requirements: Update selected requirements' })
+
+            vim.api.nvim_buf_create_user_command(ev.buf, 'PyRequirementsUpdateAll', function(args)
+                update.update(ev.buf, 0, -1)
+            end, { desc = 'py-requirements: Update all requirements' })
         end,
     })
 end
