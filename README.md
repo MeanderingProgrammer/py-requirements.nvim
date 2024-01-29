@@ -85,6 +85,12 @@ cmp.setup({
 })
 ```
 
+# Testing
+
+```bash
+nvim --headless -c "PlenaryBustedDirectory tests"
+```
+
 # Related Projects
 
 - [crates.nvim](https://github.com/Saecki/crates.nvim): Many ideas were taken from this
