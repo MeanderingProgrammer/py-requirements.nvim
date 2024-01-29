@@ -95,5 +95,4 @@ cmp.setup({
 # TODO
 
 - Add unit tests, mostly around parser
-- Hanlde invalid / unknown module names in some way other than showing loading
 - Support `pyproject.toml` / `poetry`

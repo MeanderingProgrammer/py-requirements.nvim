@@ -1,19 +1,11 @@
 local curl = require('plenary.curl')
 
----@return string[]
-local function parse_versions(result)
-    if result == nil or not vim.tbl_contains({ 200, 301 }, result.status) then
-        return {}
-    end
-    local json = vim.json.decode(result.body)
-    if json == nil or json.versions == nil then
-        return {}
-    end
-    return json.versions
-end
+---@class ModuleVersions
+---@field status ModuleStatus
+---@field values string[]
 
 ---@class Cache
----@field versions table<string,string[]>
+---@field versions table<string,ModuleVersions>
 
 ---@type Cache
 local cache = {
@@ -22,8 +14,34 @@ local cache = {
 
 local M = {}
 
+---@enum ModuleStatus
+M.ModuleStatus = {
+    LOADING = 1,
+    INVALID = 2,
+    VALID = 3,
+}
+
+---@type ModuleVersions
+M.INITIAL = { status = M.ModuleStatus.LOADING, values = {} }
+
+---@type ModuleVersions
+M.FAILED = { status = M.ModuleStatus.INVALID, values = {} }
+
+---@return ModuleVersions
+function M.parse_versions(result)
+    if result == nil or not vim.tbl_contains({ 200, 301 }, result.status) then
+        return M.FAILED
+    end
+    local json = vim.json.decode(result.body)
+    if json == nil or json.versions == nil then
+        return M.FAILED
+    end
+    ---@type ModuleVersions
+    return { status = M.ModuleStatus.VALID, values = json.versions }
+end
+
 ---@param name string
----@return string[]
+---@return ModuleVersions
 function M.get_versions(name)
     local cached_versions = cache.versions[name]
     if cached_versions then
@@ -40,7 +58,7 @@ function M.get_versions(name)
         },
         raw = { '--location' },
     })
-    local versions = parse_versions(result)
+    local versions = M.parse_versions(result)
     cache.versions[name] = versions
     return versions
 end

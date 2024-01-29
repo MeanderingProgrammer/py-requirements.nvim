@@ -1,3 +1,5 @@
+local api = require('py-requirements.api')
+
 ---@class Node
 ---@field value string
 ---@field start_col integer
@@ -26,7 +28,7 @@ end
 ---@field name string
 ---@field comparison? string
 ---@field version? Node
----@field versions string[]
+---@field versions ModuleVersions
 
 local M = {}
 
@@ -56,7 +58,7 @@ function M.parse_module(source, root)
         name = name_node.value,
         comparison = comparison,
         version = run_query(source, root, '(version_spec (version) @version)'),
-        versions = {},
+        versions = api.INITIAL,
     }
 end
 

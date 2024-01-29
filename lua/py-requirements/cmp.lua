@@ -6,7 +6,7 @@ local state = require('py-requirements.state')
 local function get_completion_items(module)
     local versions = api.get_versions(module.name)
     local result = {}
-    for _, version in ipairs(versions) do
+    for _, version in ipairs(versions.values) do
         local item = {
             label = version,
             kind = 12,
