@@ -6,7 +6,7 @@ local function to_diagnostic(module)
     local severity = vim.diagnostic.severity.INFO
     local latest_version = module.versions[#module.versions]
     if latest_version then
-        if latest_version ~= module.version then
+        if module.version == nil or latest_version ~= module.version.value then
             severity = vim.diagnostic.severity.WARN
         end
         latest_version = ' ' .. latest_version
@@ -32,6 +32,18 @@ function M.display(buf, modules)
         table.insert(diagnostics, diagnostic)
     end
     vim.diagnostic.set(NAMESPACE, buf, diagnostics)
+end
+
+---@param buf integer
+---@param module PythonModule
+function M.upgrade(buf, module)
+    local version = module.version
+    local latest_version = module.versions[#module.versions]
+    if version and latest_version then
+        local row = module.line_number
+        local line = { latest_version }
+        vim.api.nvim_buf_set_text(buf, row, version.start_col, row, version.end_col, line)
+    end
 end
 
 return M

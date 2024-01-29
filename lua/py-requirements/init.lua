@@ -1,6 +1,8 @@
+local actions = require('py-requirements.actions')
 local cmp = require('py-requirements.cmp')
 local core = require('py-requirements.core')
 local state = require('py-requirements.state')
+local user = require('py-requirements.user')
 
 local M = {}
 
@@ -28,6 +30,16 @@ function M.setup(opts)
         pattern = pattern,
         callback = core.update,
     })
+end
+
+---Upgrade the dependency on the current line
+function M.upgrade()
+    actions.upgrade(user.row())
+end
+
+---Upgrade all dependencies in the buffer
+function M.upgrade_all()
+    actions.upgrade()
 end
 
 return M

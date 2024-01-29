@@ -45,7 +45,7 @@ function M:complete(params, callback)
     --Adding a 0 at the end as if we started typing a version number
     local line = params.context.cursor_line .. '0'
     local module = requirements.parse_module_string(line)
-    if module == nil or module.kind == nil then
+    if module == nil or module.comparison == nil then
         callback(nil)
     else
         vim.schedule(function()

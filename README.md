@@ -11,11 +11,11 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
   ad-hoc string manipulation
 - Displays diagnostics in `normal` mode with warnings for not using latest version
 - Cache `pypi` responses within a session to improve performance
+- Auto upgrade dependencies when keymaps are configured
 
 # Limitations
 
 - Only supports `requirements.txt` files, if there's interest this can be expanded
-- No support to auto update dependencies
 - `nvim-cmp` ordering is not good
 
 # Dependencies
@@ -43,6 +43,17 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
         })
     end,
 }
+```
+
+## Set Keymaps
+
+```lua
+config = function()
+    local requirements = require('py-requirements')
+    vim.keymap.set('n', '<leader>ru', requirements.upgrade, { silent = true, desc = 'Requirements: Upgrade' })
+    vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, { silent = true, desc = 'Requirements: Upgrade All' })
+    requirements.setup({...})
+end
 ```
 
 ## Install `requirements` Parser
@@ -84,4 +95,5 @@ cmp.setup({
 # TODO
 
 - Add unit tests, mostly around parser
+- Hanlde invalid / unknown module names in some way other than showing loading
 - Support `pyproject.toml` / `poetry`

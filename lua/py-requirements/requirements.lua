@@ -1,30 +1,31 @@
+---@class Node
+---@field value string
+---@field start_col integer
+---@field end_col integer
+
 ---@param source (integer|string)
 ---@param root TSNode
 ---@param query string
----@return string|nil
+---@return Node|nil
 local function run_query(source, root, query)
     local parsed_query = vim.treesitter.query.parse('requirements', query)
     for _, node in parsed_query:iter_captures(root, source, 0, -1) do
-        return vim.treesitter.get_node_text(node, source)
+        local _, start_col, _, end_col = node:range()
+        ---@type Node
+        return {
+            value = vim.treesitter.get_node_text(node, source),
+            start_col = start_col,
+            end_col = end_col,
+        }
     end
     return nil
 end
 
----@enum DependencyKind
-local DependencyKind = {
-    EQUAL = 1,
-    LESS = 2,
-    LESS_OR_EQUAL = 3,
-    GREATER_OR_EQUAL = 4,
-    GREATER = 5,
-    COMPATIBLE = 6,
-}
-
 ---@class PythonModule
 ---@field line_number integer 0-indexed
 ---@field name string
----@field kind? DependencyKind
----@field version? string
+---@field comparison? string
+---@field version? Node
 ---@field versions string[]
 
 local M = {}
@@ -40,26 +41,21 @@ end
 ---@param root TSNode
 ---@return PythonModule|nil
 function M.parse_module(source, root)
-    local name = run_query(source, root, '(requirement (package) @package)')
-    if name == nil then
+    local name_node = run_query(source, root, '(requirement (package) @package)')
+    if name_node == nil then
         return nil
     end
-    local cmp_query = '(requirement (version_spec (version_cmp) @cmp))'
-    local cmp_mapping = {
-        ['=='] = DependencyKind.EQUAL,
-        ['<'] = DependencyKind.LESS,
-        ['<='] = DependencyKind.LESS_OR_EQUAL,
-        ['>='] = DependencyKind.GREATER_OR_EQUAL,
-        ['>'] = DependencyKind.GREATER,
-        ['~='] = DependencyKind.COMPATIBLE,
-    }
-    local version_query = '(requirement (version_spec (version) @version))'
+    local comparison_node = run_query(source, root, '(version_spec (version_cmp) @cmp)')
+    local comparison = nil
+    if comparison_node then
+        comparison = comparison_node.value
+    end
     ---@type PythonModule
     return {
         line_number = root:start(),
-        name = name,
-        kind = cmp_mapping[run_query(source, root, cmp_query)],
-        version = run_query(source, root, version_query),
+        name = name_node.value,
+        comparison = comparison,
+        version = run_query(source, root, '(version_spec (version) @version)'),
         versions = {},
     }
 end
