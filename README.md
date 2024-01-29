@@ -88,7 +88,7 @@ cmp.setup({
 # Testing
 
 ```bash
-nvim --headless --noplugin -u tests/minimal.lua -c "PlenaryBustedDirectory tests {minimal_init = 'tests/minimal.lua'}"
+just test
 ```
 
 # Related Projects
