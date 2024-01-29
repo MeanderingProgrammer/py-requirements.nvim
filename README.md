@@ -100,5 +100,4 @@ nvim --headless --noplugin -u tests/minimal.lua -c "PlenaryBustedDirectory tests
 
 # TODO
 
-- Add unit tests, mostly around parser
 - Support `pyproject.toml` / `poetry`
