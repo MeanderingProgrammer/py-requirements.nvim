@@ -72,5 +72,6 @@ describe('requirements', function()
             },
         }
         assert.are.same(expected, requirements.parse_modules(buf))
+        assert.are.same(33, requirements.max_len(buf, expected))
     end)
 end)

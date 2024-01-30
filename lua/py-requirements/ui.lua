@@ -1,53 +1,90 @@
 local api = require('py-requirements.api')
 
-local NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim')
+local DIAGNOSTIC_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.diagnostic')
+local TEXT_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.text')
+
+---@class DiagnosticInfo
+---@field message string
+---@field severity DiagnosticSeverity
+---@field highlight string
 
 ---@param module PythonModule
----@return Diagnostic
-local function to_diagnostic(module)
-    local message = nil
-    local severity = nil
+---@return DiagnosticInfo|nil
+local function to_diagnostic_info(module)
     if module.versions.status == api.ModuleStatus.LOADING then
-        severity = vim.diagnostic.severity.INFO
-        message = ' Loading'
+        ---@type DiagnosticInfo
+        return {
+            message = ' Loading',
+            severity = vim.diagnostic.severity.INFO,
+            highlight = 'DiagnosticVirtualTextInfo',
+        }
     elseif module.versions.status == api.ModuleStatus.INVALID then
-        severity = vim.diagnostic.severity.ERROR
-        message = ' Error fetching module'
+        ---@type DiagnosticInfo
+        return {
+            message = ' Error fetching module',
+            severity = vim.diagnostic.severity.ERROR,
+            highlight = 'DiagnosticVirtualTextError',
+        }
     elseif module.versions.status == api.ModuleStatus.VALID then
         local latest_version = module.versions.values[#module.versions.values]
         if latest_version == nil then
-            severity = vim.diagnostic.severity.WARN
-            message = ' No versions'
+            ---@type DiagnosticInfo
+            return {
+                message = ' No versions',
+                severity = vim.diagnostic.severity.WARN,
+                highlight = 'DiagnosticVirtualTextWarn',
+            }
         elseif module.version ~= nil and latest_version ~= module.version.value then
-            severity = vim.diagnostic.severity.WARN
-            message = ' ' .. latest_version
+            ---@type DiagnosticInfo
+            return {
+                message = ' ' .. latest_version,
+                severity = vim.diagnostic.severity.WARN,
+                highlight = 'DiagnosticVirtualTextWarn',
+            }
         else
-            severity = vim.diagnostic.severity.INFO
-            message = ' ' .. latest_version
+            ---@type DiagnosticInfo
+            return {
+                message = ' ' .. latest_version,
+                severity = vim.diagnostic.severity.INFO,
+                highlight = 'DiagnosticVirtualTextInfo',
+            }
         end
+    else
+        -- Should never get here, need a better way to handle this case
+        return nil
     end
-
-    ---@type Diagnostic
-    return {
-        lnum = module.line_number,
-        col = 0,
-        severity = severity,
-        message = message,
-        source = 'py-requirements',
-    }
 end
 
 local M = {}
 
 ---@param buf integer
 ---@param modules PythonModule[]
-function M.display(buf, modules)
+---@param max_len integer
+function M.display(buf, modules, max_len)
+    vim.api.nvim_buf_clear_namespace(buf, TEXT_NAMESPACE, 0, -1)
+
     local diagnostics = {}
     for _, module in ipairs(modules) do
-        local diagnostic = to_diagnostic(module)
-        table.insert(diagnostics, diagnostic)
+        local diagnostic_info = to_diagnostic_info(module)
+        if diagnostic_info then
+            ---@type Diagnostic
+            local diagnostic = {
+                lnum = module.line_number,
+                col = 0,
+                severity = diagnostic_info.severity,
+                message = diagnostic_info.message,
+                source = 'py-requirements',
+            }
+            table.insert(diagnostics, diagnostic)
+
+            vim.api.nvim_buf_set_extmark(buf, TEXT_NAMESPACE, module.line_number, -1, {
+                virt_text = { { diagnostic_info.message, diagnostic_info.highlight } },
+                virt_text_win_col = max_len + 5,
+            })
+        end
     end
-    vim.diagnostic.set(NAMESPACE, buf, diagnostics)
+
+    vim.diagnostic.set(DIAGNOSTIC_NAMESPACE, buf, diagnostics, { virtual_text = false })
 end
 
 ---@param buf integer

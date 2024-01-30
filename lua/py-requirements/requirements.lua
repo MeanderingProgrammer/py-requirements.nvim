@@ -32,6 +32,19 @@ end
 
 local M = {}
 
+---@param buf integer
+---@param modules PythonModule[]
+---@return integer
+function M.max_len(buf, modules)
+    local result = 0
+    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+    for _, module in ipairs(modules) do
+        local len = #lines[module.line_number + 1]
+        result = math.max(result, len)
+    end
+    return result
+end
+
 ---@param line string
 ---@return PythonModule|nil
 function M.parse_module_string(line)
