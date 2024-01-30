@@ -3,6 +3,7 @@ import time
 import pyautogui
 
 
+# WIP
 def main() -> None:
     open_tmux_window()
     pyautogui.typewrite("Hello world!\n")
