@@ -46,4 +46,11 @@ function M.upgrade_all()
     actions.upgrade()
 end
 
+---Display PyPI package description in floating window
+---@param opts? table
+function M.open_float(opts)
+    opts = opts or {}
+    actions.open_float(user.row(), opts)
+end
+
 return M

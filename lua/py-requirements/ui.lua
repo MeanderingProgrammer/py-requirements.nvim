@@ -99,4 +99,31 @@ function M.upgrade(buf, module)
     end
 end
 
+---@param module PythonModule
+---@param opts table
+function M.open_float(module, opts)
+    local description = module.description
+    local syntax = 'plaintext'
+
+    if description == nil then
+        return
+    end
+
+    if description.content_type == 'text/x-rst' then
+        syntax = 'rst'
+    elseif description.content_type == 'text/markdown' then
+        syntax = 'markdown'
+    end
+
+    local buf, _ = vim.lsp.util.open_floating_preview(
+        description.content,
+        syntax,
+        vim.tbl_deep_extend('force', { focus_id = 'py-requirements.nvim' }, opts)
+    )
+
+    if syntax ~= 'plaintext' then
+        vim.bo[buf].filetype = syntax
+    end
+end
+
 return M
