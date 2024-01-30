@@ -31,7 +31,7 @@ end
 function M.show_description(row)
     run_action(row, function(_, module)
         module.description = api.get_description(module.name, module.version and module.version.value)
-        ui.show_description(module)
+        ui.show_description(module.description)
     end)
 end
 

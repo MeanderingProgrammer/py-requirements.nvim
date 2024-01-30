@@ -100,10 +100,9 @@ function M.upgrade(buf, module)
     end
 end
 
----@param module PythonModule
-function M.show_description(module)
+---@param description ModuleDescription
+function M.show_description(description)
     local opts = state.config.float_opts
-    local description = module.description
     local syntax = 'plaintext'
 
     if description == nil then
