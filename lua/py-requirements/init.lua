@@ -16,6 +16,7 @@ function M.setup(opts)
     local default_config = {
         enable_cmp = true,
         file_patterns = { 'requirements.txt' },
+        float_opts = { border = 'rounded' },
     }
     state.config = vim.tbl_deep_extend('force', default_config, opts or {})
     if state.config.enable_cmp then
@@ -48,9 +49,9 @@ end
 
 ---Display PyPI package description in floating window
 ---@param opts? table
-function M.open_float(opts)
+function M.show_description(opts)
     opts = opts or {}
-    actions.open_float(user.row(), opts)
+    actions.show_description(user.row(), opts)
 end
 
 return M

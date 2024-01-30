@@ -1,4 +1,5 @@
 local api = require('py-requirements.api')
+local state = require('py-requirements.state')
 
 local DIAGNOSTIC_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.diagnostic')
 local TEXT_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.text')
@@ -100,8 +101,8 @@ function M.upgrade(buf, module)
 end
 
 ---@param module PythonModule
----@param opts table
-function M.open_float(module, opts)
+function M.show_description(module)
+    local opts = state.config.float_opts
     local description = module.description
     local syntax = 'plaintext'
 

@@ -6,7 +6,7 @@ local user = require('py-requirements.user')
 local M = {}
 
 ---@param row integer|nil
----@param callback function
+---@param callback fun(buf: integer, module: PythonModule)
 local function run_action(row, callback)
     local buf = user.buffer()
     local modules = requirements.parse_modules(buf)
@@ -27,12 +27,12 @@ function M.upgrade(row)
     end)
 end
 
----@param row integer|nil
+---@param row integer
 ---@param opts table
-function M.open_float(row, opts)
+function M.show_description(row, opts)
     run_action(row, function(_, module)
-        module.description = api.get_description(module)
-        ui.open_float(module, opts)
+        module.description = api.get_description(module.name, module.version and module.version.value)
+        ui.show_description(module, opts)
     end)
 end
 
