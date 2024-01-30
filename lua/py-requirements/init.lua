@@ -48,10 +48,8 @@ function M.upgrade_all()
 end
 
 ---Display PyPI package description in floating window
----@param opts? table
-function M.show_description(opts)
-    opts = opts or {}
-    actions.show_description(user.row(), opts)
+function M.show_description()
+    actions.show_description(user.row())
 end
 
 return M
