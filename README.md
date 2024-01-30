@@ -54,7 +54,7 @@ config = function()
     local requirements = require('py-requirements')
     vim.keymap.set('n', '<leader>ru', requirements.upgrade, { silent = true, desc = 'Requirements: Upgrade' })
     vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, { silent = true, desc = 'Requirements: Upgrade All' })
-    vim.keymap.set('n', '<leader>K', requirements.show_description, { silent = true, desc = 'Requirements: Show package description' })
+    vim.keymap.set('n', '<leader>rK', requirements.show_description, { silent = true, desc = 'Requirements: Show package description' })
     requirements.setup({...})
 end
 ```
