@@ -1,5 +1,6 @@
 local api = require('py-requirements.api')
 local requirements = require('py-requirements.requirements')
+local state = require('py-requirements.state')
 local ui = require('py-requirements.ui')
 local user = require('py-requirements.user')
 
@@ -23,12 +24,28 @@ end
 
 local M = {}
 
+---@return boolean
+function M.active()
+    local file_name = vim.fn.expand('%:t')
+    for _, file_pattern in ipairs(state.config.file_patterns) do
+        local match = vim.regex(file_pattern):match_str(file_name)
+        if match and match == 0 then
+            return true
+        end
+    end
+    return false
+end
+
 function M.load()
-    handle(true)
+    if M.active() then
+        handle(true)
+    end
 end
 
 function M.update()
-    handle(false)
+    if M.active() then
+        handle(false)
+    end
 end
 
 return M

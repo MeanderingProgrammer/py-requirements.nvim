@@ -1,6 +1,6 @@
 local api = require('py-requirements.api')
+local core = require('py-requirements.core')
 local requirements = require('py-requirements.requirements')
-local state = require('py-requirements.state')
 
 ---@param module PythonModule
 local function get_completion_items(module)
@@ -24,8 +24,7 @@ local M = {}
 
 ---@return boolean
 function M:is_available()
-    local file_patterns = state.config.file_patterns
-    return vim.tbl_contains(file_patterns, vim.fn.expand('%:t'))
+    return core.active()
 end
 
 ---@return string
