@@ -100,5 +100,4 @@ just test
 
 # TODO
 
-- Indicate when version is invalid, i.e. not in list of returned versions
 - Support `pyproject.toml` / `poetry`

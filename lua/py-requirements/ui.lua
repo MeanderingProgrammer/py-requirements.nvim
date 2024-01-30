@@ -30,9 +30,16 @@ local function to_diagnostic_info(module)
         if latest_version == nil then
             ---@type DiagnosticInfo
             return {
-                message = ' No versions',
-                severity = vim.diagnostic.severity.WARN,
-                highlight = 'DiagnosticVirtualTextWarn',
+                message = ' No versions',
+                severity = vim.diagnostic.severity.ERROR,
+                highlight = 'DiagnosticVirtualTextError',
+            }
+        elseif module.version ~= nil and not vim.tbl_contains(module.versions.values, module.version.value) then
+            ---@type DiagnosticInfo
+            return {
+                message = ' Invalid version',
+                severity = vim.diagnostic.severity.ERROR,
+                highlight = 'DiagnosticVirtualTextError',
             }
         elseif module.version ~= nil and latest_version ~= module.version.value then
             ---@type DiagnosticInfo
