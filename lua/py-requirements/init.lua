@@ -16,6 +16,7 @@ function M.setup(opts)
     local default_config = {
         enable_cmp = true,
         file_patterns = { 'requirements.txt' },
+        float_opts = { border = 'rounded' },
     }
     state.config = vim.tbl_deep_extend('force', default_config, opts or {})
     if state.config.enable_cmp then
@@ -41,6 +42,11 @@ end
 ---Upgrade all dependencies in the buffer
 function M.upgrade_all()
     actions.upgrade()
+end
+
+---Display PyPI package description in floating window
+function M.show_description()
+    actions.show_description(user.row())
 end
 
 return M

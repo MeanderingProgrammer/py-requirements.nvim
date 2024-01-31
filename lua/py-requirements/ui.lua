@@ -1,4 +1,5 @@
 local api = require('py-requirements.api')
+local state = require('py-requirements.state')
 
 local DIAGNOSTIC_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.diagnostic')
 local TEXT_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.text')
@@ -103,6 +104,32 @@ function M.upgrade(buf, module)
         local row = module.line_number
         local line = { latest_version }
         vim.api.nvim_buf_set_text(buf, row, version.start_col, row, version.end_col, line)
+    end
+end
+
+---@param description ModuleDescription
+function M.show_description(description)
+    local opts = state.config.float_opts
+    local syntax = 'plaintext'
+
+    if description == nil then
+        return
+    end
+
+    if description.content_type == 'text/x-rst' then
+        syntax = 'rst'
+    elseif description.content_type == 'text/markdown' then
+        syntax = 'markdown'
+    end
+
+    local buf, _ = vim.lsp.util.open_floating_preview(
+        description.content,
+        syntax,
+        vim.tbl_deep_extend('force', { focus_id = 'py-requirements.nvim' }, opts)
+    )
+
+    if syntax ~= 'plaintext' then
+        vim.bo[buf].filetype = syntax
     end
 end
 

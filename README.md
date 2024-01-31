@@ -38,8 +38,10 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
         require('py-requirements').setup({
             -- Enabled by default if you do not use `nvim-cmp` set to false
             enable_cmp = true,
-            -- Specify what file patterns to apply the plugin to, for use with for example pip-tools.
+            -- Specify what file patterns to apply the plugin to, for use with for example pip-tools
             file_patterns = { 'requirements.txt' },
+            -- For available options, see :h vim.lsp.util.open_floating_preview
+            float_opts = { border = 'rounded' },
         })
     end,
 }
@@ -52,6 +54,7 @@ config = function()
     local requirements = require('py-requirements')
     vim.keymap.set('n', '<leader>ru', requirements.upgrade, { silent = true, desc = 'Requirements: Upgrade' })
     vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, { silent = true, desc = 'Requirements: Upgrade All' })
+    vim.keymap.set('n', '<leader>rK', requirements.show_description, { silent = true, desc = 'Requirements: Show package description' })
     requirements.setup({...})
 end
 ```
