@@ -8,9 +8,13 @@ def main() -> None:
     pyautogui.hotkey("`", "c")
     time.sleep(1.0)
 
-    # Open demo file
+    # Zoom in
+    for _ in range(30):
+        pyautogui.hotkey("command", "=")
+
+    # Start recording demo file
     file_path = "scripts/demo-requirements.txt"
-    pyautogui.typewrite(f"nvim {file_path}")
+    pyautogui.typewrite(f"asciinema rec -c 'nvim {file_path}' demo.cast")
     pyautogui.press("enter")
     time.sleep(1.0)
 
@@ -43,11 +47,20 @@ def main() -> None:
     pyautogui.press("esc")
     time.sleep(1.0)
 
-    # Cleanup
-    pyautogui.press("d", presses=2)
+    # Close demo file
     pyautogui.typewrite(":q!")
     pyautogui.press("enter")
     time.sleep(0.5)
+
+    # Zoom out
+    pyautogui.hotkey("command", "0")
+
+    # Transform recording to gif
+    pyautogui.typewrite("agg --font-family 'Hack Nerd Font Mono' demo.cast demo.gif")
+    pyautogui.press("enter")
+    time.sleep(5.0)
+
+    # Close tmux window
     pyautogui.typewrite("exit")
     pyautogui.press("enter")
 
