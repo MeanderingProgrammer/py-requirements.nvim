@@ -1,5 +1,5 @@
 local api = require('py-requirements.api')
-local requirements = require('py-requirements.requirements')
+local parser = require('py-requirements.parser')
 local state = require('py-requirements.state')
 local ui = require('py-requirements.ui')
 local user = require('py-requirements.user')
@@ -7,8 +7,8 @@ local user = require('py-requirements.user')
 ---@param show_initial boolean
 local function handle(show_initial)
     local buf = user.buffer()
-    local modules = requirements.parse_modules(buf)
-    local max_len = requirements.max_len(buf, modules)
+    local modules = parser.parse_modules(buf)
+    local max_len = parser.max_len(buf, modules)
     if show_initial then
         ui.display(buf, modules, max_len)
     end

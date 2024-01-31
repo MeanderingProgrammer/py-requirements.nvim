@@ -1,5 +1,5 @@
 local api = require('py-requirements.api')
-local requirements = require('py-requirements.requirements')
+local parser = require('py-requirements.parser')
 local ui = require('py-requirements.ui')
 local user = require('py-requirements.user')
 
@@ -9,7 +9,7 @@ local M = {}
 ---@param callback fun(buf: integer, module: PythonModule)
 local function run_action(row, callback)
     local buf = user.buffer()
-    local modules = requirements.parse_modules(buf)
+    local modules = parser.parse_modules(buf)
     for _, module in ipairs(modules) do
         if row == nil or module.line_number == row then
             vim.schedule(function()

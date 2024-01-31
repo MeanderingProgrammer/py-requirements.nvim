@@ -1,7 +1,7 @@
-local requirements = require('py-requirements.requirements')
+local parser = require('py-requirements.parser')
 
-describe('requirements', function()
-    it('parse buffer', function()
+describe('parser', function()
+    it('parse requirements', function()
         local buf = vim.api.nvim_get_current_buf()
         vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
             '# Comment Line',
@@ -71,7 +71,7 @@ describe('requirements', function()
                 versions = { status = 1, values = {} },
             },
         }
-        assert.are.same(expected, requirements.parse_modules(buf))
-        assert.are.same(33, requirements.max_len(buf, expected))
+        assert.are.same(expected, parser.parse_modules(buf))
+        assert.are.same(33, parser.max_len(buf, expected))
     end)
 end)

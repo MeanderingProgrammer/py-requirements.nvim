@@ -1,6 +1,6 @@
 local api = require('py-requirements.api')
 local core = require('py-requirements.core')
-local requirements = require('py-requirements.requirements')
+local parser = require('py-requirements.parser')
 
 ---@param module PythonModule
 local function get_completion_items(module)
@@ -43,7 +43,7 @@ end
 function M:complete(params, callback)
     --Adding a 0 at the end as if we started typing a version number
     local line = params.context.cursor_line .. '0'
-    local module = requirements.parse_module_string(line)
+    local module = parser.parse_module_string(line)
     if module == nil or module.comparison == nil then
         callback(nil)
     else

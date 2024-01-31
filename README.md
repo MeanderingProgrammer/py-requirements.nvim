@@ -106,3 +106,4 @@ just test
 # TODO
 
 - Support `pyproject.toml` / `poetry`
+- Fix issue with entering insert mode before versions are loaded
