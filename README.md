@@ -12,6 +12,7 @@ https://github.com/MeanderingProgrammer/py-requirements.nvim/assets/52591095/6ff
 - Displays diagnostics in `normal` mode with warnings for not using latest version
 - Cache `pypi` responses within a session to improve performance
 - Auto upgrade dependencies when keymaps are configured
+- Display package description from PyPI in a floating window with syntax highlighting
 
 # Limitations
 
