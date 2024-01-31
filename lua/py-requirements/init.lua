@@ -25,15 +25,12 @@ function M.setup(opts)
     end
 
     local group = vim.api.nvim_create_augroup('PyRequirements', { clear = true })
-    local pattern = '*.txt'
     vim.api.nvim_create_autocmd({ 'BufRead' }, {
         group = group,
-        pattern = pattern,
         callback = core.load,
     })
     vim.api.nvim_create_autocmd({ 'InsertLeave', 'TextChanged' }, {
         group = group,
-        pattern = pattern,
         callback = core.update,
     })
 end
