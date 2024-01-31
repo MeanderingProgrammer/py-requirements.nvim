@@ -109,26 +109,18 @@ end
 
 ---@param description ModuleDescription
 function M.show_description(description)
-    local opts = state.config.float_opts
-    local syntax = 'plaintext'
-
-    if description == nil then
+    if description.content == nil then
         return
     end
-
+    local syntax = 'plaintext'
     if description.content_type == 'text/x-rst' then
         syntax = 'rst'
     elseif description.content_type == 'text/markdown' then
         syntax = 'markdown'
     end
-
-    local buf, _ = vim.lsp.util.open_floating_preview(
-        description.content,
-        syntax,
-        vim.tbl_deep_extend('force', { focus_id = 'py-requirements.nvim' }, opts)
-    )
-
-    if syntax ~= 'plaintext' then
+    local opts = vim.tbl_deep_extend('force', { focus_id = 'py-requirements.nvim' }, state.config.float_opts)
+    local buf, _ = vim.lsp.util.open_floating_preview(description.content, syntax, opts)
+    if not vim.tbl_contains({ 'plaintext', 'markdown' }, syntax) then
         vim.bo[buf].filetype = syntax
     end
 end

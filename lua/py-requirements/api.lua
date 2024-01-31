@@ -5,7 +5,7 @@ local curl = require('plenary.curl')
 ---@field values string[]
 
 ---@class ModuleDescription
----@field content string[]
+---@field content? string[]
 ---@field content_type? string
 
 ---@class Cache
@@ -66,45 +66,56 @@ function M.get_versions(name)
         Accept = 'application/vnd.pypi.simple.v1+json',
     })
 
-    if result == nil or result.versions == nil then
-        return M.FAILED
+    ---@return ModuleVersions
+    local function parse_versions()
+        if result == nil or result.versions == nil then
+            return M.FAILED
+        else
+            return { status = M.ModuleStatus.VALID, values = result.versions }
+        end
     end
 
-    local versions = { status = M.ModuleStatus.VALID, values = result.versions }
+    local versions = parse_versions()
     cache.versions[name] = versions
     return versions
 end
 
----@param module_name string
+---@param name string
 ---@param version? string
 ---@return ModuleDescription
-function M.get_description(module_name, version)
-    local cached_description = cache.descriptions[module_name]
+function M.get_description(name, version)
+    local cached_description = cache.descriptions[name]
     if cached_description then
         return cached_description
-    end
-
-    local path
-    if version then
-        path = string.format('pypi/%s/%s/json', module_name:lower(), version)
-    else
-        path = string.format('pypi/%s/json', module_name:lower())
     end
 
     -- curl --location \
     --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
     --   https://pypi.org/pypi/{module_name}/{version?}/json
-    local result = call_pypi(path, {})
+    ---@return string
+    local function get_path()
+        if version then
+            return string.format('pypi/%s/%s/json', name:lower(), version)
+        else
+            return string.format('pypi/%s/json', name:lower())
+        end
+    end
+    local result = call_pypi(get_path(), {})
 
-    if result == nil or result.info.description == nil then
-        return { content = {} }
+    ---@return ModuleDescription
+    local function parse_description()
+        if result == nil or result.info.description == nil then
+            return {}
+        else
+            return {
+                content = vim.split(result.info.description, '\n'),
+                content_type = result.info.description_content_type,
+            }
+        end
     end
 
-    local description = {
-        content = vim.split(result.info.description, '\n'),
-        content_type = result.info.description_content_type,
-    }
-    cache.descriptions[module_name] = description
+    local description = parse_description()
+    cache.descriptions[name] = description
     return description
 end
 

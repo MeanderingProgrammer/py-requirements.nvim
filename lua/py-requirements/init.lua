@@ -9,6 +9,7 @@ local M = {}
 ---@class UserConfig
 ---@field public enable_cmp? boolean
 ---@field public file_patterns? string[]
+---@field public float_opts? table
 
 ---@param opts UserConfig|nil
 function M.setup(opts)

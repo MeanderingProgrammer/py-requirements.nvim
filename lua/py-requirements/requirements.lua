@@ -29,7 +29,6 @@ end
 ---@field comparison? string
 ---@field version? Node
 ---@field versions ModuleVersions
----@field description? ModuleDescription
 
 local M = {}
 
