@@ -29,7 +29,7 @@ function M.setup(opts)
         group = group,
         callback = core.load,
     })
-    vim.api.nvim_create_autocmd({ 'TextChanged', 'TextChangedI', 'TextChangedP' }, {
+    vim.api.nvim_create_autocmd({ 'InsertLeave' }, {
         group = group,
         callback = core.update,
     })
