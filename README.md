@@ -40,7 +40,7 @@ Neovim plugin that helps manage python requirements.
             -- Enabled by default if you do not use `nvim-cmp` set to false
             enable_cmp = true,
             -- Specify what file patterns to apply the plugin to
-            -- For info on patterns, see h: pattern
+            -- For info on patterns, see :h pattern
             file_patterns = { 'requirements.txt' },
             -- For available options, see :h vim.lsp.util.open_floating_preview
             float_opts = { border = 'rounded' },
