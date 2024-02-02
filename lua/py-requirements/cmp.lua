@@ -5,11 +5,13 @@ local parser = require('py-requirements.parser')
 ---@param module PythonModule
 local function get_completion_items(module)
     local versions = api.get_versions(module.name)
+    local version_values = vim.fn.reverse(versions.values)
     local result = {}
-    for _, version in ipairs(versions.values) do
+    for i, version in ipairs(version_values) do
         local item = {
             label = version,
             kind = 12,
+            sortText = string.format('%04d', i),
             cmp = {
                 kind_text = 'Version',
                 kind_hl_group = 'Special',
@@ -55,7 +57,7 @@ function M:complete(params, callback)
 end
 
 function M.setup()
-    require('cmp').register_source('py-requirements', M)
+    require('cmp').register_source(M:get_debug_name(), M)
 end
 
 return M

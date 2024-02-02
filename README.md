@@ -17,7 +17,6 @@ Neovim plugin that helps manage python requirements.
 # Limitations
 
 - Only supports `requirements.txt` files, if there's interest this can be expanded
-- `nvim-cmp` ordering is not good
 
 # Dependencies
 
@@ -86,6 +85,34 @@ cmp.setup({
         { name = 'py-requirements' },
         ...
     }),
+    ...
+})
+```
+
+## Prioritize `sort_text` Comparator
+
+The ideal (latest to oldest version) ordering is defined by the `sortText` attribute of each
+completion item sent to `nvim-cmp`.
+
+By default this comparator has been disabled by `nvim-cmp`. There are various ways to enable
+it including at a file type level. Below is an example of enabling it globally, note that
+this will likely impact the ordering of other completion sources.
+
+```lua
+local cmp = require('cmp')
+local compare = require('cmp.config.compare')
+cmp.setup({
+    ...
+    sorting = {
+        priority_weight = 2,
+        comparators = {
+            compare.sort_text,
+            compare.offset,
+            compare.exact,
+            compare.score,
+            ...
+        },
+    },
     ...
 })
 ```
