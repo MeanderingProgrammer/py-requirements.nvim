@@ -14,6 +14,7 @@ def main(file: str, cast: str) -> None:
         pyautogui.hotkey("command", "=")
 
     # Start recording demo file
+    # https://docs.asciinema.org/manual/cli/usage/
     pyautogui.write(f"asciinema rec -c 'nvim {file}' {cast}")
     pyautogui.press("enter")
     time.sleep(1.0)
@@ -21,7 +22,7 @@ def main(file: str, cast: str) -> None:
     # Start typing in new module
     pyautogui.press("o")
     pyautogui.write("Pillow==10.", interval=0.1)
-    time.sleep(1.0)
+    time.sleep(0.5)
 
     # Select third version
     for _ in range(3):

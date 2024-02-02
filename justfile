@@ -9,5 +9,8 @@ demo:
     python scripts/record_demo.py \
       --file "scripts/demo-requirements.txt" \
       --cast demo.cast
-    agg --font-family "Hack Nerd Font Mono" demo.cast demo.gif
+    # https://docs.asciinema.org/manual/agg/usage/
+    agg demo.cast demo.gif \
+      --font-family "Hack Nerd Font Mono" \
+      --last-frame-duration 1
     rm demo.cast
