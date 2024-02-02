@@ -1,9 +1,10 @@
 local parser = require('py-requirements.parser')
+local test_util = require('tests.test_util')
+local eq = assert.are.same
 
 describe('parser', function()
     it('parse requirements', function()
-        local buf = vim.api.nvim_get_current_buf()
-        vim.api.nvim_buf_set_lines(buf, 0, -1, false, {
+        local buf = test_util.create_file('requirements.txt', {
             '# Comment Line',
             'argcomplete>3.2.2 # Comment After',
             'click>=8.1.7',
@@ -71,7 +72,7 @@ describe('parser', function()
                 versions = { status = 1, values = {} },
             },
         }
-        assert.are.same(expected, parser.parse_modules(buf))
-        assert.are.same(33, parser.max_len(buf, expected))
+        eq(expected, parser.parse_modules(buf))
+        eq(33, parser.max_len(buf, expected))
     end)
 end)
