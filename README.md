@@ -133,3 +133,5 @@ just test
 # TODO
 
 - Support `pyproject.toml` / `poetry`
+- Is there a way to configure `nvim-cmp` automatically with `require('cmp.config').set_buffer`,
+  would likely run as part of `load` autocmd.
