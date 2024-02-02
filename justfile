@@ -6,7 +6,9 @@ test:
 
 demo:
     python scripts/record_demo.py \
-      --file "scripts/demo-requirements.txt"
+      --file "scripts/demo-requirements.txt" \
+      --cast demo.cast
+    agg --font-family 'Hack Nerd Font Mono' demo.cast demo.gif
 
 demo-clean:
     rm demo.*
