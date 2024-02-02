@@ -106,10 +106,10 @@ cmp.setup({
     sorting = {
         priority_weight = 2,
         comparators = {
-            compare.sort_text,
-            compare.offset,
             compare.exact,
             compare.score,
+            compare.sort_text,
+            compare.offset,
             ...
         },
     },

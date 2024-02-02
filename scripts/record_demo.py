@@ -1,3 +1,4 @@
+import os
 import time
 
 import pyautogui
@@ -56,9 +57,7 @@ def main() -> None:
     pyautogui.hotkey("command", "0")
 
     # Transform recording to gif
-    pyautogui.typewrite("agg --font-family 'Hack Nerd Font Mono' demo.cast demo.gif")
-    pyautogui.press("enter")
-    time.sleep(5.0)
+    os.system("agg --font-family 'Hack Nerd Font Mono' demo.cast demo.gif")
 
     # Close tmux window
     pyautogui.typewrite("exit")
