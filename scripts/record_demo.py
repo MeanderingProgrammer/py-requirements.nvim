@@ -1,10 +1,11 @@
 import os
 import time
+from argparse import ArgumentParser
 
 import pyautogui
 
 
-def main() -> None:
+def main(file: str) -> None:
     # Open new tmux window
     pyautogui.hotkey("`", "c")
     time.sleep(1.0)
@@ -14,42 +15,38 @@ def main() -> None:
         pyautogui.hotkey("command", "=")
 
     # Start recording demo file
-    file_path = "scripts/demo-requirements.txt"
-    pyautogui.typewrite(f"asciinema rec -c 'nvim {file_path}' demo.cast")
+    pyautogui.write(f"asciinema rec -c 'nvim {file}' demo.cast")
     pyautogui.press("enter")
     time.sleep(1.0)
 
     # Start typing in new module
     pyautogui.press("o")
-    pyautogui.typewrite("Pillow==10.", interval=0.1)
+    pyautogui.write("Pillow==10.", interval=0.1)
     time.sleep(1.0)
 
     # Select third version
     for _ in range(3):
         pyautogui.hotkey("ctrl", "n")
-        time.sleep(0.5)
+        time.sleep(0.2)
     pyautogui.press("enter")
 
     # Enter normal mode
     pyautogui.press("esc")
     time.sleep(1.0)
 
-    # Change version to earlier one
-    pyautogui.press("a")
-    pyautogui.press("backspace", presses=3, interval=0.1)
-    pyautogui.typewrite("1.0", interval=0.1)
-    pyautogui.press("esc")
-    time.sleep(1.0)
+    # Non-existant version
+    change_version("3.0")
 
-    # Change version to non-existant one
-    pyautogui.press("a")
-    pyautogui.press("backspace", presses=3, interval=0.1)
-    pyautogui.typewrite("3.0", interval=0.1)
-    pyautogui.press("esc")
-    time.sleep(1.0)
+    # Earlier version
+    change_version("1.0")
+
+    pyautogui.press("enter")
+    pyautogui.write(" rd", interval=0.1)
+    time.sleep(2.0)
+    pyautogui.press("enter")
 
     # Close demo file
-    pyautogui.typewrite(":q!")
+    pyautogui.write(":q!")
     pyautogui.press("enter")
     time.sleep(0.5)
 
@@ -60,9 +57,20 @@ def main() -> None:
     os.system("agg --font-family 'Hack Nerd Font Mono' demo.cast demo.gif")
 
     # Close tmux window
-    pyautogui.typewrite("exit")
+    pyautogui.write("exit")
     pyautogui.press("enter")
 
 
+def change_version(version: str) -> None:
+    pyautogui.press("a")
+    pyautogui.press("backspace", presses=3, interval=0.1)
+    pyautogui.write(version, interval=0.1)
+    pyautogui.press("esc")
+    time.sleep(1.0)
+
+
 if __name__ == "__main__":
-    main()
+    parser = ArgumentParser(description="Generate a demo recording using asciinema")
+    parser.add_argument("--file", type=str, required=True)
+    args = parser.parse_args()
+    main(args.file)
