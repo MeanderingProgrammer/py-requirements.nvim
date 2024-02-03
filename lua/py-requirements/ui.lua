@@ -1,9 +1,6 @@
 local api = require('py-requirements.api')
 local state = require('py-requirements.state')
 
-local DIAGNOSTIC_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.diagnostic')
-local TEXT_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.text')
-
 ---@class DiagnosticInfo
 ---@field message string
 ---@field severity DiagnosticSeverity
@@ -65,11 +62,14 @@ end
 
 local M = {}
 
+M.DIAGNOSTIC_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.diagnostic')
+M.TEXT_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.text')
+
 ---@param buf integer
 ---@param modules PythonModule[]
 ---@param max_len integer
 function M.display(buf, modules, max_len)
-    vim.api.nvim_buf_clear_namespace(buf, TEXT_NAMESPACE, 0, -1)
+    vim.api.nvim_buf_clear_namespace(buf, M.TEXT_NAMESPACE, 0, -1)
 
     local diagnostics = {}
     for _, module in ipairs(modules) do
@@ -85,14 +85,14 @@ function M.display(buf, modules, max_len)
             }
             table.insert(diagnostics, diagnostic)
 
-            vim.api.nvim_buf_set_extmark(buf, TEXT_NAMESPACE, module.line_number, -1, {
+            vim.api.nvim_buf_set_extmark(buf, M.TEXT_NAMESPACE, module.line_number, -1, {
                 virt_text = { { diagnostic_info.message, diagnostic_info.highlight } },
                 virt_text_win_col = max_len + 5,
             })
         end
     end
 
-    vim.diagnostic.set(DIAGNOSTIC_NAMESPACE, buf, diagnostics, { virtual_text = false })
+    vim.diagnostic.set(M.DIAGNOSTIC_NAMESPACE, buf, diagnostics, { virtual_text = false })
 end
 
 ---@param buf integer
