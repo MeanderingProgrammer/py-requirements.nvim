@@ -16,7 +16,8 @@ Neovim plugin that helps manage python requirements.
 
 # Limitations
 
-- Only supports `requirements.txt` files, if there's interest this can be expanded
+- Only supports `requirements.txt` files, if there's interest this can be expanded, more
+  details in [ISSUE-10](https://github.com/MeanderingProgrammer/py-requirements.nvim/issues/10)
 
 # Dependencies
 
@@ -132,6 +133,5 @@ just test
 
 # TODO
 
-- Support `pyproject.toml` / `poetry`
 - Is there a way to configure `nvim-cmp` automatically with `require('cmp.config').set_buffer`,
   would likely run as part of `load` autocmd.

@@ -48,8 +48,4 @@ function M.parse_module_string(line)
     return parse_module(line, tree:parse()[1]:root())
 end
 
----@type PythonModuleParser
-return {
-    parse_modules = M.parse_modules,
-    parse_module_string = M.parse_module_string,
-}
+return M

@@ -7,21 +7,12 @@ local requirements = require('py-requirements.parser.requirements')
 ---@field comparison? string
 ---@field version? Node
 
----@class PythonModuleParser
----@field parse_modules fun(buf: integer): ParsedPythonModule[]
----@field parse_module_string fun(line: string): (ParsedPythonModule|nil)
-
 ---@class PythonModule
 ---@field line_number integer 0-indexed
 ---@field name string
 ---@field comparison? string
 ---@field version? Node
 ---@field versions ModuleVersions
-
----@return PythonModuleParser
-local function get_parser()
-    return requirements
-end
 
 ---@param module ParsedPythonModule
 ---@return PythonModule
@@ -42,7 +33,7 @@ local M = {}
 ---@return PythonModule[]
 function M.parse_modules(buf)
     local modules = {}
-    for _, module in ipairs(get_parser().parse_modules(buf)) do
+    for _, module in ipairs(requirements.parse_modules(buf)) do
         table.insert(modules, to_module(module))
     end
     return modules
@@ -51,7 +42,7 @@ end
 ---@param line string
 ---@return PythonModule|nil
 function M.parse_module_string(line)
-    local module = get_parser().parse_module_string(line)
+    local module = requirements.parse_module_string(line)
     if module then
         return to_module(module)
     else
