@@ -43,8 +43,7 @@ function M:get_trigger_characters()
 end
 
 function M:complete(params, callback)
-    --Adding a 0 at the end as if we started typing a version number
-    local line = params.context.cursor_line .. '0'
+    local line = params.context.cursor_line
     local module = parser.parse_module_string(line)
     if module == nil or module.comparison == nil then
         callback(nil)

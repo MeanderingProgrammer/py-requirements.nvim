@@ -1,30 +1,14 @@
----@param source (integer|string)
----@param root TSNode
----@param query string
----@return Node|nil
-local function run_query(source, root, query)
-    local parsed_query = vim.treesitter.query.parse('requirements', query)
-    for _, node in parsed_query:iter_captures(root, source, 0, -1) do
-        local _, start_col, _, end_col = node:range()
-        ---@type Node
-        return {
-            value = vim.treesitter.get_node_text(node, source),
-            start_col = start_col,
-            end_col = end_col,
-        }
-    end
-    return nil
-end
+local ts = require('py-requirements.parser.ts')
 
 ---@param source (integer|string)
 ---@param root TSNode
 ---@return ParsedPythonModule|nil
 local function parse_module(source, root)
-    local name_node = run_query(source, root, '(requirement (package) @package)')
+    local name_node = ts.query('requirements', source, root, '(requirement (package) @package)')
     if name_node == nil then
         return nil
     end
-    local comparison_node = run_query(source, root, '(version_spec (version_cmp) @cmp)')
+    local comparison_node = ts.query('requirements', source, root, '(version_spec (version_cmp) @cmp)')
     local comparison = nil
     if comparison_node then
         comparison = comparison_node.value
@@ -34,7 +18,7 @@ local function parse_module(source, root)
         line_number = root:start(),
         name = name_node.value,
         comparison = comparison,
-        version = run_query(source, root, '(version_spec (version) @version)'),
+        version = ts.query('requirements', source, root, '(version_spec (version) @version)'),
     }
 end
 
@@ -58,6 +42,8 @@ end
 ---@param line string
 ---@return ParsedPythonModule|nil
 function M.parse_module_string(line)
+    --Adding a 0 at the end as if we started typing a version number
+    line = line .. '0'
     local tree = vim.treesitter.get_string_parser(line, 'requirements')
     return parse_module(line, tree:parse()[1]:root())
 end

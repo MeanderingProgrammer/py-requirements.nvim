@@ -74,5 +74,13 @@ describe('parser', function()
         }
         eq(expected, parser.parse_modules(buf))
         eq(33, parser.max_len(buf, expected))
+        eq({
+            line_number = 0,
+            name = 'click',
+            comparison = '==',
+            version = { value = '0', start_col = 7, end_col = 8 },
+            versions = { status = 1, values = {} },
+        }, parser.parse_module_string('click=='))
+        eq(nil, parser.parse_module_string('click='))
     end)
 end)

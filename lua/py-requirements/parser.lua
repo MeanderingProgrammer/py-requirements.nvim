@@ -1,11 +1,6 @@
 local api = require('py-requirements.api')
 local requirements = require('py-requirements.parser.requirements')
 
----@class Node
----@field value string
----@field start_col integer
----@field end_col integer
-
 ---@class ParsedPythonModule
 ---@field line_number integer 0-indexed
 ---@field name string
