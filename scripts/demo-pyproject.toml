@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "demo"
+version = "0.1.0"
+description = "Demo"
+authors = ["user <user@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.scripts]
+poetry-demo = "demo.main:main"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "1.26.3"
+pendulum = "^3.0.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

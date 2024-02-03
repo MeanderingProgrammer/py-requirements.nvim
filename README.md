@@ -25,6 +25,9 @@ Neovim plugin that helps manage python requirements.
 - [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements) parser for
   [treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/master): Used to
   parse `requirements.txt` file
+- [toml](https://github.com/ikatyang/tree-sitter-toml) parser for
+  [treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/master): Used to
+  parse `pyproject.toml` file
 
 # Install
 
@@ -40,7 +43,7 @@ Neovim plugin that helps manage python requirements.
             enable_cmp = true,
             -- Specify what file patterns to apply the plugin to
             -- For info on patterns, see :h pattern
-            file_patterns = { 'requirements.txt' },
+            file_patterns = { 'requirements.txt', 'pyproject.toml' },
             -- For available options, see :h vim.lsp.util.open_floating_preview
             float_opts = { border = 'rounded' },
         })
@@ -60,7 +63,7 @@ config = function()
 end
 ```
 
-## Install `requirements` Parser
+## Install `requirements` & `toml` Parsers
 
 ```lua
 require('nvim-treesitter.configs').setup({
@@ -68,6 +71,7 @@ require('nvim-treesitter.configs').setup({
     ensure_installed = {
         ...
         'requirements',
+        'toml',
         ...
     },
     ...
@@ -132,6 +136,5 @@ just test
 
 # TODO
 
-- Support `pyproject.toml` / `poetry`
 - Is there a way to configure `nvim-cmp` automatically with `require('cmp.config').set_buffer`,
   would likely run as part of `load` autocmd.

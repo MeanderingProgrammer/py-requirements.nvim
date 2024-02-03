@@ -1,5 +1,6 @@
 local api = require('py-requirements.api')
 local requirements = require('py-requirements.parser.requirements')
+local toml = require('py-requirements.parser.toml')
 
 ---@class ParsedPythonModule
 ---@field line_number integer 0-indexed
@@ -20,7 +21,12 @@ local requirements = require('py-requirements.parser.requirements')
 
 ---@return PythonModuleParser
 local function get_parser()
-    return requirements
+    local file_extension = vim.fn.expand('%:e')
+    if file_extension == 'toml' then
+        return toml
+    else
+        return requirements
+    end
 end
 
 ---@param module ParsedPythonModule

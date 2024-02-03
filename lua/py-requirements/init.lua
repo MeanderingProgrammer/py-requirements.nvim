@@ -16,7 +16,7 @@ function M.setup(opts)
     ---@type Config
     local default_config = {
         enable_cmp = true,
-        file_patterns = { 'requirements.txt' },
+        file_patterns = { 'requirements.txt', 'pyproject.toml' },
         float_opts = { border = 'rounded' },
     }
     state.config = vim.tbl_deep_extend('force', default_config, opts or {})

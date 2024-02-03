@@ -83,4 +83,48 @@ describe('parser', function()
         }, parser.parse_module_string('click=='))
         eq(nil, parser.parse_module_string('click='))
     end)
+
+    it('parse poetry pyproject.toml', function()
+        local buf = test_util.create_file('pyproject.toml', {
+            '[tool.poetry]',
+            'name = "demo"',
+            'version = "0.1.0"',
+            'description = "Demo"',
+            'authors = ["user <user@gmail.com>"]',
+            'readme = "README.md"',
+            '',
+            '[tool.poetry.scripts]',
+            'poetry-demo = "demo.main:main"',
+            '',
+            '[tool.poetry.dependencies]',
+            'python = "^3.12"',
+            'numpy = "1.26.3"',
+            'pendulum = "^3.0.0"',
+            '',
+            '[build-system]',
+            'requires = ["poetry-core"]',
+            'build-backend = "poetry.core.masonry.api"',
+        })
+        local expected = {
+            {
+                line_number = 12,
+                name = 'numpy',
+                versions = { status = 1, values = {} },
+            },
+            {
+                line_number = 13,
+                name = 'pendulum',
+                versions = { status = 1, values = {} },
+            },
+        }
+        eq(expected, parser.parse_modules(buf))
+        eq(19, parser.max_len(buf, expected))
+        eq({
+            line_number = 0,
+            name = 'click',
+            comparison = '==',
+            versions = { status = 1, values = {} },
+        }, parser.parse_module_string('click = '))
+        eq(nil, parser.parse_module_string('click'))
+    end)
 end)

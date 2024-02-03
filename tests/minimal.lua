@@ -12,7 +12,7 @@ vim.opt.rtp:prepend('.')
 source_plugin('plenary.nvim', 'plenary.vim')
 source_plugin('nvim-treesitter', 'nvim-treesitter.lua')
 
-local required_parsers = { 'requirements' }
+local required_parsers = { 'requirements', 'toml' }
 local installed_parsers = require('nvim-treesitter.info').installed_parsers()
 local to_install = vim.tbl_filter(function(parser)
     return not vim.tbl_contains(installed_parsers, parser)

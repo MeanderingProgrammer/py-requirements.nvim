@@ -43,6 +43,7 @@ function M.check()
 
     vim.health.start('Checking required treesitter parsers')
     parser_installed('requirements')
+    parser_installed('toml')
 
     vim.health.start('Checking external dependencies')
     binary_installed('curl')
