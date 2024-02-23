@@ -1,7 +1,7 @@
 local api = require('py-requirements.api')
 local parser = require('py-requirements.parser')
-local ui = require('py-requirements.ui')
 local state = require('py-requirements.state')
+local ui = require('py-requirements.ui')
 local user = require('py-requirements.user')
 
 local M = {}

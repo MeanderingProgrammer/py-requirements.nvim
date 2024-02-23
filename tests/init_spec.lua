@@ -1,7 +1,7 @@
-local mock = require('luassert.mock')
 local async_tests = require('plenary.async.tests')
-local util = require('plenary.async.util')
+local mock = require('luassert.mock')
 local ui = require('py-requirements.ui')
+local util = require('plenary.async.util')
 
 local api = mock(require('py-requirements.api'), true)
 local eq = assert.are.same

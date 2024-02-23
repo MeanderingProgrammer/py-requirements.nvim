@@ -1,5 +1,5 @@
-local mock = require('luassert.mock')
 local api = require('py-requirements.api')
+local mock = require('luassert.mock')
 
 local curl = mock(require('plenary.curl'), true)
 local eq = assert.are.same
@@ -33,7 +33,7 @@ describe('api', function()
         assert.stub(curl.get).was.called(1)
     end)
 
-    it('versions status 200 release only', function()
+    it('versions status 200 final release', function()
         set_response('t2', 200, {
             '2.3.0a1', -- Alpha release
             '2.3.0b2', -- Beta release
