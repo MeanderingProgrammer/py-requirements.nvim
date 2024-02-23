@@ -1,5 +1,6 @@
 local parser = require('py-requirements.parser')
 local test_util = require('tests.test_util')
+
 local eq = assert.are.same
 
 describe('parser', function()

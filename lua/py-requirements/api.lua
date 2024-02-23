@@ -63,7 +63,7 @@ function M.get_versions(name)
     --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
     --   https://pypi.org/simple/{name}/
     local result = call_pypi(string.format('simple/%s/', name:lower()), {
-        Accept = 'application/vnd.pypi.simple.v1+json',
+        ['Accept'] = 'application/vnd.pypi.simple.v1+json',
     })
 
     ---@return ModuleVersions
