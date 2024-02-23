@@ -44,6 +44,9 @@ Neovim plugin that helps manage python requirements.
             file_patterns = { 'requirements.txt' },
             -- For available options, see :h vim.lsp.util.open_floating_preview
             float_opts = { border = 'rounded' },
+            -- If set to true pull only final release versions, this will ignore alpha,
+            -- beta, release candidate, post release, and developmental release versions
+            final_release = false,
         })
     end,
 }

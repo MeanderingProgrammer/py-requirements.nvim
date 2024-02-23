@@ -6,6 +6,15 @@ local ui = require('py-requirements.ui')
 local api = mock(require('py-requirements.api'), true)
 local eq = assert.are.same
 
+---@param name string
+---@param versions string[]
+local function set_response(name, versions)
+    api.get_versions.on_call_with(name, false).returns({
+        status = api.ModuleStatus.VALID,
+        values = versions,
+    })
+end
+
 async_tests.describe('init', function()
     async_tests.before_each(function()
         require('py-requirements').setup({
@@ -14,14 +23,8 @@ async_tests.describe('init', function()
     end)
 
     async_tests.it('run auto command', function()
-        api.get_versions.on_call_with('argcomplete').returns({
-            status = api.ModuleStatus.VALID,
-            values = { '3.2.2' },
-        })
-        api.get_versions.on_call_with('pandas').returns({
-            status = api.ModuleStatus.VALID,
-            values = { '2.1.0', '2.2.0' },
-        })
+        set_response('argcomplete', { '3.2.2' })
+        set_response('pandas', { '2.1.0', '2.2.0' })
 
         vim.cmd('e tests/requirements.txt')
         util.scheduler()

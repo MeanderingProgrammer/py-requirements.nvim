@@ -51,8 +51,9 @@ local function call_pypi(path, headers)
 end
 
 ---@param name string
+---@param final_release boolean
 ---@return ModuleVersions
-function M.get_versions(name)
+function M.get_versions(name, final_release)
     local cached_versions = cache.versions[name]
     if cached_versions then
         return cached_versions
@@ -66,12 +67,30 @@ function M.get_versions(name)
         ['Accept'] = 'application/vnd.pypi.simple.v1+json',
     })
 
+    ---@param version string
+    ---@return boolean
+    local function valid_version(version)
+        if final_release then
+            -- https://packaging.python.org/en/latest/specifications/version-specifiers
+            local parsed = vim.version.parse(version, { strict = true })
+            return parsed ~= nil
+        else
+            return true
+        end
+    end
+
     ---@return ModuleVersions
     local function parse_versions()
         if result == nil or result.versions == nil then
             return M.FAILED
         else
-            return { status = M.ModuleStatus.VALID, values = result.versions }
+            local versions = {}
+            for _, version in ipairs(result.versions) do
+                if valid_version(version) then
+                    table.insert(versions, version)
+                end
+            end
+            return { status = M.ModuleStatus.VALID, values = versions }
         end
     end
 

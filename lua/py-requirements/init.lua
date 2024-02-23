@@ -10,6 +10,7 @@ local M = {}
 ---@field public enable_cmp? boolean
 ---@field public file_patterns? string[]
 ---@field public float_opts? table
+---@field public final_release? boolean
 
 ---@param opts UserConfig|nil
 function M.setup(opts)
@@ -18,6 +19,7 @@ function M.setup(opts)
         enable_cmp = true,
         file_patterns = { 'requirements.txt' },
         float_opts = { border = 'rounded' },
+        final_release = false,
     }
     state.config = vim.tbl_deep_extend('force', default_config, opts or {})
     if state.config.enable_cmp then
