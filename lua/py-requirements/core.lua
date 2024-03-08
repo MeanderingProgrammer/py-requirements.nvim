@@ -11,7 +11,7 @@ local function initialize()
     ui.display(buf, modules, max_len)
     for _, module in ipairs(modules) do
         vim.schedule(function()
-            api.get_versions(module.name, state.config.final_release)
+            api.get_versions(module.name, state.config.filter)
         end)
     end
 end
@@ -22,7 +22,7 @@ local function display()
         local modules = parser.parse_modules(buf)
         local max_len = parser.max_len(buf, modules)
         for _, module in ipairs(modules) do
-            module.versions = api.get_versions(module.name, state.config.final_release)
+            module.versions = api.get_versions(module.name, state.config.filter)
         end
         ui.display(buf, modules, max_len)
     end)

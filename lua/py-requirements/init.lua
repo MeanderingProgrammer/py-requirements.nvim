@@ -6,11 +6,15 @@ local user = require('py-requirements.user')
 
 local M = {}
 
+---@class UserVersionFilter
+---@field public final_release? boolean
+---@field public yanked? boolean
+
 ---@class UserConfig
 ---@field public enable_cmp? boolean
 ---@field public file_patterns? string[]
 ---@field public float_opts? table
----@field public final_release? boolean
+---@field public filter? UserVersionFilter
 
 ---@param opts UserConfig|nil
 function M.setup(opts)
@@ -19,7 +23,10 @@ function M.setup(opts)
         enable_cmp = true,
         file_patterns = { 'requirements.txt' },
         float_opts = { border = 'rounded' },
-        final_release = false,
+        filter = {
+            final_release = false,
+            yanked = true,
+        },
     }
     state.config = vim.tbl_deep_extend('force', default_config, opts or {})
     if state.config.enable_cmp then

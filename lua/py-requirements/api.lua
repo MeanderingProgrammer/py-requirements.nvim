@@ -51,9 +51,9 @@ local function call_pypi(path, headers)
 end
 
 ---@param name string
----@param final_release boolean
+---@param filter VersionFilter
 ---@return ModuleVersions
-function M.get_versions(name, final_release)
+function M.get_versions(name, filter)
     local cached_versions = cache.versions[name]
     if cached_versions then
         return cached_versions
@@ -68,15 +68,27 @@ function M.get_versions(name, final_release)
     })
 
     ---@param version string
+    ---@param files table[]?
     ---@return boolean
-    local function valid_version(version)
-        if final_release then
+    local function valid_version(version, files)
+        if filter.final_release then
             -- https://packaging.python.org/en/latest/specifications/version-specifiers
-            local parsed = vim.version.parse(version, { strict = true })
-            return parsed ~= nil
-        else
-            return true
+            local parsed_version = vim.version.parse(version, { strict = true })
+            if parsed_version == nil then
+                return false
+            end
         end
+        if filter.yanked and files ~= nil then
+            -- Based on observations of API responses, unsure if this is the correct approach
+            -- Calling description API for every version seems too expensive
+            local version_filename = string.format('%s-%s.tar.gz', name, version)
+            for _, file in ipairs(files) do
+                if file.filename == version_filename and file.yanked then
+                    return false
+                end
+            end
+        end
+        return true
     end
 
     ---@return ModuleVersions
@@ -86,7 +98,7 @@ function M.get_versions(name, final_release)
         else
             local versions = {}
             for _, version in ipairs(result.versions) do
-                if valid_version(version) then
+                if valid_version(version, result.files) then
                     table.insert(versions, version)
                 end
             end

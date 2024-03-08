@@ -7,7 +7,8 @@ local eq = assert.are.same
 ---@param name string
 ---@param status integer
 ---@param versions string[]
-local function set_response(name, status, versions)
+---@param files table[]?
+local function set_response(name, status, versions, files)
     curl.get
         .on_call_with(string.format('https://pypi.org/simple/%s/', name), {
             headers = {
@@ -16,7 +17,10 @@ local function set_response(name, status, versions)
             },
             raw = { '--location' },
         })
-        .returns({ status = status, body = vim.json.encode({ versions = versions }) })
+        .returns({
+            status = status,
+            body = vim.json.encode({ versions = versions, files = files }),
+        })
 end
 
 describe('api', function()
@@ -25,47 +29,88 @@ describe('api', function()
     end)
 
     it('versions status 200', function()
+        local name = 't1'
         local versions = { '3.2.2', '3.2.2.post1' }
-        set_response('t1', 200, versions)
+        set_response(name, 200, versions, nil)
 
-        local expected = { status = api.ModuleStatus.VALID, values = versions }
-        eq(expected, api.get_versions('t1', false))
+        eq(
+            { status = api.ModuleStatus.VALID, values = versions },
+            api.get_versions(name, {
+                final_release = false,
+                yanked = true,
+            })
+        )
         assert.stub(curl.get).was.called(1)
     end)
 
     it('versions status 200 final release', function()
-        set_response('t2', 200, {
+        local name = 't2'
+        set_response(name, 200, {
             '2.3.0a1', -- Alpha release
             '2.3.0b2', -- Beta release
             '2.3.0rc3', -- Release Candidate
             '2.3.0.dev1', -- Developmental release
             '2.3.0', -- Final release
             '2.3.0.post1', -- Post-release
+        }, nil)
+
+        eq(
+            { status = api.ModuleStatus.VALID, values = { '2.3.0' } },
+            api.get_versions(name, {
+                final_release = true,
+                yanked = true,
+            })
+        )
+        assert.stub(curl.get).was.called(1)
+    end)
+
+    it('versions status 200 yanked', function()
+        local name = 't3'
+        set_response(name, 200, { '3.2.2', '3.2.3', '3.2.4' }, {
+            { filename = name .. '-3.2.3.tar.gz', yanked = false },
+            { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
 
-        local expected = { status = api.ModuleStatus.VALID, values = { '2.3.0' } }
-        eq(expected, api.get_versions('t2', true))
+        eq(
+            { status = api.ModuleStatus.VALID, values = { '3.2.2', '3.2.3' } },
+            api.get_versions(name, {
+                final_release = false,
+                yanked = true,
+            })
+        )
         assert.stub(curl.get).was.called(1)
     end)
 
     it('versions status 301 with cache', function()
+        local name = 't4'
         local versions = { '2.1.0', '2.2.0b1', '2.2.0' }
-        set_response('t3', 301, versions)
+        set_response(name, 301, versions, nil)
 
         local expected = { status = api.ModuleStatus.VALID, values = versions }
-        eq(expected, api.get_versions('t3', false))
+        local filter = {
+            final_release = false,
+            yanked = true,
+        }
+        eq(expected, api.get_versions(name, filter))
         assert.stub(curl.get).was.called(1)
 
-        eq(expected, api.get_versions('t3', false))
-        eq(expected, api.get_versions('t3', false))
-        eq(expected, api.get_versions('t3', false))
+        eq(expected, api.get_versions(name, filter))
+        eq(expected, api.get_versions(name, filter))
+        eq(expected, api.get_versions(name, filter))
         assert.stub(curl.get).was.called(1)
     end)
 
     it('versions status 404', function()
-        set_response('t4', 404, { '1.0.0', '2.0.0' })
+        local name = 't5'
+        set_response(name, 404, { '1.0.0', '2.0.0' }, nil)
 
-        eq(api.FAILED, api.get_versions('t4', false))
+        eq(
+            api.FAILED,
+            api.get_versions(name, {
+                final_release = false,
+                yanked = true,
+            })
+        )
         assert.stub(curl.get).was.called(1)
     end)
 end)
