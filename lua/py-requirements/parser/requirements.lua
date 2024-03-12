@@ -4,11 +4,12 @@ local ts = require('py-requirements.parser.ts')
 ---@param root TSNode
 ---@return ParsedPythonModule|nil
 local function parse_module(source, root)
-    local name_node = ts.query('requirements', source, root, '(requirement (package) @package)')
+    local requirements = ts:new('requirements', source, root)
+    local name_node = requirements:query('(requirement (package) @package)')
     if name_node == nil then
         return nil
     end
-    local comparison_node = ts.query('requirements', source, root, '(version_spec (version_cmp) @cmp)')
+    local comparison_node = requirements:query('(version_spec (version_cmp) @cmp)')
     local comparison = nil
     if comparison_node then
         comparison = comparison_node.value
@@ -18,7 +19,7 @@ local function parse_module(source, root)
         line_number = root:start(),
         name = name_node.value,
         comparison = comparison,
-        version = ts.query('requirements', source, root, '(version_spec (version) @version)'),
+        version = requirements:query('(version_spec (version) @version)'),
     }
 end
 
