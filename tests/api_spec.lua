@@ -1,5 +1,6 @@
 local api = require('py-requirements.api')
 local mock = require('luassert.mock')
+local state = require('py-requirements.state')
 
 local curl = mock(require('plenary.curl'), true)
 local eq = assert.are.same
@@ -24,6 +25,12 @@ local function set_response(name, status, versions, files)
 end
 
 describe('api', function()
+    before_each(function()
+        require('py-requirements').setup({
+            enable_cmp = false,
+        })
+    end)
+
     after_each(function()
         curl.get:clear()
     end)
@@ -33,13 +40,8 @@ describe('api', function()
         local versions = { '3.2.2', '3.2.2.post1' }
         set_response(name, 200, versions, nil)
 
-        eq(
-            { status = api.ModuleStatus.VALID, values = versions },
-            api.get_versions(name, {
-                final_release = false,
-                yanked = true,
-            })
-        )
+        local expected = { status = api.ModuleStatus.VALID, values = versions }
+        eq(expected, api.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -53,14 +55,10 @@ describe('api', function()
             '2.3.0', -- Final release
             '2.3.0.post1', -- Post-release
         }, nil)
+        state.config.filter.final_release = true
 
-        eq(
-            { status = api.ModuleStatus.VALID, values = { '2.3.0' } },
-            api.get_versions(name, {
-                final_release = true,
-                yanked = true,
-            })
-        )
+        local expected = { status = api.ModuleStatus.VALID, values = { '2.3.0' } }
+        eq(expected, api.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -71,46 +69,45 @@ describe('api', function()
             { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
 
-        eq(
-            { status = api.ModuleStatus.VALID, values = { '3.2.2', '3.2.3' } },
-            api.get_versions(name, {
-                final_release = false,
-                yanked = true,
-            })
-        )
+        local expected = { status = api.ModuleStatus.VALID, values = { '3.2.2', '3.2.3' } }
+        eq(expected, api.get_versions(name))
+        assert.stub(curl.get).was.called(1)
+    end)
+
+    it('versions status 200 yanked disabled', function()
+        local name = 't4'
+        local versions = { '3.2.2', '3.2.3', '3.2.4' }
+        set_response(name, 200, versions, {
+            { filename = name .. '-3.2.3.tar.gz', yanked = false },
+            { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
+        })
+        state.config.filter.yanked = false
+
+        local expected = { status = api.ModuleStatus.VALID, values = versions }
+        eq(expected, api.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
     it('versions status 301 with cache', function()
-        local name = 't4'
+        local name = 't5'
         local versions = { '2.1.0', '2.2.0b1', '2.2.0' }
         set_response(name, 301, versions, nil)
 
         local expected = { status = api.ModuleStatus.VALID, values = versions }
-        local filter = {
-            final_release = false,
-            yanked = true,
-        }
-        eq(expected, api.get_versions(name, filter))
+        eq(expected, api.get_versions(name))
         assert.stub(curl.get).was.called(1)
 
-        eq(expected, api.get_versions(name, filter))
-        eq(expected, api.get_versions(name, filter))
-        eq(expected, api.get_versions(name, filter))
+        eq(expected, api.get_versions(name))
+        eq(expected, api.get_versions(name))
+        eq(expected, api.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
     it('versions status 404', function()
-        local name = 't5'
+        local name = 't6'
         set_response(name, 404, { '1.0.0', '2.0.0' }, nil)
 
-        eq(
-            api.FAILED,
-            api.get_versions(name, {
-                final_release = false,
-                yanked = true,
-            })
-        )
+        eq(api.FAILED, api.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 end)

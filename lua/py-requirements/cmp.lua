@@ -1,11 +1,10 @@
 local api = require('py-requirements.api')
 local core = require('py-requirements.core')
 local parser = require('py-requirements.parser')
-local state = require('py-requirements.state')
 
 ---@param module PythonModule
 local function get_completion_items(module)
-    local versions = api.get_versions(module.name, state.config.filter)
+    local versions = api.get_versions(module.name)
     local version_values = vim.fn.reverse(versions.values)
     local result = {}
     for i, version in ipairs(version_values) do

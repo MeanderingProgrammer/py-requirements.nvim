@@ -9,15 +9,10 @@ local eq = assert.are.same
 ---@param name string
 ---@param versions string[]
 local function set_response(name, versions)
-    api.get_versions
-        .on_call_with(name, {
-            final_release = false,
-            yanked = true,
-        })
-        .returns({
-            status = api.ModuleStatus.VALID,
-            values = versions,
-        })
+    api.get_versions.on_call_with(name).returns({
+        status = api.ModuleStatus.VALID,
+        values = versions,
+    })
 end
 
 async_tests.describe('init', function()

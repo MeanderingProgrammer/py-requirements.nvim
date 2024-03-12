@@ -1,6 +1,5 @@
 local api = require('py-requirements.api')
 local parser = require('py-requirements.parser')
-local state = require('py-requirements.state')
 local ui = require('py-requirements.ui')
 local user = require('py-requirements.user')
 
@@ -23,7 +22,7 @@ end
 ---@param row integer|nil
 function M.upgrade(row)
     run_action(row, function(buf, module)
-        module.versions = api.get_versions(module.name, state.config.final_release)
+        module.versions = api.get_versions(module.name)
         ui.upgrade(buf, module)
     end)
 end

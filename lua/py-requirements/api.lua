@@ -1,4 +1,5 @@
 local curl = require('plenary.curl')
+local state = require('py-requirements.state')
 
 ---@class ModuleVersions
 ---@field status ModuleStatus
@@ -51,9 +52,8 @@ local function call_pypi(path, headers)
 end
 
 ---@param name string
----@param filter VersionFilter
 ---@return ModuleVersions
-function M.get_versions(name, filter)
+function M.get_versions(name)
     local cached_versions = cache.versions[name]
     if cached_versions then
         return cached_versions
@@ -71,6 +71,7 @@ function M.get_versions(name, filter)
     ---@param files table[]?
     ---@return boolean
     local function valid_version(version, files)
+        local filter = state.config.filter
         if filter.final_release then
             -- https://packaging.python.org/en/latest/specifications/version-specifiers
             local parsed_version = vim.version.parse(version, { strict = true })
