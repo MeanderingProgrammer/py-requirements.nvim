@@ -2,7 +2,7 @@ init := "tests/minimal.lua"
 
 test:
     nvim --headless --noplugin -u {{init}} \
-      -c "PlenaryBustedDirectory tests { minimal_init = '{{init}}' }"
+      -c "PlenaryBustedDirectory tests { minimal_init = '{{init}}', sequential=true }"
 
 demo:
     rm -f doc/demo.gif
