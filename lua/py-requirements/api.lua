@@ -97,7 +97,9 @@ function M.get_versions(name)
         if result == nil or result.versions == nil then
             return M.FAILED
         else
-            local versions = vim.tbl_filter(valid_version, result.versions)
+            local versions = vim.tbl_filter(function(version)
+                return valid_version(version, result.files)
+            end, result.versions)
             -- If there are no versions left after filtering fallback to all
             if #versions == 0 then
                 versions = result.versions
