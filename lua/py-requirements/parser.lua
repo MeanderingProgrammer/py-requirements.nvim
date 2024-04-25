@@ -32,11 +32,7 @@ local M = {}
 ---@param buf integer
 ---@return PythonModule[]
 function M.parse_modules(buf)
-    local modules = {}
-    for _, module in ipairs(requirements.parse_modules(buf)) do
-        table.insert(modules, to_module(module))
-    end
-    return modules
+    return vim.tbl_map(to_module, requirements.parse_modules(buf))
 end
 
 ---@param line string

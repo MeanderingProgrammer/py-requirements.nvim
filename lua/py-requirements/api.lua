@@ -97,11 +97,10 @@ function M.get_versions(name)
         if result == nil or result.versions == nil then
             return M.FAILED
         else
-            local versions = {}
-            for _, version in ipairs(result.versions) do
-                if valid_version(version, result.files) then
-                    table.insert(versions, version)
-                end
+            local versions = vim.tbl_filter(valid_version, result.versions)
+            -- If there are no versions left after filtering fallback to all
+            if #versions == 0 then
+                versions = result.versions
             end
             return { status = M.ModuleStatus.VALID, values = versions }
         end
