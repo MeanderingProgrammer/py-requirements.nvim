@@ -4,20 +4,20 @@ from argparse import ArgumentParser
 import pyautogui
 
 
-def main(file: str, cast: str) -> None:
+def main(zoom: int, file: str, cast: str) -> None:
     # Open new tmux window
     pyautogui.hotkey("`", "c")
     time.sleep(1.0)
 
     # Zoom in
-    for _ in range(30):
+    for _ in range(zoom):
         pyautogui.hotkey("command", "=")
 
     # Start recording demo file
     # https://docs.asciinema.org/manual/cli/usage/
     pyautogui.write(f"asciinema rec -c 'nvim {file}' {cast}")
     pyautogui.press("enter")
-    time.sleep(1.0)
+    time.sleep(1.5)
 
     # Start typing in new module
     pyautogui.press("o")
@@ -35,7 +35,7 @@ def main(file: str, cast: str) -> None:
     time.sleep(0.5)
 
     # Non-existant version
-    change_version("3.0")
+    change_version("9.0")
 
     # Earlier version
     change_version("1.0")
@@ -71,7 +71,8 @@ def change_version(version: str) -> None:
 
 if __name__ == "__main__":
     parser = ArgumentParser(description="Generate a demo recording using asciinema")
+    parser.add_argument("--zoom", type=int, required=True)
     parser.add_argument("--file", type=str, required=True)
     parser.add_argument("--cast", type=str, required=True)
     args = parser.parse_args()
-    main(args.file, args.cast)
+    main(args.zoom, args.file, args.cast)

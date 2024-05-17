@@ -2,7 +2,7 @@
 
 Neovim plugin that helps manage python requirements.
 
-![demo](doc/demo.gif)
+![demo](demo/demo.gif)
 
 # Features
 

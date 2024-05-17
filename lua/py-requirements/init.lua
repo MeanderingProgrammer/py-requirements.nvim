@@ -6,19 +6,19 @@ local user = require('py-requirements.user')
 
 local M = {}
 
----@class UserVersionFilter
+---@class py.requirements.UserVersionFilter
 ---@field public final_release? boolean
 ---@field public yanked? boolean
 
----@class UserConfig
+---@class py.requirements.UserConfig
 ---@field public enable_cmp? boolean
 ---@field public file_patterns? string[]
 ---@field public float_opts? table
----@field public filter? UserVersionFilter
+---@field public filter? py.requirements.UserVersionFilter
 
----@param opts UserConfig|nil
+---@param opts? py.requirements.UserConfig
 function M.setup(opts)
-    ---@type Config
+    ---@type py.requirements.Config
     local default_config = {
         enable_cmp = true,
         file_patterns = { 'requirements.txt' },

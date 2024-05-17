@@ -5,8 +5,8 @@ local user = require('py-requirements.user')
 
 local M = {}
 
----@param row integer|nil
----@param callback fun(buf: integer, module: PythonModule)
+---@param row integer?
+---@param callback fun(buf: integer, module: py.requirements.PythonModule)
 local function run_action(row, callback)
     local buf = user.buffer()
     local modules = parser.parse_modules(buf)
@@ -19,7 +19,7 @@ local function run_action(row, callback)
     end
 end
 
----@param row integer|nil
+---@param row integer?
 function M.upgrade(row)
     run_action(row, function(buf, module)
         module.versions = api.get_versions(module.name)

@@ -1,14 +1,14 @@
----@class VersionFilter
+---@class py.requirements.VersionFilter
 ---@field public final_release boolean
 ---@field public yanked boolean
 
----@class Config
+---@class py.requirements.Config
 ---@field public enable_cmp boolean
 ---@field public file_patterns string[]
 ---@field public float_opts vim.lsp.util.open_floating_preview.Opts
----@field public filter VersionFilter
+---@field public filter py.requirements.VersionFilter
 
----@class State
----@field config Config
+---@class py.requirements.State
+---@field config py.requirements.Config
 local state = {}
 return state

@@ -1,36 +1,36 @@
 local api = require('py-requirements.api')
 local state = require('py-requirements.state')
 
----@class DiagnosticInfo
+---@class py.requirements.DiagnosticInfo
 ---@field message string
 ---@field severity vim.diagnostic.Severity
 
----@param module PythonModule
----@return DiagnosticInfo
+---@param module py.requirements.PythonModule
+---@return py.requirements.DiagnosticInfo
 local function diagnostic_info(module)
     local version = module.version
     local versions = module.versions
     if versions.status == api.ModuleStatus.LOADING then
-        ---@type DiagnosticInfo
+        ---@type py.requirements.DiagnosticInfo
         return {
             message = 'Loading',
             severity = vim.diagnostic.severity.INFO,
         }
     elseif versions.status == api.ModuleStatus.INVALID then
-        ---@type DiagnosticInfo
+        ---@type py.requirements.DiagnosticInfo
         return {
             message = 'Error fetching module',
             severity = vim.diagnostic.severity.ERROR,
         }
     elseif versions.status == api.ModuleStatus.VALID then
         if #versions.values == 0 then
-            ---@type DiagnosticInfo
+            ---@type py.requirements.DiagnosticInfo
             return {
                 message = 'No versions found',
                 severity = vim.diagnostic.severity.ERROR,
             }
         elseif version ~= nil and not vim.tbl_contains(versions.values, version.value) then
-            ---@type DiagnosticInfo
+            ---@type py.requirements.DiagnosticInfo
             return {
                 message = 'Invalid version',
                 severity = vim.diagnostic.severity.ERROR,
@@ -41,7 +41,7 @@ local function diagnostic_info(module)
             if version ~= nil and latest_version ~= version.value then
                 severity = vim.diagnostic.severity.WARN
             end
-            ---@type DiagnosticInfo
+            ---@type py.requirements.DiagnosticInfo
             return {
                 message = latest_version,
                 severity = severity,
@@ -57,7 +57,7 @@ local M = {}
 M.NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim')
 
 ---@param buf integer
----@param modules PythonModule[]
+---@param modules py.requirements.PythonModule[]
 ---@param max_len integer
 function M.display(buf, modules, max_len)
     local diagnostics = vim.iter(modules)
@@ -97,7 +97,7 @@ function M.prefix(diagnostic)
 end
 
 ---@param buf integer
----@param module PythonModule
+---@param module py.requirements.PythonModule
 function M.upgrade(buf, module)
     local version = module.version
     local latest_version = module.versions.values[#module.versions.values]
@@ -108,7 +108,7 @@ function M.upgrade(buf, module)
     end
 end
 
----@param description ModuleDescription
+---@param description py.requirements.ModuleDescription
 function M.show_description(description)
     if description.content == nil then
         return

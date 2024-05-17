@@ -1,19 +1,19 @@
 local curl = require('plenary.curl')
 local state = require('py-requirements.state')
 
----@class ModuleVersions
----@field status ModuleStatus
+---@class py.requirements.ModuleVersions
+---@field status py.requirements.ModuleStatus
 ---@field values string[]
 
----@class ModuleDescription
+---@class py.requirements.ModuleDescription
 ---@field content? string[]
 ---@field content_type? string
 
----@class Cache
----@field versions table<string,ModuleVersions>
----@field descriptions table<string,ModuleDescription>
+---@class py.requirements.Cache
+---@field versions table<string,py.requirements.ModuleVersions>
+---@field descriptions table<string,py.requirements.ModuleDescription>
 
----@type Cache
+---@type py.requirements.Cache
 local cache = {
     versions = {},
     descriptions = {},
@@ -21,22 +21,22 @@ local cache = {
 
 local M = {}
 
----@enum ModuleStatus
+---@enum py.requirements.ModuleStatus
 M.ModuleStatus = {
     LOADING = 1,
     INVALID = 2,
     VALID = 3,
 }
 
----@type ModuleVersions
+---@type py.requirements.ModuleVersions
 M.INITIAL = { status = M.ModuleStatus.LOADING, values = {} }
 
----@type ModuleVersions
+---@type py.requirements.ModuleVersions
 M.FAILED = { status = M.ModuleStatus.INVALID, values = {} }
 
 ---@param path string
 ---@param headers table<string,string>
----@return table|nil
+---@return table?
 local function call_pypi(path, headers)
     local result = curl.get(string.format('https://pypi.org/%s', path), {
         headers = vim.tbl_deep_extend('force', {
@@ -52,7 +52,7 @@ local function call_pypi(path, headers)
 end
 
 ---@param name string
----@return ModuleVersions
+---@return py.requirements.ModuleVersions
 function M.get_versions(name)
     local cached_versions = cache.versions[name]
     if cached_versions then
@@ -92,7 +92,7 @@ function M.get_versions(name)
         return true
     end
 
-    ---@return ModuleVersions
+    ---@return py.requirements.ModuleVersions
     local function parse_versions()
         if result == nil or result.versions == nil then
             return M.FAILED
@@ -115,7 +115,7 @@ end
 
 ---@param name string
 ---@param version? string
----@return ModuleDescription
+---@return py.requirements.ModuleDescription
 function M.get_description(name, version)
     local cached_description = cache.descriptions[name]
     if cached_description then
@@ -135,7 +135,7 @@ function M.get_description(name, version)
     end
     local result = call_pypi(get_path(), {})
 
-    ---@return ModuleDescription
+    ---@return py.requirements.ModuleDescription
     local function parse_description()
         if result == nil or result.info.description == nil then
             return {}

@@ -2,7 +2,7 @@ local ts = require('py-requirements.parser.ts')
 
 ---@param source (integer|string)
 ---@param root TSNode
----@return ParsedPythonModule|nil
+---@return py.requirements.ParsedPythonModule?
 local function parse_module(source, root)
     local requirements = ts:new('requirements', source, root)
     local name_node = requirements:query('(requirement (package) @package)')
@@ -14,7 +14,7 @@ local function parse_module(source, root)
     if comparison_node then
         comparison = comparison_node.value
     end
-    ---@type ParsedPythonModule
+    ---@type py.requirements.ParsedPythonModule
     return {
         line_number = root:start(),
         name = name_node.value,
@@ -26,7 +26,7 @@ end
 local M = {}
 
 ---@param buf integer
----@return ParsedPythonModule[]
+---@return py.requirements.ParsedPythonModule[]
 function M.parse_modules(buf)
     local modules = {}
     local tree = vim.treesitter.get_parser(buf, 'requirements')
@@ -41,7 +41,7 @@ function M.parse_modules(buf)
 end
 
 ---@param line string
----@return ParsedPythonModule|nil
+---@return py.requirements.ParsedPythonModule?
 function M.parse_module_string(line)
     --Adding a 0 at the end as if we started typing a version number
     line = line .. '0'
