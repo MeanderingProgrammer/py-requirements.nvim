@@ -1,5 +1,14 @@
 local state = require('py-requirements.state')
 
+---@param min_version string
+local function neovim_version(min_version)
+    if vim.fn.has('nvim-' .. min_version) == 1 then
+        vim.health.ok('Version is >= ' .. min_version)
+    else
+        vim.health.error('Version is not >= ' .. min_version)
+    end
+end
+
 ---@param name string
 local function plugin_installed(name)
     local ok = pcall(require, name)
@@ -35,6 +44,9 @@ end
 local M = {}
 
 function M.check()
+    vim.health.start('Checking Neovim version')
+    neovim_version('0.10')
+
     vim.health.start('Checking required plugins')
     plugin_installed('plenary')
     if state.config.enable_cmp then

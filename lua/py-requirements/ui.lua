@@ -3,96 +3,97 @@ local state = require('py-requirements.state')
 
 ---@class DiagnosticInfo
 ---@field message string
----@field severity DiagnosticSeverity
----@field highlight string
+---@field severity vim.diagnostic.Severity
 
 ---@param module PythonModule
----@return DiagnosticInfo|nil
-local function to_diagnostic_info(module)
-    if module.versions.status == api.ModuleStatus.LOADING then
+---@return DiagnosticInfo
+local function diagnostic_info(module)
+    local version = module.version
+    local versions = module.versions
+    if versions.status == api.ModuleStatus.LOADING then
         ---@type DiagnosticInfo
         return {
-            message = ' Loading',
+            message = 'Loading',
             severity = vim.diagnostic.severity.INFO,
-            highlight = 'DiagnosticVirtualTextInfo',
         }
-    elseif module.versions.status == api.ModuleStatus.INVALID then
+    elseif versions.status == api.ModuleStatus.INVALID then
         ---@type DiagnosticInfo
         return {
-            message = ' Error fetching module',
+            message = 'Error fetching module',
             severity = vim.diagnostic.severity.ERROR,
-            highlight = 'DiagnosticVirtualTextError',
         }
-    elseif module.versions.status == api.ModuleStatus.VALID then
-        local latest_version = module.versions.values[#module.versions.values]
-        if latest_version == nil then
+    elseif versions.status == api.ModuleStatus.VALID then
+        if #versions.values == 0 then
             ---@type DiagnosticInfo
             return {
-                message = ' No versions',
+                message = 'No versions found',
                 severity = vim.diagnostic.severity.ERROR,
-                highlight = 'DiagnosticVirtualTextError',
             }
-        elseif module.version ~= nil and not vim.tbl_contains(module.versions.values, module.version.value) then
+        elseif version ~= nil and not vim.tbl_contains(versions.values, version.value) then
             ---@type DiagnosticInfo
             return {
-                message = ' Invalid version',
+                message = 'Invalid version',
                 severity = vim.diagnostic.severity.ERROR,
-                highlight = 'DiagnosticVirtualTextError',
-            }
-        elseif module.version ~= nil and latest_version ~= module.version.value then
-            ---@type DiagnosticInfo
-            return {
-                message = ' ' .. latest_version,
-                severity = vim.diagnostic.severity.WARN,
-                highlight = 'DiagnosticVirtualTextWarn',
             }
         else
+            local latest_version = versions.values[#versions.values]
+            local severity = vim.diagnostic.severity.INFO
+            if version ~= nil and latest_version ~= version.value then
+                severity = vim.diagnostic.severity.WARN
+            end
             ---@type DiagnosticInfo
             return {
-                message = ' ' .. latest_version,
-                severity = vim.diagnostic.severity.INFO,
-                highlight = 'DiagnosticVirtualTextInfo',
+                message = latest_version,
+                severity = severity,
             }
         end
     else
-        -- Should never get here, need a better way to handle this case
-        return nil
+        error(string.format('Unhandled module status: %d', versions.status))
     end
 end
 
 local M = {}
 
-M.DIAGNOSTIC_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.diagnostic')
-M.TEXT_NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim.text')
+M.NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim')
 
 ---@param buf integer
 ---@param modules PythonModule[]
 ---@param max_len integer
 function M.display(buf, modules, max_len)
-    vim.api.nvim_buf_clear_namespace(buf, M.TEXT_NAMESPACE, 0, -1)
-
-    local diagnostics = {}
-    for _, module in ipairs(modules) do
-        local diagnostic_info = to_diagnostic_info(module)
-        if diagnostic_info then
-            ---@type Diagnostic
-            local diagnostic = {
-                lnum = module.line_number,
-                col = 0,
-                severity = diagnostic_info.severity,
-                message = diagnostic_info.message,
+    local diagnostics = vim.iter(modules)
+        :map(function(module)
+            local info = diagnostic_info(module)
+            ---@type vim.Diagnostic
+            return {
                 source = 'py-requirements',
+                col = 0,
+                lnum = module.line_number,
+                severity = info.severity,
+                message = info.message,
             }
-            table.insert(diagnostics, diagnostic)
+        end)
+        :totable()
 
-            vim.api.nvim_buf_set_extmark(buf, M.TEXT_NAMESPACE, module.line_number, -1, {
-                virt_text = { { diagnostic_info.message, diagnostic_info.highlight } },
-                virt_text_win_col = max_len + 5,
-            })
-        end
+    vim.diagnostic.set(M.NAMESPACE, buf, diagnostics, {
+        virtual_text = {
+            prefix = M.prefix,
+            virt_text_win_col = max_len,
+        },
+    })
+end
+
+---@param diagnostic vim.Diagnostic
+---@return string
+function M.prefix(diagnostic)
+    if diagnostic.message == 'Loading' then
+        return ' '
     end
-
-    vim.diagnostic.set(M.DIAGNOSTIC_NAMESPACE, buf, diagnostics, { virtual_text = false })
+    local severity_mapping = {
+        [vim.diagnostic.severity.ERROR] = ' ',
+        [vim.diagnostic.severity.WARN] = ' ',
+        [vim.diagnostic.severity.INFO] = ' ',
+    }
+    return severity_mapping[diagnostic.severity]
 end
 
 ---@param buf integer
