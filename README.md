@@ -18,6 +18,7 @@ Neovim plugin that helps manage python requirements.
 
 - Only supports `requirements.txt` files, if there's interest this can be
   expanded, more details in [ISSUE-10](https://github.com/MeanderingProgrammer/py-requirements.nvim/issues/10)
+- Does not read or otherwise interact with `pip.conf` file
 
 # Dependencies
 
