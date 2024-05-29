@@ -2,7 +2,7 @@ local api = require('py-requirements.api')
 local mock = require('luassert.mock')
 local state = require('py-requirements.state')
 
-local curl = mock(require('plenary.curl'), true)
+local curl = mock(require('py-requirements.curl'), true)
 local eq = assert.are.same
 
 ---@param name string
@@ -10,18 +10,13 @@ local eq = assert.are.same
 ---@param versions string[]
 ---@param files table[]?
 local function set_response(name, status, versions, files)
-    curl.get
-        .on_call_with(string.format('https://pypi.org/simple/%s/', name), {
-            headers = {
-                ['Accept'] = 'application/vnd.pypi.simple.v1+json',
-                ['User-Agent'] = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)',
-            },
-            raw = { '--location' },
-        })
-        .returns({
-            status = status,
-            body = vim.json.encode({ versions = versions, files = files }),
-        })
+    local endpoint = string.format('https://pypi.org/simple/%s/', name)
+    local user_agent = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)'
+    local request_headers = { Accept = 'application/vnd.pypi.simple.v1+json' }
+    curl.get.on_call_with(endpoint, '-isSL', user_agent, request_headers).returns({
+        status = status,
+        body = vim.json.encode({ versions = versions, files = files }),
+    })
 end
 
 describe('api', function()

@@ -1,4 +1,4 @@
-local curl = require('plenary.curl')
+local curl = require('py-requirements.curl')
 local state = require('py-requirements.state')
 
 ---@class py.requirements.ModuleVersions
@@ -35,15 +35,12 @@ M.INITIAL = { status = M.ModuleStatus.LOADING, values = {} }
 M.FAILED = { status = M.ModuleStatus.INVALID, values = {} }
 
 ---@param path string
----@param headers table<string,string>
----@return table?
-local function call_pypi(path, headers)
-    local result = curl.get(string.format('https://pypi.org/%s', path), {
-        headers = vim.tbl_deep_extend('force', {
-            ['User-Agent'] = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)',
-        }, headers),
-        raw = { '--location' },
-    })
+---@param request_headers? table<string,string>
+---@return any?
+local function call_pypi(path, request_headers)
+    local endpoint = string.format('https://pypi.org/%s', path)
+    local user_agent = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)'
+    local result = curl.get(endpoint, '-isSL', user_agent, request_headers)
     if result == nil or not vim.tbl_contains({ 200, 301 }, result.status) then
         return nil
     else
@@ -59,12 +56,12 @@ function M.get_versions(name)
         return cached_versions
     end
 
-    -- curl --location \
-    --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
+    -- curl -isSL \
     --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
+    --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
     --   https://pypi.org/simple/{name}/
     local result = call_pypi(string.format('simple/%s/', name:lower()), {
-        ['Accept'] = 'application/vnd.pypi.simple.v1+json',
+        Accept = 'application/vnd.pypi.simple.v1+json',
     })
 
     ---@param version string
@@ -122,7 +119,7 @@ function M.get_description(name, version)
         return cached_description
     end
 
-    -- curl --location \
+    -- curl -isSL \
     --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
     --   https://pypi.org/pypi/{module_name}/{version?}/json
     ---@return string
@@ -133,7 +130,7 @@ function M.get_description(name, version)
             return string.format('pypi/%s/json', name:lower())
         end
     end
-    local result = call_pypi(get_path(), {})
+    local result = call_pypi(get_path())
 
     ---@return py.requirements.ModuleDescription
     local function parse_description()

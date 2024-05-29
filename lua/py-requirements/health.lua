@@ -48,7 +48,6 @@ function M.check()
     neovim_version('0.10')
 
     vim.health.start('Checking required plugins')
-    plugin_installed('plenary')
     if state.config.enable_cmp then
         plugin_installed('cmp')
     end

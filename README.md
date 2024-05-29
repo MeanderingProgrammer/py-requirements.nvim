@@ -23,7 +23,6 @@ Neovim plugin that helps manage python requirements.
 # Dependencies
 
 - `curl` on your system: Used to get version information from pypi
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim): Used to run `curl` command
 - [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements) parser
   for [treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/master):
   Used to parse `requirements.txt` file
@@ -35,7 +34,7 @@ Neovim plugin that helps manage python requirements.
 ```lua
 {
     'MeanderingProgrammer/py-requirements.nvim',
-    dependencies = { 'nvim-lua/plenary.nvim' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     config = function()
         require('py-requirements').setup({})
     end,
