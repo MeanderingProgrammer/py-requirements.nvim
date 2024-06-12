@@ -1,18 +1,16 @@
 init := "tests/minimal.lua"
-default_zoom := "10"
 
 test:
   nvim --headless --noplugin -u {{init}} \
     -c "PlenaryBustedDirectory tests { minimal_init = '{{init}}', sequential=true }"
 
-demo zoom=default_zoom:
+demo:
   rm -f demo/demo.gif
   python demo/record.py \
-    --zoom {{zoom}} \
+    --cols "100" \
+    --rows "40" \
     --file demo/requirements.txt \
     --cast demo.cast
-  # https://docs.asciinema.org/manual/agg/usage/
-  agg demo.cast demo/demo.gif \
-    --font-family "Monaspace Neon,Hack Nerd Font Mono" \
-    --last-frame-duration 1
+  # https://github.com/MeanderingProgrammer/cli/tree/main/agg
+  agg demo.cast demo/demo.gif
   rm demo.cast
