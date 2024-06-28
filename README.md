@@ -22,10 +22,12 @@ Neovim plugin that helps manage python requirements.
 
 # Dependencies
 
-- `curl` on your system: Used to get version information from pypi
-- [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements) parser
-  for [treesitter](https://github.com/nvim-treesitter/nvim-treesitter/tree/master):
-  Used to parse `requirements.txt` file
+- neovim `>= 0.10.0`
+- [treesitter](https://github.com/nvim-treesitter/nvim-treesitter) parser:
+  - [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements):
+    Used to parse `requirements` files
+- System dependencies:
+  - `curl`: Used to call pypi API
 
 # Install
 
