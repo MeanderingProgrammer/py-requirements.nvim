@@ -10,5 +10,5 @@
 
 ---@class py.requirements.State
 ---@field config py.requirements.Config
-local state = {}
-return state
+local M = {}
+return M

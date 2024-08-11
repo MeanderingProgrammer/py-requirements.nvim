@@ -1,11 +1,13 @@
+---@module 'luassert'
+
 local parser = require('py-requirements.parser')
-local test_util = require('tests.test_util')
+local util = require('tests.util')
 
 local eq = assert.are.same
 
 describe('parser', function()
     it('parse requirements', function()
-        local buf = test_util.create_file('requirements.txt', {
+        local buf = util.create_file('requirements.txt', {
             '# Comment Line',
             'argcomplete>3.2.2 # Comment After',
             'click>=8.1.7',

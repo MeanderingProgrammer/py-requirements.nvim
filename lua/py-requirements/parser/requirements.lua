@@ -3,10 +3,38 @@
 ---@field start_col integer
 ---@field end_col integer
 
+---@class py.requirements.parser.Requirements
+local M = {}
+
+---@param buf integer
+---@return py.requirements.ParsedPythonModule[]
+function M.parse_modules(buf)
+    local modules = {}
+    local tree = vim.treesitter.get_parser(buf, 'requirements')
+    local query = vim.treesitter.query.parse('requirements', '((requirement) @requirement)')
+    for _, node in query:iter_captures(tree:parse()[1]:root(), buf) do
+        local module = M.parse_module(buf, node)
+        if module then
+            table.insert(modules, module)
+        end
+    end
+    return modules
+end
+
+---@param line string
+---@return py.requirements.ParsedPythonModule?
+function M.parse_module_string(line)
+    --Adding a 0 at the end as if we started typing a version number
+    line = line .. '0'
+    local tree = vim.treesitter.get_string_parser(line, 'requirements')
+    return M.parse_module(line, tree:parse()[1]:root())
+end
+
+---@private
 ---@param source (integer|string)
 ---@param root TSNode
 ---@return py.requirements.ParsedPythonModule?
-local function parse_module(source, root)
+function M.parse_module(source, root)
     ---@type table<string,py.requirements.Node>
     local captures = {}
     local query = vim.treesitter.query.parse(
@@ -39,32 +67,6 @@ local function parse_module(source, root)
         comparison = vim.tbl_get(captures, 'cmp', 'value'),
         version = captures.version,
     }
-end
-
-local M = {}
-
----@param buf integer
----@return py.requirements.ParsedPythonModule[]
-function M.parse_modules(buf)
-    local modules = {}
-    local tree = vim.treesitter.get_parser(buf, 'requirements')
-    local query = vim.treesitter.query.parse('requirements', '((requirement) @requirement)')
-    for _, node in query:iter_captures(tree:parse()[1]:root(), buf) do
-        local module = parse_module(buf, node)
-        if module then
-            table.insert(modules, module)
-        end
-    end
-    return modules
-end
-
----@param line string
----@return py.requirements.ParsedPythonModule?
-function M.parse_module_string(line)
-    --Adding a 0 at the end as if we started typing a version number
-    line = line .. '0'
-    local tree = vim.treesitter.get_string_parser(line, 'requirements')
-    return parse_module(line, tree:parse()[1]:root())
 end
 
 return M

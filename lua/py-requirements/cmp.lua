@@ -2,26 +2,7 @@ local api = require('py-requirements.api')
 local core = require('py-requirements.core')
 local parser = require('py-requirements.parser')
 
----@param module py.requirements.PythonModule
-local function get_completion_items(module)
-    local versions = api.get_versions(module.name)
-    local version_values = vim.fn.reverse(versions.values)
-    local result = {}
-    for i, version in ipairs(version_values) do
-        local item = {
-            label = version,
-            kind = 12,
-            sortText = string.format('%04d', i),
-            cmp = {
-                kind_text = 'Version',
-                kind_hl_group = 'Special',
-            },
-        }
-        table.insert(result, item)
-    end
-    return result
-end
-
+---@class py.requirements.Cmp: cmp.Source
 local M = {}
 
 ---@return boolean
@@ -49,10 +30,31 @@ function M:complete(params, callback)
         callback(nil)
     else
         vim.schedule(function()
-            local items = get_completion_items(module)
+            local items = M.get_completion_items(module)
             callback(items)
         end)
     end
+end
+
+---@private
+---@param module py.requirements.PythonModule
+function M.get_completion_items(module)
+    local versions = api.get_versions(module.name)
+    local version_values = vim.fn.reverse(versions.values)
+    local result = {}
+    for i, version in ipairs(version_values) do
+        local item = {
+            label = version,
+            kind = 12,
+            sortText = string.format('%04d', i),
+            cmp = {
+                kind_text = 'Version',
+                kind_hl_group = 'Special',
+            },
+        }
+        table.insert(result, item)
+    end
+    return result
 end
 
 function M.setup()

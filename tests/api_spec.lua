@@ -1,3 +1,5 @@
+---@module 'luassert'
+
 local api = require('py-requirements.api')
 local mock = require('luassert.mock')
 local state = require('py-requirements.state')

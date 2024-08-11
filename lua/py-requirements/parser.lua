@@ -14,9 +14,30 @@ local requirements = require('py-requirements.parser.requirements')
 ---@field version? py.requirements.Node
 ---@field versions py.requirements.ModuleVersions
 
+---@class py.requirements.Parser
+local M = {}
+
+---@param buf integer
+---@return py.requirements.PythonModule[]
+function M.parse_modules(buf)
+    return vim.tbl_map(M.to_module, requirements.parse_modules(buf))
+end
+
+---@param line string
+---@return py.requirements.PythonModule?
+function M.parse_module_string(line)
+    local module = requirements.parse_module_string(line)
+    if module then
+        return M.to_module(module)
+    else
+        return nil
+    end
+end
+
+---@private
 ---@param module py.requirements.ParsedPythonModule
 ---@return py.requirements.PythonModule
-local function to_module(module)
+function M.to_module(module)
     ---@type py.requirements.PythonModule
     return {
         line_number = module.line_number,
@@ -25,25 +46,6 @@ local function to_module(module)
         version = module.version,
         versions = api.INITIAL,
     }
-end
-
-local M = {}
-
----@param buf integer
----@return py.requirements.PythonModule[]
-function M.parse_modules(buf)
-    return vim.tbl_map(to_module, requirements.parse_modules(buf))
-end
-
----@param line string
----@return py.requirements.PythonModule?
-function M.parse_module_string(line)
-    local module = requirements.parse_module_string(line)
-    if module then
-        return to_module(module)
-    else
-        return nil
-    end
 end
 
 ---@param buf integer

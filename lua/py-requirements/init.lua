@@ -4,6 +4,7 @@ local core = require('py-requirements.core')
 local state = require('py-requirements.state')
 local user = require('py-requirements.user')
 
+---@class py.requirements.Init
 local M = {}
 
 ---@class py.requirements.UserVersionFilter

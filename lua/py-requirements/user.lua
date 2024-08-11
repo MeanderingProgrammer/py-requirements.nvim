@@ -1,3 +1,4 @@
+---@class py.requirements.User
 local M = {}
 
 ---@return integer

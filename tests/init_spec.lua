@@ -1,7 +1,8 @@
-local async_tests = require('plenary.async.tests')
+---@module 'luassert'
+
 local mock = require('luassert.mock')
 local ui = require('py-requirements.ui')
-local util = require('plenary.async.util')
+local util = require('tests.util')
 
 local api = mock(require('py-requirements.api'), true)
 local eq = assert.are.same
@@ -15,19 +16,12 @@ local function set_response(name, versions)
     })
 end
 
-async_tests.describe('init', function()
-    async_tests.before_each(function()
-        require('py-requirements').setup({
-            enable_cmp = false,
-        })
-    end)
-
-    async_tests.it('run auto command', function()
+describe('init', function()
+    it('run auto command', function()
         set_response('argcomplete', { '3.2.2' })
         set_response('pandas', { '2.1.0', '2.2.0' })
 
-        vim.cmd('e tests/requirements.txt')
-        util.scheduler()
+        util.setup('tests/requirements.txt')
 
         local actual = {}
         local diagnostics = vim.diagnostic.get(0, { namespace = ui.NAMESPACE })

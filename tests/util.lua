@@ -1,4 +1,14 @@
+---@class py.requirements.test.Util
 local M = {}
+
+---@param file string
+function M.setup(file)
+    require('py-requirements').setup({
+        enable_cmp = false,
+    })
+    vim.cmd('e ' .. file)
+    vim.wait(0)
+end
 
 ---@param name string
 ---@param lines string[]

@@ -5,9 +5,42 @@ local state = require('py-requirements.state')
 ---@field message string
 ---@field severity vim.diagnostic.Severity
 
+---@class py.requirements.Ui
+local M = {}
+
+---@type integer
+M.NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim')
+
+---@param buf integer
+---@param modules py.requirements.PythonModule[]
+---@param max_len integer
+function M.display(buf, modules, max_len)
+    local diagnostics = vim.iter(modules)
+        :map(function(module)
+            local info = M.diagnostic_info(module)
+            ---@type vim.Diagnostic
+            return {
+                source = 'py-requirements',
+                col = 0,
+                lnum = module.line_number,
+                severity = info.severity,
+                message = info.message,
+            }
+        end)
+        :totable()
+
+    vim.diagnostic.set(M.NAMESPACE, buf, diagnostics, {
+        virtual_text = {
+            prefix = M.prefix,
+            virt_text_win_col = max_len,
+        },
+    })
+end
+
+---@private
 ---@param module py.requirements.PythonModule
 ---@return py.requirements.DiagnosticInfo
-local function diagnostic_info(module)
+function M.diagnostic_info(module)
     local version = module.version
     local versions = module.versions
     if versions.status == api.ModuleStatus.LOADING then
@@ -50,36 +83,6 @@ local function diagnostic_info(module)
     else
         error(string.format('Unhandled module status: %d', versions.status))
     end
-end
-
-local M = {}
-
-M.NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim')
-
----@param buf integer
----@param modules py.requirements.PythonModule[]
----@param max_len integer
-function M.display(buf, modules, max_len)
-    local diagnostics = vim.iter(modules)
-        :map(function(module)
-            local info = diagnostic_info(module)
-            ---@type vim.Diagnostic
-            return {
-                source = 'py-requirements',
-                col = 0,
-                lnum = module.line_number,
-                severity = info.severity,
-                message = info.message,
-            }
-        end)
-        :totable()
-
-    vim.diagnostic.set(M.NAMESPACE, buf, diagnostics, {
-        virtual_text = {
-            prefix = M.prefix,
-            virt_text_win_col = max_len,
-        },
-    })
 end
 
 ---@param diagnostic vim.Diagnostic

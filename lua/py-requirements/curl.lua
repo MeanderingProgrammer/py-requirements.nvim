@@ -2,6 +2,7 @@
 ---@field status number
 ---@field body string
 
+---@class py.requirements.Curl
 local M = {}
 
 ---@param endpoint string

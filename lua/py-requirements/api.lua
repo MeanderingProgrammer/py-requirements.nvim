@@ -19,6 +19,7 @@ local cache = {
     descriptions = {},
 }
 
+---@class py.requirements.Api
 local M = {}
 
 ---@enum py.requirements.ModuleStatus
@@ -34,20 +35,6 @@ M.INITIAL = { status = M.ModuleStatus.LOADING, values = {} }
 ---@type py.requirements.ModuleVersions
 M.FAILED = { status = M.ModuleStatus.INVALID, values = {} }
 
----@param path string
----@param request_headers? table<string,string>
----@return any?
-local function call_pypi(path, request_headers)
-    local endpoint = string.format('https://pypi.org/%s', path)
-    local user_agent = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)'
-    local result = curl.get(endpoint, '-isSL', user_agent, request_headers)
-    if result == nil or not vim.tbl_contains({ 200, 301 }, result.status) then
-        return nil
-    else
-        return vim.json.decode(result.body)
-    end
-end
-
 ---@param name string
 ---@return py.requirements.ModuleVersions
 function M.get_versions(name)
@@ -60,7 +47,7 @@ function M.get_versions(name)
     --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
     --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
     --   https://pypi.org/simple/{name}/
-    local result = call_pypi(string.format('simple/%s/', name:lower()), {
+    local result = M.call_pypi(string.format('simple/%s/', name:lower()), {
         Accept = 'application/vnd.pypi.simple.v1+json',
     })
 
@@ -130,7 +117,7 @@ function M.get_description(name, version)
             return string.format('pypi/%s/json', name:lower())
         end
     end
-    local result = call_pypi(get_path())
+    local result = M.call_pypi(get_path())
 
     ---@return py.requirements.ModuleDescription
     local function parse_description()
@@ -147,6 +134,21 @@ function M.get_description(name, version)
     local description = parse_description()
     cache.descriptions[name] = description
     return description
+end
+
+---@private
+---@param path string
+---@param request_headers? table<string,string>
+---@return any?
+function M.call_pypi(path, request_headers)
+    local endpoint = string.format('https://pypi.org/%s', path)
+    local user_agent = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)'
+    local result = curl.get(endpoint, '-isSL', user_agent, request_headers)
+    if result == nil or not vim.tbl_contains({ 200, 301 }, result.status) then
+        return nil
+    else
+        return vim.json.decode(result.body)
+    end
 end
 
 return M
