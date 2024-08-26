@@ -4,6 +4,8 @@
 
 ---@class py.requirements.Config
 ---@field public enable_cmp boolean
+---@field public index_url string
+---@field public extra_index_url? string
 ---@field public file_patterns string[]
 ---@field public float_opts vim.lsp.util.open_floating_preview.Opts
 ---@field public filter py.requirements.VersionFilter

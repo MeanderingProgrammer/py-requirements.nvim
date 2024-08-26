@@ -7,12 +7,12 @@ Neovim plugin that helps manage python requirements.
 # Features
 
 - Integrated with `nvim-cmp`
-- Uses `treesitter` parser to read `requirements.txt`, hopefully more robust than
-  ad-hoc string manipulation
+- Uses `treesitter` parser to read `requirements.txt`, more robust than ad-hoc parsing
 - Displays diagnostics in `normal` mode with warnings for not using latest version
 - Cache `pypi` responses within a session to improve performance
 - Auto upgrade dependencies when keymaps are configured
 - Display package description from PyPI in a floating window with syntax highlighting
+- Supports custom `index-url` and `extra-index-url` for finding packages
 
 # Limitations
 
@@ -54,6 +54,10 @@ modified by the user.
 require('py-requirements').setup({
     -- Enabled by default if you do not use `nvim-cmp` set to false
     enable_cmp = true,
+    -- Endpoint used for getting package versions
+    index_url = 'https://pypi.org/simple/',
+    -- Fallback endpoint in case 'index_url' fails to find a package
+    extra_index_url = nil,
     -- Specify what file patterns to apply the plugin to
     -- For info on patterns, see :h pattern
     file_patterns = { 'requirements.txt' },

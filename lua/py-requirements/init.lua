@@ -13,6 +13,8 @@ local M = {}
 
 ---@class py.requirements.UserConfig
 ---@field public enable_cmp? boolean
+---@field public index_url? string
+---@field public extra_index_url? string
 ---@field public file_patterns? string[]
 ---@field public float_opts? table
 ---@field public filter? py.requirements.UserVersionFilter
@@ -22,6 +24,8 @@ function M.setup(opts)
     ---@type py.requirements.Config
     local default_config = {
         enable_cmp = true,
+        index_url = 'https://pypi.org/simple/',
+        extra_index_url = nil,
         file_patterns = { 'requirements.txt' },
         float_opts = { border = 'rounded' },
         filter = {
