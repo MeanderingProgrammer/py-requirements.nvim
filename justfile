@@ -1,4 +1,4 @@
-init := "tests/minimal.lua"
+init := "tests/minimal_init.lua"
 
 test:
   nvim --headless --noplugin -u {{init}} \
