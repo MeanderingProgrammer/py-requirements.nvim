@@ -58,7 +58,7 @@ require('py-requirements').setup({
     index_url = 'https://pypi.org/simple/',
     -- Fallback endpoint in case 'index_url' fails to find a package
     extra_index_url = nil,
-    -- Specify what file patterns to apply the plugin to
+    -- Specify which file patterns plugin is active on
     -- For info on patterns, see :h pattern
     file_patterns = { 'requirements.txt' },
     -- For available options, see :h vim.lsp.util.open_floating_preview
@@ -70,6 +70,14 @@ require('py-requirements').setup({
         -- If set to true (default value) filter out yanked package versions
         yanked = true,
     },
+    -- Query to get each module present in a file
+    requirement_query = '(requirement) @requirement',
+    -- Query to get information out of each module
+    module_query = [[
+        (requirement (package) @name)
+        (version_spec (version_cmp) @cmp)
+        (version_spec (version) @version)
+    ]],
 })
 ```
 

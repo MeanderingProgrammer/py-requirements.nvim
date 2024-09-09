@@ -4,14 +4,14 @@ local mock = require('luassert.mock')
 local ui = require('py-requirements.ui')
 local util = require('tests.util')
 
-local api = mock(require('py-requirements.api'), true)
+local pypi = mock(require('py-requirements.pypi'), true)
 local eq = assert.are.same
 
 ---@param name string
 ---@param versions string[]
 local function set_response(name, versions)
-    api.get_versions.on_call_with(name).returns({
-        status = api.ModuleStatus.VALID,
+    pypi.get_versions.on_call_with(name).returns({
+        status = pypi.ModuleStatus.VALID,
         values = versions,
     })
 end
@@ -24,7 +24,7 @@ describe('init', function()
         util.setup('tests/requirements.txt')
 
         local actual = {}
-        local diagnostics = vim.diagnostic.get(0, { namespace = ui.NAMESPACE })
+        local diagnostics = vim.diagnostic.get(0, { namespace = ui.namespace })
         for _, diagnostic in ipairs(diagnostics) do
             local diagnostic_info = {
                 line = diagnostic.lnum,
@@ -40,6 +40,6 @@ describe('init', function()
         }
 
         eq(expected, actual)
-        assert.stub(api.get_versions).was.called(4)
+        assert.stub(pypi.get_versions).was.called(4)
     end)
 end)

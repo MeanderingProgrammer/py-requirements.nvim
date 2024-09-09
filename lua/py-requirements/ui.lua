@@ -1,4 +1,4 @@
-local api = require('py-requirements.api')
+local pypi = require('py-requirements.pypi')
 local state = require('py-requirements.state')
 
 ---@class py.requirements.DiagnosticInfo
@@ -9,7 +9,7 @@ local state = require('py-requirements.state')
 local M = {}
 
 ---@type integer
-M.NAMESPACE = vim.api.nvim_create_namespace('py-requirements.nvim')
+M.namespace = vim.api.nvim_create_namespace('py-requirements.nvim')
 
 ---@param buf integer
 ---@param modules py.requirements.PythonModule[]
@@ -29,7 +29,7 @@ function M.display(buf, modules, max_len)
         end)
         :totable()
 
-    vim.diagnostic.set(M.NAMESPACE, buf, diagnostics, {
+    vim.diagnostic.set(M.namespace, buf, diagnostics, {
         virtual_text = {
             prefix = M.prefix,
             virt_text_win_col = max_len,
@@ -43,19 +43,19 @@ end
 function M.diagnostic_info(module)
     local version = module.version
     local versions = module.versions
-    if versions.status == api.ModuleStatus.LOADING then
+    if versions.status == pypi.ModuleStatus.LOADING then
         ---@type py.requirements.DiagnosticInfo
         return {
             message = 'Loading',
             severity = vim.diagnostic.severity.INFO,
         }
-    elseif versions.status == api.ModuleStatus.INVALID then
+    elseif versions.status == pypi.ModuleStatus.INVALID then
         ---@type py.requirements.DiagnosticInfo
         return {
             message = 'Error fetching module',
             severity = vim.diagnostic.severity.ERROR,
         }
-    elseif versions.status == api.ModuleStatus.VALID then
+    elseif versions.status == pypi.ModuleStatus.VALID then
         if #versions.values == 0 then
             ---@type py.requirements.DiagnosticInfo
             return {
@@ -116,13 +116,16 @@ function M.show_description(description)
     if description.content == nil then
         return
     end
-    local syntax = 'plaintext'
-    if description.content_type == 'text/x-rst' then
-        syntax = 'rst'
-    elseif description.content_type == 'text/markdown' then
-        syntax = 'markdown'
-    end
-    local opts = vim.tbl_deep_extend('force', { focus_id = 'py-requirements.nvim' }, state.config.float_opts)
+
+    local syntax_mapping = {
+        ['text/x-rst'] = 'rst',
+        ['text/markdown'] = 'markdown',
+    }
+    local syntax = syntax_mapping[description.type] or 'plaintext'
+
+    local default_opts = { focus_id = 'py-requirements.nvim' }
+    local opts = vim.tbl_deep_extend('force', default_opts, state.config.float_opts)
+
     local buf, _ = vim.lsp.util.open_floating_preview(description.content, syntax, opts)
     if not vim.tbl_contains({ 'plaintext', 'markdown' }, syntax) then
         vim.bo[buf].filetype = syntax

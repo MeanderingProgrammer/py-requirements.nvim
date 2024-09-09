@@ -1,7 +1,7 @@
 ---@module 'luassert'
 
-local api = require('py-requirements.api')
 local mock = require('luassert.mock')
+local pypi = require('py-requirements.pypi')
 local state = require('py-requirements.state')
 
 local curl = mock(require('py-requirements.curl'), true)
@@ -37,8 +37,8 @@ describe('api', function()
         local versions = { '3.2.2', '3.2.2.post1' }
         set_response(name, 200, versions, nil)
 
-        local expected = { status = api.ModuleStatus.VALID, values = versions }
-        eq(expected, api.get_versions(name))
+        local expected = { status = pypi.ModuleStatus.VALID, values = versions }
+        eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -54,8 +54,8 @@ describe('api', function()
         }, nil)
         state.config.filter.final_release = true
 
-        local expected = { status = api.ModuleStatus.VALID, values = { '2.3.0' } }
-        eq(expected, api.get_versions(name))
+        local expected = { status = pypi.ModuleStatus.VALID, values = { '2.3.0' } }
+        eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -66,8 +66,8 @@ describe('api', function()
             { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
 
-        local expected = { status = api.ModuleStatus.VALID, values = { '3.2.2', '3.2.3' } }
-        eq(expected, api.get_versions(name))
+        local expected = { status = pypi.ModuleStatus.VALID, values = { '3.2.2', '3.2.3' } }
+        eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -80,8 +80,8 @@ describe('api', function()
         })
         state.config.filter.yanked = false
 
-        local expected = { status = api.ModuleStatus.VALID, values = versions }
-        eq(expected, api.get_versions(name))
+        local expected = { status = pypi.ModuleStatus.VALID, values = versions }
+        eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -90,13 +90,13 @@ describe('api', function()
         local versions = { '2.1.0', '2.2.0b1', '2.2.0' }
         set_response(name, 301, versions, nil)
 
-        local expected = { status = api.ModuleStatus.VALID, values = versions }
-        eq(expected, api.get_versions(name))
+        local expected = { status = pypi.ModuleStatus.VALID, values = versions }
+        eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
 
-        eq(expected, api.get_versions(name))
-        eq(expected, api.get_versions(name))
-        eq(expected, api.get_versions(name))
+        eq(expected, pypi.get_versions(name))
+        eq(expected, pypi.get_versions(name))
+        eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -104,7 +104,7 @@ describe('api', function()
         local name = 't6'
         set_response(name, 404, { '1.0.0', '2.0.0' }, nil)
 
-        eq(api.FAILED, api.get_versions(name))
+        eq(pypi.FAILED, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 end)

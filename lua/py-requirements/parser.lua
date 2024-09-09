@@ -1,5 +1,10 @@
-local api = require('py-requirements.api')
+local pypi = require('py-requirements.pypi')
 local requirements = require('py-requirements.parser.requirements')
+
+---@class py.requirements.Node
+---@field value string
+---@field start_col integer
+---@field end_col integer
 
 ---@class py.requirements.ParsedPythonModule
 ---@field line_number integer 0-indexed
@@ -19,19 +24,15 @@ local M = {}
 
 ---@param buf integer
 ---@return py.requirements.PythonModule[]
-function M.parse_modules(buf)
+function M.modules(buf)
     return vim.tbl_map(M.to_module, requirements.parse_modules(buf))
 end
 
 ---@param line string
 ---@return py.requirements.PythonModule?
-function M.parse_module_string(line)
+function M.module_string(line)
     local module = requirements.parse_module_string(line)
-    if module then
-        return M.to_module(module)
-    else
-        return nil
-    end
+    return module ~= nil and M.to_module(module) or nil
 end
 
 ---@private
@@ -44,7 +45,7 @@ function M.to_module(module)
         name = module.name,
         comparison = module.comparison,
         version = module.version,
-        versions = api.INITIAL,
+        versions = pypi.INITIAL,
     }
 end
 

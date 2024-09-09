@@ -1,13 +1,13 @@
-local api = require('py-requirements.api')
-local core = require('py-requirements.core')
+local manager = require('py-requirements.manager')
 local parser = require('py-requirements.parser')
+local pypi = require('py-requirements.pypi')
 
 ---@class py.requirements.Cmp: cmp.Source
 local M = {}
 
 ---@return boolean
 function M:is_available()
-    return core.active()
+    return manager.active(vim.api.nvim_get_current_buf())
 end
 
 ---@return string
@@ -25,7 +25,7 @@ end
 
 function M:complete(params, callback)
     local line = params.context.cursor_line
-    local module = parser.parse_module_string(line)
+    local module = parser.module_string(line)
     if module == nil or module.comparison == nil then
         callback(nil)
     else
@@ -39,7 +39,7 @@ end
 ---@private
 ---@param module py.requirements.PythonModule
 function M.get_completion_items(module)
-    local versions = api.get_versions(module.name)
+    local versions = pypi.get_versions(module.name)
     local version_values = vim.fn.reverse(versions.values)
     local result = {}
     for i, version in ipairs(version_values) do
@@ -58,7 +58,10 @@ function M.get_completion_items(module)
 end
 
 function M.setup()
-    require('cmp').register_source(M:get_debug_name(), M)
+    local ok, cmp = pcall(require, 'cmp')
+    if ok then
+        cmp.register_source(M:get_debug_name(), M)
+    end
 end
 
 return M

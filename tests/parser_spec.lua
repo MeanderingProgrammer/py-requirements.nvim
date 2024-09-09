@@ -6,6 +6,12 @@ local util = require('tests.util')
 local eq = assert.are.same
 
 describe('parser', function()
+    before_each(function()
+        require('py-requirements').setup({
+            enable_cmp = false,
+        })
+    end)
+
     it('parse requirements', function()
         local buf = util.create_file('requirements.txt', {
             '# Comment Line',
@@ -75,7 +81,7 @@ describe('parser', function()
                 versions = { status = 1, values = {} },
             },
         }
-        eq(expected, parser.parse_modules(buf))
+        eq(expected, parser.modules(buf))
         eq(33, parser.max_len(buf, expected))
         eq({
             line_number = 0,
@@ -83,7 +89,7 @@ describe('parser', function()
             comparison = '==',
             version = { value = '0', start_col = 7, end_col = 8 },
             versions = { status = 1, values = {} },
-        }, parser.parse_module_string('click=='))
-        eq(nil, parser.parse_module_string('click='))
+        }, parser.module_string('click=='))
+        eq(nil, parser.module_string('click='))
     end)
 end)
