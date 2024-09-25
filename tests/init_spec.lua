@@ -21,7 +21,7 @@ describe('init', function()
         set_response('argcomplete', { '3.2.2' })
         set_response('pandas', { '2.1.0', '2.2.0' })
 
-        util.setup('tests/requirements.txt')
+        util.setup({}, 'tests/requirements.txt')
 
         local actual = {}
         local diagnostics = vim.diagnostic.get(0, { namespace = ui.namespace })

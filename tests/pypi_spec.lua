@@ -2,7 +2,7 @@
 
 local mock = require('luassert.mock')
 local pypi = require('py-requirements.pypi')
-local state = require('py-requirements.state')
+local util = require('tests.util')
 
 local curl = mock(require('py-requirements.curl'), true)
 local eq = assert.are.same
@@ -22,17 +22,13 @@ local function set_response(name, status, versions, files)
 end
 
 describe('api', function()
-    before_each(function()
-        require('py-requirements').setup({
-            enable_cmp = false,
-        })
-    end)
-
     after_each(function()
         curl.get:clear()
     end)
 
     it('versions status 200', function()
+        util.setup({})
+
         local name = 't1'
         local versions = { '3.2.2', '3.2.2.post1' }
         set_response(name, 200, versions, nil)
@@ -43,6 +39,8 @@ describe('api', function()
     end)
 
     it('versions status 200 final release', function()
+        util.setup({ filter = { final_release = true } })
+
         local name = 't2'
         set_response(name, 200, {
             '2.3.0a1', -- Alpha release
@@ -52,7 +50,6 @@ describe('api', function()
             '2.3.0', -- Final release
             '2.3.0.post1', -- Post-release
         }, nil)
-        state.config.filter.final_release = true
 
         local expected = { status = pypi.ModuleStatus.VALID, values = { '2.3.0' } }
         eq(expected, pypi.get_versions(name))
@@ -60,6 +57,8 @@ describe('api', function()
     end)
 
     it('versions status 200 yanked', function()
+        util.setup({})
+
         local name = 't3'
         set_response(name, 200, { '3.2.2', '3.2.3', '3.2.4' }, {
             { filename = name .. '-3.2.3.tar.gz', yanked = false },
@@ -72,13 +71,14 @@ describe('api', function()
     end)
 
     it('versions status 200 yanked disabled', function()
+        util.setup({ filter = { yanked = false } })
+
         local name = 't4'
         local versions = { '3.2.2', '3.2.3', '3.2.4' }
         set_response(name, 200, versions, {
             { filename = name .. '-3.2.3.tar.gz', yanked = false },
             { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
-        state.config.filter.yanked = false
 
         local expected = { status = pypi.ModuleStatus.VALID, values = versions }
         eq(expected, pypi.get_versions(name))
@@ -86,6 +86,8 @@ describe('api', function()
     end)
 
     it('versions status 301 with cache', function()
+        util.setup({})
+
         local name = 't5'
         local versions = { '2.1.0', '2.2.0b1', '2.2.0' }
         set_response(name, 301, versions, nil)
@@ -101,6 +103,8 @@ describe('api', function()
     end)
 
     it('versions status 404', function()
+        util.setup({})
+
         local name = 't6'
         set_response(name, 404, { '1.0.0', '2.0.0' }, nil)
 

@@ -1,13 +1,15 @@
 ---@class py.requirements.test.Util
 local M = {}
 
----@param file string
-function M.setup(file)
-    require('py-requirements').setup({
-        enable_cmp = false,
-    })
-    vim.cmd('e ' .. file)
-    vim.wait(0)
+---@param opts py.requirements.UserConfig
+---@param file? string
+function M.setup(opts, file)
+    opts.enable_cmp = false
+    require('py-requirements').setup(opts)
+    if file ~= nil then
+        vim.cmd('e ' .. file)
+        vim.wait(0)
+    end
 end
 
 ---@param name string

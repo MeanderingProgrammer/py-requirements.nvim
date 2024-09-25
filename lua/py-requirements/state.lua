@@ -21,7 +21,7 @@ local M = {}
 ---@param default_config py.requirements.Config
 ---@param user_config py.requirements.UserConfig
 function M.setup(default_config, user_config)
-    M.config = vim.tbl_deep_extend('force', vim.deepcopy(default_config), user_config)
+    M.config = vim.tbl_deep_extend('force', default_config, user_config)
     M.requirement_query = vim.treesitter.query.parse('requirements', M.config.requirement_query)
     M.module_query = vim.treesitter.query.parse('requirements', M.config.module_query)
 end
