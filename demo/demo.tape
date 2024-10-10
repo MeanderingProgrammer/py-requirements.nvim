@@ -1,4 +1,4 @@
-Output demo/demo.gif
+Output demo/demo.mp4
 
 Set FontSize 16
 Set FontFamily "JetBrainsMono Nerd Font"
