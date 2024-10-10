@@ -2,8 +2,8 @@ Output demo/demo.mp4
 
 Set FontSize 16
 Set FontFamily "JetBrainsMono Nerd Font"
-Set Width 900
-Set Height 800
+Set Width 1000
+Set Height 600
 Set Padding 0
 Set Framerate 60
 Set TypingSpeed 0.1
