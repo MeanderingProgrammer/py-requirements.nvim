@@ -40,7 +40,7 @@ function M.setup(opts)
     local state = require('py-requirements.state')
     state.setup(M.default_config, opts or {})
     if state.config.enable_cmp then
-        require('py-requirements.cmp').setup()
+        require('py-requirements.integrations.cmp').setup()
     end
     require('py-requirements.manager').setup()
 end

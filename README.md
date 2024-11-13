@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/d4aef6a7-deed-4c80-8db6-7d1499e11c64
 
 # Features
 
-- Integrated with `nvim-cmp`
+- Integrated with `nvim-cmp` and `blink.nvim`
 - Uses `treesitter` parser to read `requirements.txt`, more robust than ad-hoc parsing
 - Displays diagnostics in `normal` mode with warnings for not using latest version
 - Cache `pypi` responses within a session to improve performance
@@ -93,21 +93,30 @@ config = function()
 end
 ```
 
-## Install `requirements` Parser
+## Integrate with blink.nvim
 
 ```lua
-require('nvim-treesitter.configs').setup({
-    ...
-    ensure_installed = {
-        ...
-        'requirements',
-        ...
+{
+    'saghen/blink.cmp',
+    opts = {
+        sources = {
+            -- Add pypi to your completion providers
+            completion = {
+                enabled_providers = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
+            },
+            providers = {
+                -- Don't show buffer suggestions when pypi has items
+                buffer = { fallback_for = { 'pypi' } },
+                pypi = { name = 'Pypi', module = 'py-requirements.integrations.blink' },
+            },
+        },
     },
-    ...
-})
+}
 ```
 
-## Add Completion Source
+## Integrate with nvim-cmp
+
+### Add Completion Source
 
 ```lua
 local cmp = require('cmp')
@@ -122,7 +131,7 @@ cmp.setup({
 })
 ```
 
-## Prioritize `sort_text` Comparator
+### Prioritize `sort_text` Comparator
 
 The ideal (latest to oldest version) ordering is defined by the `sortText`
 attribute of each completion item sent to `nvim-cmp`.
