@@ -105,9 +105,7 @@ end
                 enabled_providers = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
             },
             providers = {
-                -- Don't show buffer suggestions when pypi has items
-                buffer = { fallback_for = { 'pypi' } },
-                pypi = { name = 'Pypi', module = 'py-requirements.integrations.blink' },
+                pypi = { name = 'Pypi', module = 'py-requirements.integrations.blink', score_offset = 10 },
             },
         },
     },

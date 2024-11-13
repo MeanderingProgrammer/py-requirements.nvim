@@ -19,13 +19,13 @@ function M.trigger_characters()
 end
 
 ---@param line string
----@return py.requirements.Node?, py.requirements.ModuleVersions?
+---@return py.requirements.Node?, string[]?
 function M.get_versions(line)
     local module = parser.module_string(line)
     if module == nil or module.comparison == nil then
         return nil, nil
     else
-        return module.version, pypi.get_versions(module.name)
+        return module.version, pypi.get_versions(module.name).values
     end
 end
 

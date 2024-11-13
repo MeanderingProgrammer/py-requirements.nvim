@@ -32,11 +32,10 @@ function Source:complete(params, callback)
 end
 
 ---@private
----@param versions py.requirements.ModuleVersions
+---@param versions string[]
 function Source.get_completion_items(versions)
-    local version_values = vim.fn.reverse(versions.values)
     local result = {}
-    for i, version in ipairs(version_values) do
+    for i, version in ipairs(vim.fn.reverse(versions)) do
         local item = {
             label = version,
             kind = 12,

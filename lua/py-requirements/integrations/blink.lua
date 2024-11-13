@@ -24,16 +24,16 @@ end
 ---@param context blink.cmp.Context
 ---@param callback fun(response?: blink.cmp.CompletionResponse)
 function Source:get_completions(context, callback)
-    local version, versions = shared.get_versions(context.line)
-    if version == nil or versions == nil then
+    local node, versions = shared.get_versions(context.line)
+    if node == nil or versions == nil then
         callback(nil)
     else
         local line = context.cursor[1] - 1
         local range = {
-            ['start'] = { line = line, character = version.start_col },
-            ['end'] = { line = line, character = version.end_col },
+            ['start'] = { line = line, character = node.start_col },
+            ['end'] = { line = line, character = node.end_col },
         }
-        local items = Source.get_completion_items(range, versions)
+        local items = Source.get_completion_items(versions, range)
         callback({
             is_incomplete_forward = true,
             is_incomplete_backward = true,
@@ -44,12 +44,12 @@ function Source:get_completions(context, callback)
 end
 
 ---@private
+---@param versions string[]
 ---@param range lsp.Range
----@param versions py.requirements.ModuleVersions
 ---@return lsp.CompletionItem[]
-function Source.get_completion_items(range, versions)
+function Source.get_completion_items(versions, range)
     local result = {}
-    for _, version in ipairs(versions.values) do
+    for _, version in ipairs(versions) do
         ---@type lsp.CompletionItem
         local item = {
             label = version,
