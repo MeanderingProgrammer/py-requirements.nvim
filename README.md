@@ -61,6 +61,8 @@ require('py-requirements').setup({
     -- Specify which file patterns plugin is active on
     -- For info on patterns, see :h pattern
     file_patterns = { 'requirements.txt' },
+    -- Options for how diagnsotics are displayed
+    diagnostic_opts = { padding = 5 },
     -- For available options, see :h vim.lsp.util.open_floating_preview
     float_opts = { border = 'rounded' },
     filter = {
@@ -70,10 +72,10 @@ require('py-requirements').setup({
         -- If set to true (default value) filter out yanked package versions
         yanked = true,
     },
-    -- Query to get each module present in a file
+    -- Query to get each dependency present in a file
     requirement_query = '(requirement) @requirement',
-    -- Query to get information out of each module
-    module_query = [[
+    -- Query to get information out of each dependency
+    dependency_query = [[
         (requirement (package) @name)
         (version_spec (version_cmp) @cmp)
         (version_spec (version) @version)
@@ -166,7 +168,7 @@ just test
 # Related Projects
 
 - [crates.nvim](https://github.com/Saecki/crates.nvim): Many ideas were taken from
-  this project and translated to work with Python modules rather than Rust crates
+  this project and translated to work with Python dependencies rather than Rust crates
 - [cmp-pypi](https://github.com/vrslev/cmp-pypi): Found this one rather late, similar
   idea but built to work with `pyproject.toml` files
 

@@ -1,15 +1,15 @@
----@class py.requirements.CurlResponse
+---@class py.reqs.curl.Response
 ---@field status number
 ---@field body string
 
----@class py.requirements.Curl
+---@class py.reqs.Curl
 local M = {}
 
 ---@param endpoint string
 ---@param options string
 ---@param user_agent string
 ---@param request_headers? table<string,string>
----@return py.requirements.CurlResponse?
+---@return py.reqs.curl.Response?
 function M.get(endpoint, options, user_agent, request_headers)
     local command = { 'curl', options, '-A', user_agent }
     if request_headers ~= nil then
@@ -39,7 +39,7 @@ function M.get(endpoint, options, user_agent, request_headers)
         return nil
     end
 
-    ---@type py.requirements.CurlResponse
+    ---@type py.reqs.curl.Response?
     return {
         status = status,
         body = sections[#sections],

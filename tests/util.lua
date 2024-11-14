@@ -1,7 +1,7 @@
----@class py.requirements.test.Util
+---@class py.reqs.test.Util
 local M = {}
 
----@param opts py.requirements.UserConfig
+---@param opts py.reqs.UserConfig
 ---@param file? string
 function M.setup(opts, file)
     opts.enable_cmp = false

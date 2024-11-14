@@ -1,42 +1,40 @@
 local curl = require('py-requirements.curl')
 local state = require('py-requirements.state')
 
----@class py.requirements.ModuleVersions
----@field status py.requirements.ModuleStatus
+---@class py.reqs.dependency.Versions
+---@field status py.reqs.dependency.Status
 ---@field values string[]
 
----@class py.requirements.ModuleDescription
+---@class py.reqs.dependency.Description
 ---@field content? string[]
 ---@field type? string
 
----@class py.requirements.Cache
----@field versions table<string,py.requirements.ModuleVersions>
----@field descriptions table<string,py.requirements.ModuleDescription>
-
----@type py.requirements.Cache
+---@class py.reqs.Cache
 local cache = {
+    ---@type table<string, py.reqs.dependency.Versions>
     versions = {},
+    ---@type table<string, py.reqs.dependency.Description>
     descriptions = {},
 }
 
----@class py.requirements.Pypi
+---@class py.reqs.Pypi
 local M = {}
 
----@enum py.requirements.ModuleStatus
-M.ModuleStatus = {
+---@enum py.reqs.dependency.Status
+M.Status = {
     LOADING = 1,
     INVALID = 2,
     VALID = 3,
 }
 
----@type py.requirements.ModuleVersions
-M.INITIAL = { status = M.ModuleStatus.LOADING, values = {} }
+---@type py.reqs.dependency.Versions
+M.INITIAL = { status = M.Status.LOADING, values = {} }
 
----@type py.requirements.ModuleVersions
-M.FAILED = { status = M.ModuleStatus.INVALID, values = {} }
+---@type py.reqs.dependency.Versions
+M.FAILED = { status = M.Status.INVALID, values = {} }
 
 ---@param name string
----@return py.requirements.ModuleVersions
+---@return py.reqs.dependency.Versions
 function M.get_versions(name)
     local cached_versions = cache.versions[name]
     if cached_versions then
@@ -88,7 +86,7 @@ function M.get_versions(name)
         return true
     end
 
-    ---@return py.requirements.ModuleVersions
+    ---@return py.reqs.dependency.Versions
     local function parse_versions()
         if result == nil or result.versions == nil then
             return M.FAILED
@@ -100,7 +98,7 @@ function M.get_versions(name)
             if #versions == 0 then
                 versions = result.versions
             end
-            return { status = M.ModuleStatus.VALID, values = versions }
+            return { status = M.Status.VALID, values = versions }
         end
     end
 
@@ -111,7 +109,7 @@ end
 
 ---@param name string
 ---@param version? string
----@return py.requirements.ModuleDescription
+---@return py.reqs.dependency.Description
 function M.get_description(name, version)
     local cached_description = cache.descriptions[name]
     if cached_description then
@@ -129,10 +127,10 @@ function M.get_description(name, version)
 
     -- curl -isSL \
     --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
-    --   https://pypi.org/pypi/{module_name}/{version?}/json
+    --   https://pypi.org/pypi/{dependency_name}/{version?}/json
     local result = M.call_pypi('https://pypi.org/' .. get_path())
 
-    ---@return py.requirements.ModuleDescription
+    ---@return py.reqs.dependency.Description
     local function parse_description()
         if result == nil or result.info.description == nil then
             return {}

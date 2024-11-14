@@ -1,6 +1,6 @@
 local state = require('py-requirements.state')
 
----@class py.requirements.Health
+---@class py.reqs.Health
 local M = {}
 
 function M.check()

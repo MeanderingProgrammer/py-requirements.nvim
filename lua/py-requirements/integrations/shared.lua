@@ -2,7 +2,7 @@ local manager = require('py-requirements.manager')
 local parser = require('py-requirements.parser')
 local pypi = require('py-requirements.pypi')
 
----@class py.requirements.integration.Shared
+---@class py.reqs.integ.Shared
 local M = {}
 
 ---@return boolean
@@ -19,13 +19,13 @@ function M.trigger_characters()
 end
 
 ---@param line string
----@return py.requirements.Node?, string[]?
+---@return py.reqs.Node?, string[]?
 function M.get_versions(line)
-    local module = parser.module_string(line)
-    if module == nil or module.comparison == nil then
+    local dependency = parser.dependency_string(line)
+    if dependency == nil or dependency.comparison == nil then
         return nil, nil
     else
-        return module.version, pypi.get_versions(module.name).values
+        return dependency.version, pypi.get_versions(dependency.name).values
     end
 end
 

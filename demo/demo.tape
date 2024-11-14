@@ -15,7 +15,7 @@ Show
 
 Sleep 1.5s
 
-# Start typing in new module
+# Start typing in new dependency
 Type "o"
 Type "Pillow==10."
 Sleep 1s
@@ -44,7 +44,7 @@ Backspace 3
 Type "1.0"
 Escape Sleep 2s
 
-# Show description of next module
+# Show description of next dependency
 Enter
 Type " rd"
 Sleep 5s

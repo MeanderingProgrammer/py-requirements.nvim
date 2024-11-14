@@ -11,7 +11,7 @@ local eq = assert.are.same
 ---@param versions string[]
 local function set_response(name, versions)
     pypi.get_versions.on_call_with(name).returns({
-        status = pypi.ModuleStatus.VALID,
+        status = pypi.Status.VALID,
         values = versions,
     })
 end

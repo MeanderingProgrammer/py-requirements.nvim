@@ -11,7 +11,7 @@ local function row()
     return vim.api.nvim_win_get_cursor(0)[1] - 1
 end
 
----@class py.requirements.Api
+---@class py.reqs.Api
 local M = {}
 
 ---Upgrade the dependency on the current line

@@ -81,7 +81,7 @@ describe('parser', function()
                 versions = { status = 1, values = {} },
             },
         }
-        eq(expected, parser.modules(buf))
+        eq(expected, parser.dependencies(buf))
         eq(33, parser.max_len(buf, expected))
         eq({
             line_number = 0,
@@ -89,7 +89,7 @@ describe('parser', function()
             comparison = '==',
             version = { value = '0', start_col = 7, end_col = 8 },
             versions = { status = 1, values = {} },
-        }, parser.module_string('click=='))
-        eq(nil, parser.module_string('click='))
+        }, parser.dependency_string('click=='))
+        eq(nil, parser.dependency_string('click='))
     end)
 end)

@@ -1,62 +1,62 @@
 local pypi = require('py-requirements.pypi')
 local requirements = require('py-requirements.parser.requirements')
 
----@class py.requirements.Node
+---@class py.reqs.Node
 ---@field value string
 ---@field start_col integer
 ---@field end_col integer
 
----@class py.requirements.ParsedPythonModule
+---@class py.reqs.ParsedDependency
 ---@field line_number integer 0-indexed
 ---@field name string
 ---@field comparison? string
----@field version? py.requirements.Node
+---@field version? py.reqs.Node
 
----@class py.requirements.PythonModule
+---@class py.reqs.Dependency
 ---@field line_number integer 0-indexed
 ---@field name string
 ---@field comparison? string
----@field version? py.requirements.Node
----@field versions py.requirements.ModuleVersions
+---@field version? py.reqs.Node
+---@field versions py.reqs.dependency.Versions
 
----@class py.requirements.Parser
+---@class py.reqs.Parser
 local M = {}
 
 ---@param buf integer
----@return py.requirements.PythonModule[]
-function M.modules(buf)
-    return vim.tbl_map(M.to_module, requirements.parse_modules(buf))
+---@return py.reqs.Dependency[]
+function M.dependencies(buf)
+    return vim.tbl_map(M.to_dependency, requirements.parse_dependencies(buf))
 end
 
 ---@param line string
----@return py.requirements.PythonModule?
-function M.module_string(line)
-    local module = requirements.parse_module_string(line)
-    return module ~= nil and M.to_module(module) or nil
+---@return py.reqs.Dependency?
+function M.dependency_string(line)
+    local dependency = requirements.parse_dependency_string(line)
+    return dependency ~= nil and M.to_dependency(dependency) or nil
 end
 
 ---@private
----@param module py.requirements.ParsedPythonModule
----@return py.requirements.PythonModule
-function M.to_module(module)
-    ---@type py.requirements.PythonModule
+---@param dependency py.reqs.ParsedDependency
+---@return py.reqs.Dependency
+function M.to_dependency(dependency)
+    ---@type py.reqs.Dependency
     return {
-        line_number = module.line_number,
-        name = module.name,
-        comparison = module.comparison,
-        version = module.version,
+        line_number = dependency.line_number,
+        name = dependency.name,
+        comparison = dependency.comparison,
+        version = dependency.version,
         versions = pypi.INITIAL,
     }
 end
 
 ---@param buf integer
----@param modules py.requirements.PythonModule[]
+---@param dependencies py.reqs.Dependency[]
 ---@return integer
-function M.max_len(buf, modules)
+function M.max_len(buf, dependencies)
     local result = 0
     local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-    for _, module in ipairs(modules) do
-        local len = #lines[module.line_number + 1]
+    for _, dependency in ipairs(dependencies) do
+        local len = #lines[dependency.line_number + 1]
         result = math.max(result, len)
     end
     return result

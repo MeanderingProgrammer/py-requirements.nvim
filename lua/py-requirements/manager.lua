@@ -6,7 +6,7 @@ local ui = require('py-requirements.ui')
 ---@type integer[]
 local buffers = {}
 
----@class py.requirements.Manager
+---@class py.reqs.Manager
 local M = {}
 
 ---@private
@@ -64,12 +64,12 @@ end
 ---@private
 ---@param buf integer
 function M.initialize(buf)
-    local modules = parser.modules(buf)
-    local max_len = parser.max_len(buf, modules)
-    ui.display(buf, modules, max_len)
-    for _, module in ipairs(modules) do
+    local dependencies = parser.dependencies(buf)
+    local max_len = parser.max_len(buf, dependencies)
+    ui.display(buf, dependencies, max_len)
+    for _, dependency in ipairs(dependencies) do
         vim.schedule(function()
-            pypi.get_versions(module.name)
+            pypi.get_versions(dependency.name)
         end)
     end
     M.display(buf)
@@ -79,12 +79,12 @@ end
 ---@param buf integer
 function M.display(buf)
     vim.schedule(function()
-        local modules = parser.modules(buf)
-        local max_len = parser.max_len(buf, modules)
-        for _, module in ipairs(modules) do
-            module.versions = pypi.get_versions(module.name)
+        local dependencies = parser.dependencies(buf)
+        local max_len = parser.max_len(buf, dependencies)
+        for _, dependency in ipairs(dependencies) do
+            dependency.versions = pypi.get_versions(dependency.name)
         end
-        ui.display(buf, modules, max_len)
+        ui.display(buf, dependencies, max_len)
     end)
 end
 

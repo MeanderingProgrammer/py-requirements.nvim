@@ -2,7 +2,7 @@
 
 local shared = require('py-requirements.integrations.shared')
 
----@class py.requirements.Blink: blink.cmp.Source
+---@class py.reqs.Blink: blink.cmp.Source
 local Source = {}
 Source.__index = Source
 
@@ -28,10 +28,10 @@ function Source:get_completions(context, callback)
     if node == nil or versions == nil then
         callback(nil)
     else
-        local line = context.cursor[1] - 1
+        local row = context.cursor[1] - 1
         local range = {
-            ['start'] = { line = line, character = node.start_col },
-            ['end'] = { line = line, character = node.end_col },
+            ['start'] = { line = row, character = node.start_col },
+            ['end'] = { line = row, character = node.end_col },
         }
         local items = Source.get_completion_items(versions, range)
         callback({
