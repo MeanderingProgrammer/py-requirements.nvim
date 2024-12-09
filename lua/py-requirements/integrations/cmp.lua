@@ -23,7 +23,6 @@ end
 function Source:complete(params, callback)
     local line = params.context.cursor_line
     local row = params.context.cursor.row - 1
-    vim.print(row)
     vim.schedule(function()
         local node, versions = shared.get_versions(line)
         if node == nil or versions == nil then
