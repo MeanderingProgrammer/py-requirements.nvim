@@ -35,8 +35,8 @@ function Source:get_completions(context, callback)
         }
         local items = Source.get_completion_items(versions, range)
         callback({
-            is_incomplete_forward = true,
-            is_incomplete_backward = true,
+            is_incomplete_forward = false,
+            is_incomplete_backward = false,
             context = context,
             items = items,
         })
