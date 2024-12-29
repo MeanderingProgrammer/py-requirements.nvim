@@ -102,12 +102,14 @@ end
     'saghen/blink.cmp',
     opts = {
         sources = {
-            -- Add pypi to your completion providers
-            completion = {
-                enabled_providers = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
-            },
+            -- Add pypi to your default sources
+            default = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
             providers = {
-                pypi = { name = 'Pypi', module = 'py-requirements.integrations.blink', score_offset = 10 },
+                pypi = {
+                    name = 'Pypi',
+                    module = 'py-requirements.integrations.blink',
+                    fallbacks = { 'lsp' },
+                },
             },
         },
     },
