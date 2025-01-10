@@ -47,8 +47,7 @@ https://github.com/user-attachments/assets/d4aef6a7-deed-4c80-8db6-7d1499e11c64
 
 ## Configure
 
-Below is the configuration that gets used by default, any part of it can be
-modified by the user.
+Below is the default configuration, any part of it can be modified.
 
 ```lua
 require('py-requirements').setup({
@@ -83,88 +82,44 @@ require('py-requirements').setup({
 })
 ```
 
-## Set Keymaps
+## Keymaps
 
 ```lua
-config = function()
-    local requirements = require('py-requirements')
-    vim.keymap.set('n', '<leader>ru', requirements.upgrade, { silent = true, desc = 'Requirements: Upgrade' })
-    vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, { silent = true, desc = 'Requirements: Upgrade All' })
-    vim.keymap.set('n', '<leader>rK', requirements.show_description, { silent = true, desc = 'Requirements: Show package description' })
-    requirements.setup({...})
-end
+local requirements = require('py-requirements')
+requirements.setup({...})
+vim.keymap.set('n', '<leader>ru', requirements.upgrade, { silent = true, desc = 'Requirements: Upgrade' })
+vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, { silent = true, desc = 'Requirements: Upgrade All' })
+vim.keymap.set('n', '<leader>rK', requirements.show_description, { silent = true, desc = 'Requirements: Show package description' })
 ```
 
-## Integrate with blink.nvim
+## Completions
+
+### nvim-cmp
 
 ```lua
-{
-    'saghen/blink.cmp',
-    opts = {
-        sources = {
-            -- Add pypi to your default sources
-            default = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
-            providers = {
-                pypi = {
-                    name = 'Pypi',
-                    module = 'py-requirements.integrations.blink',
-                    fallbacks = { 'lsp' },
-                },
+local cmp = require('cmp')
+cmp.setup({
+    sources = cmp.config.sources({
+        { name = 'py-requirements' },
+    }),
+})
+```
+
+### blink.cmp
+
+```lua
+require('blink.cmp').setup({
+    sources = {
+        default = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
+        providers = {
+            pypi = {
+                name = 'Pypi',
+                module = 'py-requirements.integrations.blink',
+                fallbacks = { 'lsp' },
             },
         },
     },
-}
-```
-
-## Integrate with nvim-cmp
-
-### Add Completion Source
-
-```lua
-local cmp = require('cmp')
-cmp.setup({
-    ...
-    sources = cmp.config.sources({
-        ...
-        { name = 'py-requirements' },
-        ...
-    }),
-    ...
 })
-```
-
-### Prioritize `sort_text` Comparator
-
-The ideal (latest to oldest version) ordering is defined by the `sortText`
-attribute of each completion item sent to `nvim-cmp`.
-
-By default this comparator has been disabled by `nvim-cmp`. There are various
-ways to enable it including at a file type level. Below is an example of enabling
-it globally, note that this will likely impact the ordering of other completion sources.
-
-```lua
-local cmp = require('cmp')
-local compare = require('cmp.config.compare')
-cmp.setup({
-    ...
-    sorting = {
-        priority_weight = 2,
-        comparators = {
-            compare.exact,
-            compare.score,
-            compare.sort_text,
-            compare.offset,
-            ...
-        },
-    },
-    ...
-})
-```
-
-# Testing
-
-```bash
-just test
 ```
 
 # Related Projects
@@ -173,8 +128,3 @@ just test
   this project and translated to work with Python dependencies rather than Rust crates
 - [cmp-pypi](https://github.com/vrslev/cmp-pypi): Found this one rather late, similar
   idea but built to work with `pyproject.toml` files
-
-# TODO
-
-- Is there a way to configure `nvim-cmp` automatically with `require('cmp.config').set_buffer`,
-  would likely run as part of `load` autocmd.
