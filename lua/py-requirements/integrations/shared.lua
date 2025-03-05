@@ -18,15 +18,43 @@ function M.trigger_characters()
     return characters
 end
 
----@param line string
----@return py.reqs.Node?, string[]?
-function M.get_versions(line)
+---@param row integer 0-indexed
+---@return lsp.CompletionItem[]?
+function M.completions(row)
+    local line = vim.api.nvim_buf_get_lines(0, row, row + 1, false)[1]
+    if line == nil then
+        return nil
+    end
+
     local dependency = parser.dependency_string(line)
     if dependency == nil or dependency.comparison == nil then
-        return nil, nil
-    else
-        return dependency.version, pypi.get_versions(dependency.name).values
+        return nil
     end
+
+    local node = dependency.version
+    local versions = pypi.get_versions(dependency.name).values
+    if node == nil or versions == nil then
+        return nil
+    end
+
+    ---@type lsp.CompletionItem[]
+    local result = {}
+    ---@type lsp.Range
+    local range = {
+        ['start'] = { line = row, character = node.start_col },
+        ['end'] = { line = row, character = node.end_col },
+    }
+    for i, version in ipairs(vim.fn.reverse(versions)) do
+        ---@type lsp.CompletionItem
+        local item = {
+            label = version,
+            kind = 12,
+            textEdit = { newText = version, insert = range, replace = range },
+            sortText = string.format('%04d', i),
+        }
+        table.insert(result, item)
+    end
+    return result
 end
 
 return M

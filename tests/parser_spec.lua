@@ -7,9 +7,7 @@ local eq = assert.are.same
 
 describe('parser', function()
     before_each(function()
-        require('py-requirements').setup({
-            enable_cmp = false,
-        })
+        require('py-requirements').setup({})
     end)
 
     it('parse requirements', function()

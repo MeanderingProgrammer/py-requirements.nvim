@@ -6,6 +6,7 @@
 ---@field public padding integer
 
 ---@class (exact) py.reqs.Config
+---@field public enable_lsp boolean
 ---@field public enable_cmp boolean
 ---@field public index_url string
 ---@field public extra_index_url? string

@@ -21,51 +21,46 @@ end
 ---@param params cmp.SourceCompletionApiParams
 ---@param callback fun(response?: lsp.CompletionItem[])
 function Source:complete(params, callback)
-    local line = params.context.cursor_line
+    -- nvim_win_get_cursor: (1,0)-indexed
+    -- nvim-cmp col + 1   : (1,1)-indexed
     local row = params.context.cursor.row - 1
     vim.schedule(function()
-        local node, versions = shared.get_versions(line)
-        if node == nil or versions == nil then
+        local items = shared.completions(row)
+        if items == nil then
             callback(nil)
         else
-            local range = {
-                ['start'] = { line = row, character = node.start_col },
-                ['end'] = { line = row, character = node.end_col },
-            }
-            local items = Source.get_completion_items(versions, range)
-            callback(items)
+            callback(Source.add_cmp(items))
         end
     end)
 end
 
 ---@private
----@param versions string[]
----@param range lsp.Range
+---@param items lsp.Range
 ---@return lsp.CompletionItem[]
-function Source.get_completion_items(versions, range)
+function Source.add_cmp(items)
     local result = {}
-    for i, version in ipairs(vim.fn.reverse(versions)) do
-        ---@type lsp.CompletionItem
-        local item = {
-            label = version,
-            kind = 12,
-            textEdit = { newText = version, insert = range, replace = range },
-            sortText = string.format('%04d', i),
-            cmp = { kind_text = 'Version', kind_hl_group = 'Special' },
-        }
+    for _, item in ipairs(items) do
+        item.cmp = { kind_text = 'Version', kind_hl_group = 'Special' }
         table.insert(result, item)
     end
     return result
 end
 
 ---@class py.reqs.integ.Cmp
-local M = {}
+---@field private registered boolean
+local M = {
+    registered = false,
+}
 
 function M.setup()
+    if M.registered then
+        return
+    end
     local ok, cmp = pcall(require, 'cmp')
     if ok then
         cmp.register_source(Source:get_debug_name(), Source)
     end
+    M.registered = true
 end
 
 return M

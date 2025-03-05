@@ -30,6 +30,8 @@ function M.attach(buf)
     end
     table.insert(buffers, buf)
 
+    M.completions()
+
     vim.api.nvim_create_autocmd({ 'InsertLeave', 'TextChanged' }, {
         group = M.group,
         buffer = buf,
@@ -51,14 +53,24 @@ end
 ---@param buf integer
 ---@return boolean
 function M.valid(buf)
-    local file_name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
-    for _, file_pattern in ipairs(state.config.file_patterns) do
-        local match = vim.regex(file_pattern):match_str(file_name)
+    local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
+    for _, pattern in ipairs(state.config.file_patterns) do
+        local match = vim.regex(pattern):match_str(name)
         if match ~= nil and match == 0 then
             return true
         end
     end
     return false
+end
+
+---@private
+function M.completions()
+    if state.config.enable_lsp then
+        require('py-requirements.lsp').setup()
+    end
+    if state.config.enable_cmp then
+        require('py-requirements.integrations.cmp').setup()
+    end
 end
 
 ---@private

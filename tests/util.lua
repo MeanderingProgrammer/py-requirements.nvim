@@ -4,7 +4,6 @@ local M = {}
 ---@param opts py.reqs.UserConfig
 ---@param file? string
 function M.setup(opts, file)
-    opts.enable_cmp = false
     require('py-requirements').setup(opts)
     if file ~= nil then
         vim.cmd('e ' .. file)

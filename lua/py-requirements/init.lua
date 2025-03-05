@@ -9,6 +9,7 @@ local M = {}
 ---@field public padding? integer
 
 ---@class (exact) py.reqs.UserConfig
+---@field public enable_lsp? boolean
 ---@field public enable_cmp? boolean
 ---@field public index_url? string
 ---@field public extra_index_url? string
@@ -22,7 +23,8 @@ local M = {}
 ---@private
 ---@type py.reqs.Config
 M.default_config = {
-    enable_cmp = true,
+    enable_lsp = true,
+    enable_cmp = false,
     index_url = 'https://pypi.org/simple/',
     extra_index_url = nil,
     file_patterns = { 'requirements.txt' },
@@ -44,9 +46,6 @@ M.default_config = {
 function M.setup(opts)
     local state = require('py-requirements.state')
     state.setup(M.default_config, opts or {})
-    if state.config.enable_cmp then
-        require('py-requirements.integrations.cmp').setup()
-    end
     require('py-requirements.manager').setup()
 end
 
