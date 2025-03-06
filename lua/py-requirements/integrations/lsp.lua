@@ -1,10 +1,7 @@
-local shared = require('py-requirements.integrations.shared')
+local source = require('py-requirements.integrations.source')
 
----@class py.reqs.Lsp
----@field private id? integer
-local M = {
-    id = nil,
-}
+---@class py.reqs.integ.Lsp
+local M = {}
 
 function M.setup()
     local name = 'py-requirements'
@@ -20,10 +17,7 @@ function M.setup()
             return lsp_client.name == lsp_config.name
         end,
     }
-    local id = vim.lsp.start(config, opts)
-    if id ~= nil then
-        M.id = id
-    end
+    vim.lsp.start(config, opts)
 end
 
 ---@private
@@ -40,14 +34,14 @@ function M.server(dispatchers)
                 callback(nil, {
                     capabilities = {
                         completionProvider = {
-                            triggerCharacters = shared.trigger_characters(),
+                            triggerCharacters = source.trigger_characters(),
                         },
                     },
                 })
             elseif method == 'textDocument/completion' then
                 local row = params.position.line
                 vim.schedule(function()
-                    local items = shared.completions(row)
+                    local items = source.completions(row)
                     if items == nil then
                         callback(nil, nil)
                     else
@@ -67,6 +61,7 @@ function M.server(dispatchers)
         end,
         notify = function(method)
             if method == 'exit' then
+                -- code 0 (success), signal 15 (SIGTERM)
                 dispatchers.on_exit(0, 15)
             end
             return true

@@ -1,6 +1,6 @@
-local shared = require('py-requirements.integrations.shared')
+local source = require('py-requirements.integrations.source')
 
----@class py.reqs.Cmp: cmp.Source
+---@class py.reqs.cmp.Source: cmp.Source
 local Source = {}
 
 ---@return string
@@ -10,12 +10,12 @@ end
 
 ---@return boolean
 function Source:is_available()
-    return shared.enabled()
+    return source.enabled()
 end
 
 ---@return string[]
 function Source:get_trigger_characters()
-    return shared.trigger_characters()
+    return source.trigger_characters()
 end
 
 ---@param params cmp.SourceCompletionApiParams
@@ -25,7 +25,7 @@ function Source:complete(params, callback)
     -- nvim-cmp col + 1   : (1,1)-indexed
     local row = params.context.cursor.row - 1
     vim.schedule(function()
-        local items = shared.completions(row)
+        local items = source.completions(row)
         if items == nil then
             callback(nil)
         else

@@ -66,7 +66,7 @@ end
 ---@private
 function M.completions()
     if state.config.enable_lsp then
-        require('py-requirements.lsp').setup()
+        require('py-requirements.integrations.lsp').setup()
     end
     if state.config.enable_cmp then
         require('py-requirements.integrations.cmp').setup()

@@ -1,8 +1,8 @@
 ---@module 'blink.cmp'
 
-local shared = require('py-requirements.integrations.shared')
+local source = require('py-requirements.integrations.source')
 
----@class py.reqs.Blink: blink.cmp.Source
+---@class py.reqs.blink.Source: blink.cmp.Source
 local Source = {}
 Source.__index = Source
 
@@ -13,12 +13,12 @@ end
 
 ---@return boolean
 function Source:enabled()
-    return shared.enabled()
+    return source.enabled()
 end
 
 ---@return string[]
 function Source:get_trigger_characters()
-    return shared.trigger_characters()
+    return source.trigger_characters()
 end
 
 ---@param context blink.cmp.Context
@@ -26,7 +26,7 @@ end
 function Source:get_completions(context, callback)
     -- nvim_win_get_cursor: (1,0)-indexed
     local row = context.cursor[1] - 1
-    local items = shared.completions(row)
+    local items = source.completions(row)
     if items == nil then
         callback(nil)
     else

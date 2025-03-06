@@ -2,7 +2,7 @@ local manager = require('py-requirements.manager')
 local parser = require('py-requirements.parser')
 local pypi = require('py-requirements.pypi')
 
----@class py.reqs.integ.Shared
+---@class py.reqs.Source
 local M = {}
 
 ---@return boolean
