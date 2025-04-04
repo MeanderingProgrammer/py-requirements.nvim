@@ -52,7 +52,7 @@ function M.completions(row)
             textEdit = { newText = version, insert = range, replace = range },
             sortText = string.format('%04d', i),
         }
-        table.insert(result, item)
+        result[#result + 1] = item
     end
     return result
 end

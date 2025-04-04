@@ -41,7 +41,7 @@ function Source.add_cmp(items)
     local result = {}
     for _, item in ipairs(items) do
         item.cmp = { kind_text = 'Version', kind_hl_group = 'Special' }
-        table.insert(result, item)
+        result[#result + 1] = item
     end
     return result
 end

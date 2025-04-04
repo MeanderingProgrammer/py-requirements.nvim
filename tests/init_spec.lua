@@ -31,7 +31,7 @@ describe('init', function()
                 text = diagnostic.message,
                 prefix = ui.prefix(diagnostic),
             }
-            table.insert(actual, diagnostic_info)
+            actual[#actual + 1] = diagnostic_info
         end
 
         local expected = {

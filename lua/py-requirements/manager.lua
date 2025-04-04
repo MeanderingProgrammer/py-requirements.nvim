@@ -28,7 +28,7 @@ function M.attach(buf)
     if M.active(buf) or not M.valid(buf) then
         return
     end
-    table.insert(buffers, buf)
+    buffers[#buffers + 1] = buf
 
     M.completions()
 

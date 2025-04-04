@@ -7,11 +7,11 @@ local M = {}
 ---@return py.reqs.ParsedDependency[]
 function M.parse_dependencies(buf)
     local dependencies = {}
-    local tree = vim.treesitter.get_parser(buf, 'requirements')
+    local tree = assert(vim.treesitter.get_parser(buf, 'requirements'))
     for _, node in state.requirement_query:iter_captures(tree:parse()[1]:root(), buf) do
         local dependency = M.parse_dependency(buf, node)
         if dependency then
-            table.insert(dependencies, dependency)
+            dependencies[#dependencies + 1] = dependency
         end
     end
     return dependencies

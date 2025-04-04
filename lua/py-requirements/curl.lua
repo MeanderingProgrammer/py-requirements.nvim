@@ -13,12 +13,12 @@ local M = {}
 function M.get(endpoint, options, user_agent, request_headers)
     local command = { 'curl', options, '-A', user_agent }
     if request_headers ~= nil then
-        table.insert(command, '-H')
+        command[#command + 1] = '-H'
         for key, value in pairs(request_headers) do
-            table.insert(command, string.format('%s: %s', key, value))
+            command[#command + 1] = string.format('%s: %s', key, value)
         end
     end
-    table.insert(command, endpoint)
+    command[#command + 1] = endpoint
 
     local result = vim.system(command, { text = true }):wait()
     local sections = vim.split(vim.trim(result.stdout), '\n\n', { plain = true, trimempty = true })
