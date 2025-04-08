@@ -8,7 +8,8 @@ local M = {}
 function M.parse_dependencies(buf)
     local dependencies = {}
     local tree = assert(vim.treesitter.get_parser(buf, 'requirements'))
-    for _, node in state.requirement_query:iter_captures(tree:parse()[1]:root(), buf) do
+    local root = tree:parse()[1]:root()
+    for _, node in state.requirement_query:iter_captures(root, buf) do
         local dependency = M.parse_dependency(buf, node)
         if dependency then
             dependencies[#dependencies + 1] = dependency

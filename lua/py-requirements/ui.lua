@@ -63,7 +63,10 @@ function M.diagnostic_info(dependency)
                 message = 'No versions found',
                 severity = vim.diagnostic.severity.ERROR,
             }
-        elseif version ~= nil and not vim.tbl_contains(versions.values, version.value) then
+        elseif
+            version ~= nil
+            and not vim.tbl_contains(versions.values, version.value)
+        then
             ---@type py.reqs.DiagnosticInfo
             return {
                 message = 'Invalid version',
@@ -104,17 +107,19 @@ end
 ---@param dependency py.reqs.Dependency
 function M.upgrade(buf, dependency)
     local version = dependency.version
-    local latest_version = dependency.versions.values[#dependency.versions.values]
-    if version and latest_version then
+    local latest = dependency.versions.values[#dependency.versions.values]
+    if version and latest then
+        local start_col, end_col = version.start_col, version.end_col
         local row = dependency.line_number
-        local line = { latest_version }
-        vim.api.nvim_buf_set_text(buf, row, version.start_col, row, version.end_col, line)
+        local line = { latest }
+        vim.api.nvim_buf_set_text(buf, row, start_col, row, end_col, line)
     end
 end
 
 ---@param description py.reqs.dependency.Description
 function M.show_description(description)
-    if description.content == nil then
+    local content, kind = description.content, description.kind
+    if content == nil then
         return
     end
 
@@ -122,12 +127,12 @@ function M.show_description(description)
         ['text/x-rst'] = 'rst',
         ['text/markdown'] = 'markdown',
     }
-    local syntax = syntax_mapping[description.type] or 'plaintext'
+    local syntax = syntax_mapping[kind] or 'plaintext'
 
-    local default_opts = { focus_id = 'py-requirements.nvim' }
-    local opts = vim.tbl_deep_extend('force', default_opts, state.config.float_opts)
+    local default = { focus_id = 'py-requirements.nvim' }
+    local opts = vim.tbl_deep_extend('force', default, state.config.float_opts)
 
-    local buf, _ = vim.lsp.util.open_floating_preview(description.content, syntax, opts)
+    local buf = vim.lsp.util.open_floating_preview(content, syntax, opts)
     if not vim.tbl_contains({ 'plaintext', 'markdown' }, syntax) then
         vim.bo[buf].filetype = syntax
     end

@@ -13,9 +13,9 @@ end
 
 ---@param required_parsers string[]
 local function ensure_installed(required_parsers)
-    local installed_parsers = require('nvim-treesitter.info').installed_parsers()
+    local installed = require('nvim-treesitter.info').installed_parsers()
     local to_install = vim.tbl_filter(function(parser)
-        return not vim.tbl_contains(installed_parsers, parser)
+        return not vim.tbl_contains(installed, parser)
     end, required_parsers)
     if #to_install > 0 then
         vim.cmd.TSInstallSync({ bang = true, args = to_install })

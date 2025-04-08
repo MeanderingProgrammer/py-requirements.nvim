@@ -7,7 +7,7 @@ local state = require('py-requirements.state')
 
 ---@class py.reqs.dependency.Description
 ---@field content? string[]
----@field type? string
+---@field kind? string
 
 ---@class py.reqs.Cache
 local cache = {
@@ -76,9 +76,9 @@ function M.get_versions(name)
         if filter.yanked and files ~= nil then
             -- Based on observations of API responses, unsure if this is the correct approach
             -- Calling description API for every version seems too expensive
-            local version_filename = string.format('%s-%s.tar.gz', name, version)
+            local filename = string.format('%s-%s.tar.gz', name, version)
             for _, file in ipairs(files) do
-                if file.filename == version_filename and file.yanked then
+                if file.filename == filename and file.yanked then
                     return false
                 end
             end
@@ -137,7 +137,7 @@ function M.get_description(name, version)
         else
             return {
                 content = vim.split(result.info.description, '\n'),
-                type = result.info.description_content_type,
+                kind = result.info.description_content_type,
             }
         end
     end
@@ -152,7 +152,12 @@ end
 ---@param request_headers? table<string,string>
 ---@return any?
 function M.call_pypi(endpoint, request_headers)
-    local user_agent = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)'
+    local repo = 'py-requirements.nvim'
+    local user_agent = string.format(
+        '%s (https://github.com/MeanderingProgrammer/%s)',
+        repo,
+        repo
+    )
     local result = curl.get(endpoint, '-isSL', user_agent, request_headers)
     if result == nil or not vim.tbl_contains({ 200, 301 }, result.status) then
         return nil

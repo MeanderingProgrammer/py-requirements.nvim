@@ -21,14 +21,14 @@ function M.get(endpoint, options, user_agent, request_headers)
     command[#command + 1] = endpoint
 
     local result = vim.system(command, { text = true }):wait()
-    local sections = vim.split(vim.trim(result.stdout), '\n\n', { plain = true, trimempty = true })
+    local sections = M.split(vim.trim(result.stdout), '\n\n')
     -- Expect at least a single set of response headers and a body
     if #sections < 2 then
         return nil
     end
 
-    local response_headers = vim.split(sections[1], '\n', { plain = true, trimempty = true })
-    local status_header = vim.split(response_headers[1], ' ', { plain = true, trimempty = true })
+    local response_headers = M.split(sections[1], '\n')
+    local status_header = M.split(response_headers[1], ' ')
     -- Status header includes HTTP version followed by response code
     if #status_header < 2 then
         return nil
@@ -44,6 +44,14 @@ function M.get(endpoint, options, user_agent, request_headers)
         status = status,
         body = sections[#sections],
     }
+end
+
+---@private
+---@param s string
+---@param sep string
+---@return string[]
+function M.split(s, sep)
+    return vim.split(s, sep, { plain = true, trimempty = true })
 end
 
 return M

@@ -13,12 +13,19 @@ local eq = assert.are.same
 ---@param files table[]?
 local function set_response(name, status, versions, files)
     local endpoint = string.format('https://pypi.org/simple/%s/', name)
-    local user_agent = 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)'
+    local repo = 'py-requirements.nvim'
+    local user_agent = string.format(
+        '%s (https://github.com/MeanderingProgrammer/%s)',
+        repo,
+        repo
+    )
     local request_headers = { Accept = 'application/vnd.pypi.simple.v1+json' }
-    curl.get.on_call_with(endpoint, '-isSL', user_agent, request_headers).returns({
-        status = status,
-        body = vim.json.encode({ versions = versions, files = files }),
-    })
+    curl.get
+        .on_call_with(endpoint, '-isSL', user_agent, request_headers)
+        .returns({
+            status = status,
+            body = vim.json.encode({ versions = versions, files = files }),
+        })
 end
 
 describe('api', function()
@@ -65,7 +72,10 @@ describe('api', function()
             { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
 
-        local expected = { status = pypi.Status.VALID, values = { '3.2.2', '3.2.3' } }
+        local expected = {
+            status = pypi.Status.VALID,
+            values = { '3.2.2', '3.2.3' },
+        }
         eq(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)

@@ -11,7 +11,7 @@ local M = {}
 
 ---@private
 ---@type integer
-M.group = vim.api.nvim_create_augroup('PyRequirements', { clear = true })
+M.group = vim.api.nvim_create_augroup('PyRequirements', {})
 
 function M.setup()
     vim.api.nvim_create_autocmd('BufRead', {
