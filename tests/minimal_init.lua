@@ -7,18 +7,6 @@ local function get_path(name)
     return plugin_path[1]
 end
 
----https://github.com/ThePrimeagen/refactoring.nvim/blob/master/scripts/minimal.vim
----@param parsers string[]
-local function ensure_installed(parsers)
-    local installed = require('nvim-treesitter.info').installed_parsers()
-    local missing = vim.tbl_filter(function(parser)
-        return not vim.tbl_contains(installed, parser)
-    end, parsers)
-    if #missing > 0 then
-        vim.cmd.TSInstallSync({ bang = true, args = missing })
-    end
-end
-
 -- source dependencies first
 vim.opt.rtp:prepend(get_path('nvim-treesitter'))
 vim.cmd.runtime('plugin/nvim-treesitter.lua')
@@ -30,4 +18,4 @@ vim.opt.rtp:prepend('.')
 vim.opt.rtp:prepend(get_path('plenary.nvim'))
 vim.cmd.runtime('plugin/plenary.vim')
 
-ensure_installed({ 'requirements' })
+require('nvim-treesitter').install({ 'requirements' }):wait(60000)

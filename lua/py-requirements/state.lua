@@ -19,23 +19,12 @@
 
 ---@class py.reqs.State
 ---@field config py.reqs.Config
----@field requirement_query vim.treesitter.Query
----@field dependency_query vim.treesitter.Query
 local M = {}
 
 ---@param default_config py.reqs.Config
 ---@param user_config py.reqs.UserConfig
 function M.setup(default_config, user_config)
     M.config = vim.tbl_deep_extend('force', default_config, user_config)
-    M.requirement_query = M.parse(M.config.requirement_query)
-    M.dependency_query = M.parse(M.config.dependency_query)
-end
-
----@private
----@param query string
----@return vim.treesitter.Query
-function M.parse(query)
-    return vim.treesitter.query.parse('requirements', query)
 end
 
 return M
