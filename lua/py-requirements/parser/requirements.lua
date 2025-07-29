@@ -17,7 +17,7 @@ function M.parse_dependencies(buf)
     if not query then
         return {}
     end
-    local dependencies = {}
+    local dependencies = {} ---@type py.reqs.ParsedDependency[]
     local root = tree:parse()[1]:root()
     for _, node in query:iter_captures(root, buf) do
         local dependency = M.parse_dependency(buf, node)

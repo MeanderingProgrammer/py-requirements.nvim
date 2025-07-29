@@ -39,19 +39,8 @@ function M.server(dispatchers)
                     },
                 })
             elseif method == 'textDocument/completion' then
-                local row = params.position.line
                 vim.schedule(function()
-                    local items = source.completions(row)
-                    if items == nil then
-                        callback(nil, nil)
-                    else
-                        ---@type lsp.CompletionList
-                        local completions = {
-                            isIncomplete = false,
-                            items = items,
-                        }
-                        callback(nil, completions)
-                    end
+                    callback(nil, M.completions(params))
                 end)
             elseif method == 'shutdown' then
                 callback(nil, nil)
@@ -72,6 +61,22 @@ function M.server(dispatchers)
         terminate = function()
             closing = true
         end,
+    }
+end
+
+---@private
+---@param params lsp.CompletionParams
+---@return lsp.CompletionList?
+function M.completions(params)
+    local row = params.position.line
+    local items = source.completions(row)
+    if not items then
+        return nil
+    end
+    ---@type lsp.CompletionList
+    return {
+        isIncomplete = false,
+        items = items,
     }
 end
 
