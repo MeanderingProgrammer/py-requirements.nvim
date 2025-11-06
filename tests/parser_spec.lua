@@ -1,9 +1,8 @@
 ---@module 'luassert'
 
+local Package = require('py-requirements.lib.package')
 local parser = require('py-requirements.parser')
 local util = require('tests.util')
-
-local eq = assert.are.same
 
 describe('parser', function()
     before_each(function()
@@ -25,69 +24,38 @@ describe('parser', function()
             '    --hash=sha256:9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506',
             '    # via django',
         })
+        ---@type py.reqs.Package[]
         local expected = {
-            {
-                line_number = 1,
-                name = 'argcomplete',
-                comparison = '>',
-                version = { value = '3.2.2', start_col = 12, end_col = 17 },
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 2,
-                name = 'click',
-                comparison = '>=',
-                version = { value = '8.1.7', start_col = 7, end_col = 12 },
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 3,
-                name = 'discord.py',
-                comparison = '==',
-                version = { value = '2.3', start_col = 12, end_col = 15 },
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 4,
-                name = 'numpy',
-                comparison = '<=',
-                version = { value = '0.7.3', start_col = 7, end_col = 12 },
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 5,
-                name = 'pandas',
-                comparison = '<',
-                version = { value = '1.1.0', start_col = 7, end_col = 12 },
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 6,
-                name = 'plotly',
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 7,
-                name = 'toml',
-                versions = { status = 1, values = {} },
-            },
-            {
-                line_number = 8,
-                name = 'asgiref',
-                comparison = '==',
-                version = { value = '3.6.0', start_col = 9, end_col = 14 },
-                versions = { status = 1, values = {} },
-            },
+            Package.new(
+                1,
+                'argcomplete',
+                '>',
+                { value = '3.2.2', col = { 12, 17 } }
+            ),
+            Package.new(2, 'click', '>=', { value = '8.1.7', col = { 7, 12 } }),
+            Package.new(
+                3,
+                'discord.py',
+                '==',
+                { value = '2.3', col = { 12, 15 } }
+            ),
+            Package.new(4, 'numpy', '<=', { value = '0.7.3', col = { 7, 12 } }),
+            Package.new(5, 'pandas', '<', { value = '1.1.0', col = { 7, 12 } }),
+            Package.new(6, 'plotly'),
+            Package.new(7, 'toml'),
+            Package.new(
+                8,
+                'asgiref',
+                '==',
+                { value = '3.6.0', col = { 9, 14 } }
+            ),
         }
-        eq(expected, parser.dependencies(buf))
-        eq(33, parser.max_len(buf, expected))
-        eq({
-            line_number = 0,
-            name = 'click',
-            comparison = '==',
-            version = { value = '0', start_col = 7, end_col = 8 },
-            versions = { status = 1, values = {} },
-        }, parser.dependency_string('click=='))
-        eq(nil, parser.dependency_string('click='))
+        assert.same(expected, parser.packages(buf))
+        assert.same(33, parser.max_len(buf, expected))
+        assert.same(
+            Package.new(0, 'click', '==', { value = '0', col = { 7, 8 } }),
+            parser.line('click==')
+        )
+        assert.same(nil, parser.line('click='))
     end)
 end)

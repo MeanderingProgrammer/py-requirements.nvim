@@ -8,14 +8,14 @@ local M = {}
 ---@param endpoint string
 ---@param options string
 ---@param user_agent string
----@param request_headers? table<string,string>
+---@param headers? table<string,string>
 ---@return py.reqs.curl.Response?
-function M.get(endpoint, options, user_agent, request_headers)
+function M.get(endpoint, options, user_agent, headers)
     local command = { 'curl', options, '-A', user_agent }
-    if request_headers ~= nil then
+    if headers ~= nil then
         command[#command + 1] = '-H'
-        for key, value in pairs(request_headers) do
-            command[#command + 1] = string.format('%s: %s', key, value)
+        for key, value in pairs(headers) do
+            command[#command + 1] = ('%s: %s'):format(key, value)
         end
     end
     command[#command + 1] = endpoint

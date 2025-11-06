@@ -12,11 +12,8 @@ end
 
 ---@return string[]
 function M.trigger_characters()
-    -- stylua: ignore
-    return {
-        '.', '<', '>', '=', '^', '~', ' ',
-        '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-    }
+    ---@type string[]
+    return { '.', '<', '>', '=', '^', '~', ' ' }
 end
 
 ---@param row integer 0-indexed
@@ -27,23 +24,22 @@ function M.completions(row)
         return nil
     end
 
-    local dependency = parser.dependency_string(line)
-    if dependency == nil or dependency.comparison == nil then
+    local package = parser.line(line)
+    if not package or not package.comparison then
         return nil
     end
 
-    local node = dependency.version
-    local versions = pypi.get_versions(dependency.name).values
-    if node == nil or versions == nil then
+    local node = package.version
+    local versions = pypi.get_versions(package.name).values
+    if not node or not versions then
         return nil
     end
 
-    ---@type lsp.CompletionItem[]
-    local result = {}
+    local result = {} ---@type lsp.CompletionItem[]
     ---@type lsp.Range
     local range = {
-        ['start'] = { line = row, character = node.start_col },
-        ['end'] = { line = row, character = node.end_col },
+        ['start'] = { line = row, character = node.col[1] },
+        ['end'] = { line = row, character = node.col[2] },
     }
     for i, version in ipairs(vim.fn.reverse(versions)) do
         ---@type lsp.CompletionItem
@@ -51,7 +47,7 @@ function M.completions(row)
             label = version,
             kind = 12,
             textEdit = { newText = version, insert = range, replace = range },
-            sortText = string.format('%04d', i),
+            sortText = ('%04d'):format(i),
         }
         result[#result + 1] = item
     end

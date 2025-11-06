@@ -1,28 +1,26 @@
 ---@class py.reqs.Init: py.reqs.Api
 local M = {}
 
----@class (exact) py.reqs.UserVersionFilter
----@field public final_release? boolean
----@field public yanked? boolean
+---@class (exact) py.reqs.Config
+---@field enable_lsp boolean
+---@field enable_cmp boolean
+---@field index_url string
+---@field extra_index_url? string
+---@field file_patterns string[]
+---@field diagnostic_opts py.reqs.diagnostic.Config
+---@field float_opts vim.lsp.util.open_floating_preview.Opts
+---@field filter py.reqs.version.filter.Config
 
----@class (exact) py.reqs.UserDiagnosticOpts
----@field public padding? integer
+---@class (exact) py.reqs.diagnostic.Config
+---@field padding integer
 
----@class (exact) py.reqs.UserConfig
----@field public enable_lsp? boolean
----@field public enable_cmp? boolean
----@field public index_url? string
----@field public extra_index_url? string
----@field public file_patterns? string[]
----@field public diagnostic_opts? py.reqs.UserDiagnosticOpts
----@field public float_opts? vim.lsp.util.open_floating_preview.Opts
----@field public filter? py.reqs.UserVersionFilter
----@field public requirement_query? string
----@field public dependency_query? string
+---@class (exact) py.reqs.version.filter.Config
+---@field final_release boolean
+---@field yanked boolean
 
 ---@private
 ---@type py.reqs.Config
-M.default_config = {
+M.default = {
     enable_lsp = true,
     enable_cmp = false,
     index_url = 'https://pypi.org/simple/',
@@ -34,18 +32,11 @@ M.default_config = {
         final_release = false,
         yanked = true,
     },
-    requirement_query = '(requirement) @requirement',
-    dependency_query = [[
-        (requirement (package) @name)
-        (version_spec (version_cmp) @cmp)
-        (version_spec (version) @version)
-    ]],
 }
 
 ---@param opts? py.reqs.UserConfig
 function M.setup(opts)
-    local state = require('py-requirements.state')
-    state.setup(M.default_config, opts or {})
+    require('py-requirements.state').setup(M.default, opts or {})
     require('py-requirements.manager').setup()
 end
 

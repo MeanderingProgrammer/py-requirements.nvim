@@ -5,7 +5,7 @@ local M = {}
 ---@param file? string
 function M.setup(opts, file)
     require('py-requirements').setup(opts)
-    if file ~= nil then
+    if file then
         vim.cmd('e ' .. file)
         vim.wait(0)
     end

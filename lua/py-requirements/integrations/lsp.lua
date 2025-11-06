@@ -5,19 +5,12 @@ local M = {}
 
 function M.setup()
     local name = 'py-requirements'
-    ---@type vim.lsp.ClientConfig
-    local config = {
-        name = name,
-        cmd = M.server,
-    }
-    ---@type vim.lsp.start.Opts
-    local opts = {
+    vim.lsp.start({ name = name, cmd = M.server }, {
         bufnr = 0,
         reuse_client = function(lsp_client, lsp_config)
             return lsp_client.name == lsp_config.name
         end,
-    }
-    vim.lsp.start(config, opts)
+    })
 end
 
 ---@private

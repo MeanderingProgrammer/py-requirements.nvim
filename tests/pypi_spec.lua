@@ -5,20 +5,16 @@ local pypi = require('py-requirements.pypi')
 local util = require('tests.util')
 
 local curl = mock(require('py-requirements.curl'), true)
-local eq = assert.are.same
 
 ---@param name string
 ---@param status integer
 ---@param versions string[]
----@param files table[]?
+---@param files py.reqs.pypi.package.File[]
 local function set_response(name, status, versions, files)
-    local endpoint = string.format('https://pypi.org/simple/%s/', name)
+    local endpoint = ('https://pypi.org/simple/%s/'):format(name)
+    local url = 'https://github.com/MeanderingProgrammer'
     local repo = 'py-requirements.nvim'
-    local user_agent = string.format(
-        '%s (https://github.com/MeanderingProgrammer/%s)',
-        repo,
-        repo
-    )
+    local user_agent = ('%s (%s/%s)'):format(repo, url, repo)
     local request_headers = { Accept = 'application/vnd.pypi.simple.v1+json' }
     curl.get
         .on_call_with(endpoint, '-isSL', user_agent, request_headers)
@@ -38,10 +34,10 @@ describe('api', function()
 
         local name = 't1'
         local versions = { '3.2.2', '3.2.2.post1' }
-        set_response(name, 200, versions, nil)
+        set_response(name, 200, versions, {})
 
-        local expected = { status = pypi.Status.VALID, values = versions }
-        eq(expected, pypi.get_versions(name))
+        local expected = { values = versions }
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -56,10 +52,10 @@ describe('api', function()
             '2.3.0.dev1', -- Developmental release
             '2.3.0', -- Final release
             '2.3.0.post1', -- Post-release
-        }, nil)
+        }, {})
 
-        local expected = { status = pypi.Status.VALID, values = { '2.3.0' } }
-        eq(expected, pypi.get_versions(name))
+        local expected = { values = { '2.3.0' } }
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -72,11 +68,8 @@ describe('api', function()
             { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
 
-        local expected = {
-            status = pypi.Status.VALID,
-            values = { '3.2.2', '3.2.3' },
-        }
-        eq(expected, pypi.get_versions(name))
+        local expected = { values = { '3.2.2', '3.2.3' } }
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -90,8 +83,8 @@ describe('api', function()
             { filename = name .. '-3.2.4.tar.gz', yanked = 'Reason for yank' },
         })
 
-        local expected = { status = pypi.Status.VALID, values = versions }
-        eq(expected, pypi.get_versions(name))
+        local expected = { values = versions }
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -100,15 +93,15 @@ describe('api', function()
 
         local name = 't5'
         local versions = { '2.1.0', '2.2.0b1', '2.2.0' }
-        set_response(name, 301, versions, nil)
+        set_response(name, 301, versions, {})
 
-        local expected = { status = pypi.Status.VALID, values = versions }
-        eq(expected, pypi.get_versions(name))
+        local expected = { values = versions }
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
 
-        eq(expected, pypi.get_versions(name))
-        eq(expected, pypi.get_versions(name))
-        eq(expected, pypi.get_versions(name))
+        assert.same(expected, pypi.get_versions(name))
+        assert.same(expected, pypi.get_versions(name))
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 
@@ -116,9 +109,10 @@ describe('api', function()
         util.setup({})
 
         local name = 't6'
-        set_response(name, 404, { '1.0.0', '2.0.0' }, nil)
+        set_response(name, 404, { '1.0.0', '2.0.0' }, {})
 
-        eq(pypi.FAILED, pypi.get_versions(name))
+        local expected = {}
+        assert.same(expected, pypi.get_versions(name))
         assert.stub(curl.get).was.called(1)
     end)
 end)

@@ -35,10 +35,10 @@ function Source:complete(params, callback)
 end
 
 ---@private
----@param items lsp.Range
+---@param items lsp.CompletionItem[]
 ---@return lsp.CompletionItem[]
 function Source.add_cmp(items)
-    local result = {}
+    local result = {} ---@type lsp.CompletionItem[]
     for _, item in ipairs(items) do
         item.cmp = { kind_text = 'Version', kind_hl_group = 'Special' }
         result[#result + 1] = item

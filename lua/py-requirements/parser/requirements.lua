@@ -1,4 +1,5 @@
-local state = require('py-requirements.state')
+local Package = require('py-requirements.lib.package')
+local ts = require('py-requirements.lib.ts')
 
 ---@class py.reqs.parser.Requirements
 local M = {}
@@ -7,49 +8,56 @@ local M = {}
 M.lang = 'requirements'
 
 ---@param buf integer
----@return py.reqs.ParsedDependency[]
-function M.parse_dependencies(buf)
+---@return py.reqs.Package[]
+function M.packages(buf)
     local ok, tree = pcall(vim.treesitter.get_parser, buf, M.lang)
     if not ok or not tree then
         return {}
     end
-    local query = M.parse(state.config.requirement_query)
+    local query = ts.parse(M.lang, '(requirement) @requirement')
     if not query then
         return {}
     end
-    local dependencies = {} ---@type py.reqs.ParsedDependency[]
+    local result = {} ---@type py.reqs.Package[]
     local root = tree:parse()[1]:root()
     for _, node in query:iter_captures(root, buf) do
-        local dependency = M.parse_dependency(buf, node)
-        if dependency then
-            dependencies[#dependencies + 1] = dependency
+        local package = M.parse(buf, node)
+        if package then
+            result[#result + 1] = package
         end
     end
-    return dependencies
+    return result
 end
 
 ---@param line string
----@return py.reqs.ParsedDependency?
-function M.parse_dependency_string(line)
-    --Adding a 0 at the end as if we started typing a version number
+---@return py.reqs.Package?
+function M.line(line)
+    -- adding a 0 at the end as if we started typing a version number
     line = line .. '0'
     local ok, tree = pcall(vim.treesitter.get_string_parser, line, M.lang)
     if not ok or not tree then
         return nil
     end
-    return M.parse_dependency(line, tree:parse()[1]:root())
+    return M.parse(line, tree:parse()[1]:root())
 end
 
 ---@private
 ---@param source (integer|string)
 ---@param root TSNode
----@return py.reqs.ParsedDependency?
-function M.parse_dependency(source, root)
-    local query = M.parse(state.config.dependency_query)
+---@return py.reqs.Package?
+function M.parse(source, root)
+    -- stylua: ignore
+    local query = ts.parse(M.lang, [[
+        (requirement (package) @name)
+        (version_spec (version_cmp) @cmp)
+        (version_spec (version) @version)
+    ]])
     if not query then
         return nil
     end
-    local name, comparison, version = nil, nil, nil
+    local name = nil ---@type string?
+    local comparison = nil ---@type string?
+    local version = nil ---@type py.reqs.package.Node?
     for id, node in query:iter_captures(root, source) do
         local capture = query.captures[id]
         local value = vim.treesitter.get_node_text(node, source)
@@ -59,32 +67,13 @@ function M.parse_dependency(source, root)
             comparison = value
         elseif capture == 'version' then
             local _, start_col, _, end_col = node:range()
-            ---@type py.reqs.Node
             version = {
                 value = value,
-                start_col = start_col,
-                end_col = end_col,
+                col = { start_col, end_col },
             }
         end
     end
-    if name == nil then
-        return nil
-    end
-    ---@type py.reqs.ParsedDependency
-    return {
-        line_number = root:start(),
-        name = name,
-        comparison = comparison,
-        version = version,
-    }
-end
-
----@private
----@param query string
----@return vim.treesitter.Query?
-function M.parse(query)
-    local ok, result = pcall(vim.treesitter.query.parse, M.lang, query)
-    return ok and result or nil
+    return Package.new(root:start(), name, comparison, version)
 end
 
 return M

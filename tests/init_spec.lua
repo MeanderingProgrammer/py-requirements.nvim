@@ -5,14 +5,13 @@ local ui = require('py-requirements.ui')
 local util = require('tests.util')
 
 local pypi = mock(require('py-requirements.pypi'), true)
-local eq = assert.are.same
 
 ---@param name string
 ---@param versions string[]
 local function set_response(name, versions)
     pypi.get_versions.on_call_with(name).returns({
-        status = pypi.Status.VALID,
         values = versions,
+        files = {},
     })
 end
 
@@ -24,7 +23,7 @@ describe('init', function()
         util.setup({}, 'tests/requirements.txt')
 
         local actual = {}
-        local diagnostics = vim.diagnostic.get(0, { namespace = ui.namespace })
+        local diagnostics = vim.diagnostic.get(0, { namespace = ui.ns })
         for _, diagnostic in ipairs(diagnostics) do
             local diagnostic_info = {
                 line = diagnostic.lnum,
@@ -39,7 +38,7 @@ describe('init', function()
             { line = 1, text = '2.2.0', prefix = ' ' },
         }
 
-        eq(expected, actual)
+        assert.same(expected, actual)
         assert.stub(pypi.get_versions).was.called(4)
     end)
 end)

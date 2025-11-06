@@ -1,4 +1,3 @@
-local pypi = require('py-requirements.pypi')
 local state = require('py-requirements.state')
 
 ---@class py.reqs.DiagnosticInfo
@@ -9,84 +8,31 @@ local state = require('py-requirements.state')
 local M = {}
 
 ---@type integer
-M.namespace = vim.api.nvim_create_namespace('py-requirements.nvim')
+M.ns = vim.api.nvim_create_namespace('py-requirements.nvim')
 
 ---@param buf integer
----@param dependencies py.reqs.Dependency[]
+---@param packages py.reqs.Package[]
 ---@param max_len integer
-function M.display(buf, dependencies, max_len)
-    local diagnostics = vim.iter(dependencies)
-        :map(function(dependency)
-            local info = M.diagnostic_info(dependency)
-            ---@type vim.Diagnostic
-            return {
-                source = 'py-requirements',
-                col = 0,
-                lnum = dependency.line_number,
-                severity = info.severity,
-                message = info.message,
-            }
-        end)
-        :totable()
+function M.display(buf, packages, max_len)
+    local diagnostics = {} ---@type vim.Diagnostic[]
+    for _, package in ipairs(packages) do
+        local info = package:info()
+        diagnostics[#diagnostics + 1] = {
+            source = 'py-requirements',
+            col = 0,
+            lnum = package.row,
+            severity = info.severity,
+            message = info.message,
+        }
+    end
 
-    vim.diagnostic.set(M.namespace, buf, diagnostics, {
+    vim.diagnostic.set(M.ns, buf, diagnostics, {
         virtual_text = {
             prefix = M.prefix,
             virt_text_win_col = max_len + state.config.diagnostic_opts.padding,
             spacing = 0,
         },
     })
-end
-
----@private
----@param dependency py.reqs.Dependency
----@return py.reqs.DiagnosticInfo
-function M.diagnostic_info(dependency)
-    local version = dependency.version
-    local versions = dependency.versions
-    if versions.status == pypi.Status.LOADING then
-        ---@type py.reqs.DiagnosticInfo
-        return {
-            message = 'Loading',
-            severity = vim.diagnostic.severity.INFO,
-        }
-    elseif versions.status == pypi.Status.INVALID then
-        ---@type py.reqs.DiagnosticInfo
-        return {
-            message = 'Error fetching library',
-            severity = vim.diagnostic.severity.ERROR,
-        }
-    elseif versions.status == pypi.Status.VALID then
-        if #versions.values == 0 then
-            ---@type py.reqs.DiagnosticInfo
-            return {
-                message = 'No versions found',
-                severity = vim.diagnostic.severity.ERROR,
-            }
-        elseif
-            version ~= nil
-            and not vim.tbl_contains(versions.values, version.value)
-        then
-            ---@type py.reqs.DiagnosticInfo
-            return {
-                message = 'Invalid version',
-                severity = vim.diagnostic.severity.ERROR,
-            }
-        else
-            local latest_version = versions.values[#versions.values]
-            local severity = vim.diagnostic.severity.INFO
-            if version ~= nil and latest_version ~= version.value then
-                severity = vim.diagnostic.severity.WARN
-            end
-            ---@type py.reqs.DiagnosticInfo
-            return {
-                message = latest_version,
-                severity = severity,
-            }
-        end
-    else
-        error(string.format('Unhandled library status: %d', versions.status))
-    end
 end
 
 ---@param diagnostic vim.Diagnostic
@@ -104,22 +50,22 @@ function M.prefix(diagnostic)
 end
 
 ---@param buf integer
----@param dependency py.reqs.Dependency
-function M.upgrade(buf, dependency)
-    local version = dependency.version
-    local latest = dependency.versions.values[#dependency.versions.values]
+---@param package py.reqs.Package
+function M.upgrade(buf, package)
+    local version = package.version
+    local latest = package:latest()
     if version and latest then
-        local start_col, end_col = version.start_col, version.end_col
-        local row = dependency.line_number
+        local row = package.row
+        local start_col, end_col = version.col[1], version.col[2]
         local line = { latest }
         vim.api.nvim_buf_set_text(buf, row, start_col, row, end_col, line)
     end
 end
 
----@param description py.reqs.dependency.Description
+---@param description py.reqs.pypi.Description
 function M.show_description(description)
-    local content, kind = description.content, description.kind
-    if content == nil then
+    local content = description.content
+    if not content then
         return
     end
 
@@ -127,7 +73,7 @@ function M.show_description(description)
         ['text/x-rst'] = 'rst',
         ['text/markdown'] = 'markdown',
     }
-    local syntax = syntax_mapping[kind] or 'plaintext'
+    local syntax = syntax_mapping[description.type] or 'plaintext'
 
     local default = { focus_id = 'py-requirements.nvim' }
     local opts = vim.tbl_deep_extend('force', default, state.config.float_opts)

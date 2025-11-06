@@ -56,7 +56,7 @@ function M.valid(buf)
     local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':t')
     for _, pattern in ipairs(state.config.file_patterns) do
         local match = vim.regex(pattern):match_str(name)
-        if match ~= nil and match == 0 then
+        if match == 0 then
             return true
         end
     end
@@ -76,12 +76,12 @@ end
 ---@private
 ---@param buf integer
 function M.initialize(buf)
-    local dependencies = parser.dependencies(buf)
-    local max_len = parser.max_len(buf, dependencies)
-    ui.display(buf, dependencies, max_len)
-    for _, dependency in ipairs(dependencies) do
+    local packages = parser.packages(buf)
+    local max_len = parser.max_len(buf, packages)
+    ui.display(buf, packages, max_len)
+    for _, package in ipairs(packages) do
         vim.schedule(function()
-            pypi.get_versions(dependency.name)
+            pypi.get_versions(package.name)
         end)
     end
     M.display(buf)
@@ -91,12 +91,12 @@ end
 ---@param buf integer
 function M.display(buf)
     vim.schedule(function()
-        local dependencies = parser.dependencies(buf)
-        local max_len = parser.max_len(buf, dependencies)
-        for _, dependency in ipairs(dependencies) do
-            dependency.versions = pypi.get_versions(dependency.name)
+        local packages = parser.packages(buf)
+        local max_len = parser.max_len(buf, packages)
+        for _, package in ipairs(packages) do
+            package:set(pypi.get_versions(package.name))
         end
-        ui.display(buf, dependencies, max_len)
+        ui.display(buf, packages, max_len)
     end)
 end
 

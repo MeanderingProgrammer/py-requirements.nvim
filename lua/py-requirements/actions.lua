@@ -6,34 +6,33 @@ local ui = require('py-requirements.ui')
 local M = {}
 
 ---@param buf integer
----@param row integer?
+---@param row? integer
 function M.upgrade(buf, row)
-    M.run_action(buf, row, function(dependency)
-        dependency.versions = pypi.get_versions(dependency.name)
-        ui.upgrade(buf, dependency)
+    M.run(buf, row, function(package)
+        package:set(pypi.get_versions(package.name))
+        ui.upgrade(buf, package)
     end)
 end
 
 ---@param buf integer
 ---@param row integer
 function M.show_description(buf, row)
-    M.run_action(buf, row, function(dependency)
-        local version = dependency.version and dependency.version.value
-        local description = pypi.get_description(dependency.name, version)
+    M.run(buf, row, function(package)
+        local description = pypi.get_description(package.name, package:get())
         ui.show_description(description)
     end)
 end
 
 ---@private
 ---@param buf integer
----@param row integer?
----@param callback fun(dependency: py.reqs.Dependency)
-function M.run_action(buf, row, callback)
-    local dependencies = parser.dependencies(buf)
-    for _, dependency in ipairs(dependencies) do
-        if row == nil or dependency.line_number == row then
+---@param row? integer
+---@param callback fun(package: py.reqs.Package)
+function M.run(buf, row, callback)
+    local packages = parser.packages(buf)
+    for _, package in ipairs(packages) do
+        if not row or package.row == row then
             vim.schedule(function()
-                callback(dependency)
+                callback(package)
             end)
         end
     end

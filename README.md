@@ -73,14 +73,6 @@ require('py-requirements').setup({
         -- If set to true (default value) filter out yanked package versions
         yanked = true,
     },
-    -- Query to get each dependency present in a file
-    requirement_query = '(requirement) @requirement',
-    -- Query to get information out of each dependency
-    dependency_query = [[
-        (requirement (package) @name)
-        (version_spec (version_cmp) @cmp)
-        (version_spec (version) @version)
-    ]],
 })
 ```
 
@@ -96,43 +88,11 @@ vim.keymap.set('n', '<leader>rK', requirements.show_description, { silent = true
 
 ## Completions
 
-### in-process lsp (default)
+### in-process lsp
 
 On by default and the recommended way of getting version completions from this plugin.
 Requires no additional configuration, assuming you have general LSP completions.
 Works with any completion engine out of the box!
-
-### nvim-cmp
-
-```lua
-require('py-requirements').setup({
-    enable_cmp = true,
-    enable_lsp = false,
-})
-local cmp = require('cmp')
-cmp.setup({
-    sources = cmp.config.sources({
-        { name = 'py-requirements' },
-    }),
-})
-```
-
-### blink.cmp
-
-```lua
-require('blink.cmp').setup({
-    sources = {
-        default = { 'lsp', 'path', 'snippets', 'buffer', 'pypi' },
-        providers = {
-            pypi = {
-                name = 'Pypi',
-                module = 'py-requirements.integrations.blink',
-                fallbacks = { 'lsp' },
-            },
-        },
-    },
-})
-```
 
 # Acknowledgments / Related Projects
 
