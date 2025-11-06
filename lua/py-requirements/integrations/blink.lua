@@ -26,8 +26,8 @@ end
 function Source:get_completions(context, callback)
     -- nvim_win_get_cursor: (1,0)-indexed
     local row = context.cursor[1] - 1
-    local items = source.completions(row)
-    if items == nil then
+    local items = source.items(row)
+    if not items then
         callback(nil)
     else
         callback({

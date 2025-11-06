@@ -1,6 +1,5 @@
 local parser = require('py-requirements.parser')
-local pypi = require('py-requirements.pypi')
-local ui = require('py-requirements.ui')
+local ui = require('py-requirements.lib.ui')
 
 ---@class py.reqs.Actions
 local M = {}
@@ -9,7 +8,7 @@ local M = {}
 ---@param row? integer
 function M.upgrade(buf, row)
     M.run(buf, row, function(package)
-        package:set(pypi.get_versions(package.name))
+        package:update()
         ui.upgrade(buf, package)
     end)
 end
@@ -18,8 +17,7 @@ end
 ---@param row integer
 function M.show_description(buf, row)
     M.run(buf, row, function(package)
-        local description = pypi.get_description(package.name, package:get())
-        ui.show_description(description)
+        ui.description(package)
     end)
 end
 

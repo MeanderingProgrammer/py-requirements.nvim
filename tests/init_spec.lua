@@ -1,44 +1,64 @@
 ---@module 'luassert'
 
 local mock = require('luassert.mock')
-local ui = require('py-requirements.ui')
+local ui = require('py-requirements.lib.ui')
 local util = require('tests.util')
 
-local pypi = mock(require('py-requirements.pypi'), true)
-
----@param name string
----@param versions string[]
-local function set_response(name, versions)
-    pypi.get_versions.on_call_with(name).returns({
-        values = versions,
-        files = {},
-    })
-end
+local pypi = mock(require('py-requirements.lib.pypi'), true)
 
 describe('init', function()
-    it('run auto command', function()
-        set_response('argcomplete', { '3.2.2' })
-        set_response('pandas', { '2.1.0', '2.2.0' })
+    before_each(function()
+        util.setup({})
+    end)
 
-        util.setup({}, 'tests/requirements.txt')
+    after_each(function()
+        pypi.get_versions:clear()
+    end)
 
-        local actual = {}
-        local diagnostics = vim.diagnostic.get(0, { namespace = ui.ns })
+    ---@param packages table<string, string[]>
+    local function setup(packages)
+        for name, versions in pairs(packages) do
+            ---@type py.reqs.pypi.Versions
+            local response = { values = versions, files = {} }
+            pypi.get_versions.on_call_with(name).returns(response)
+        end
+    end
+
+    ---@class py.reqs.test.Diagnostic
+    ---@field line integer
+    ---@field text string
+    ---@field prefix string
+
+    ---@param lines string[]
+    ---@param expected py.reqs.test.Diagnostic[]
+    local function validate(lines, expected)
+        local buf = util.create('requirements', lines)
+        vim.wait(0)
+
+        local diagnostics = vim.diagnostic.get(buf, { namespace = ui.ns })
+        util.delete(buf)
+
+        local actual = {} ---@type py.reqs.test.Diagnostic[]
         for _, diagnostic in ipairs(diagnostics) do
-            local diagnostic_info = {
+            actual[#actual + 1] = {
                 line = diagnostic.lnum,
                 text = diagnostic.message,
                 prefix = ui.prefix(diagnostic),
             }
-            actual[#actual + 1] = diagnostic_info
         end
-
-        local expected = {
-            { line = 0, text = '3.2.2', prefix = ' ' },
-            { line = 1, text = '2.2.0', prefix = ' ' },
-        }
 
         assert.same(expected, actual)
         assert.stub(pypi.get_versions).was.called(4)
+    end
+
+    it('default', function()
+        setup({
+            ['argcomplete'] = { '3.2.2' },
+            ['pandas'] = { '2.1.0', '2.2.0' },
+        })
+        validate({ 'argcomplete==3.2.2', 'pandas==2.1.0' }, {
+            { line = 0, text = '3.2.2', prefix = ' ' },
+            { line = 1, text = '2.2.0', prefix = ' ' },
+        })
     end)
 end)

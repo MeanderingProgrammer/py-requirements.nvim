@@ -25,42 +25,35 @@ function Source:complete(params, callback)
     -- nvim-cmp col + 1   : (1,1)-indexed
     local row = params.context.cursor.row - 1
     vim.schedule(function()
-        local items = source.completions(row)
-        if items == nil then
+        local items = source.items(row)
+        if not items then
             callback(nil)
         else
-            callback(Source.add_cmp(items))
+            for _, item in ipairs(items) do
+                item.cmp = { kind_text = 'Version', kind_hl_group = 'Special' }
+            end
+            callback(items)
         end
     end)
 end
 
----@private
----@param items lsp.CompletionItem[]
----@return lsp.CompletionItem[]
-function Source.add_cmp(items)
-    local result = {} ---@type lsp.CompletionItem[]
-    for _, item in ipairs(items) do
-        item.cmp = { kind_text = 'Version', kind_hl_group = 'Special' }
-        result[#result + 1] = item
-    end
-    return result
-end
-
 ---@class py.reqs.integ.Cmp
----@field private registered boolean
-local M = {
-    registered = false,
-}
+local M = {}
+
+---@private
+---@type boolean
+M.initialized = false
 
 function M.setup()
-    if M.registered then
+    if M.initialized then
         return
     end
-    local ok, cmp = pcall(require, 'cmp')
-    if ok then
-        cmp.register_source(Source:get_debug_name(), Source)
+    M.initialized = true
+    local has_cmp, cmp = pcall(require, 'cmp')
+    if not has_cmp or not cmp then
+        return
     end
-    M.registered = true
+    pcall(cmp.register_source, Source:get_debug_name(), Source)
 end
 
 return M

@@ -1,6 +1,5 @@
 local manager = require('py-requirements.manager')
 local parser = require('py-requirements.parser')
-local pypi = require('py-requirements.pypi')
 
 ---@class py.reqs.Source
 local M = {}
@@ -18,40 +17,39 @@ end
 
 ---@param row integer 0-indexed
 ---@return lsp.CompletionItem[]?
-function M.completions(row)
-    local line = vim.api.nvim_buf_get_lines(0, row, row + 1, false)[1]
-    if line == nil then
+function M.items(row)
+    local buf = vim.api.nvim_get_current_buf()
+    local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1]
+    if not line then
         return nil
     end
 
-    local package = parser.line(line)
-    if not package or not package.comparison then
+    local package = parser.line(buf, line)
+    if not package then
         return nil
     end
 
-    local node = package.version
-    local versions = pypi.get_versions(package.name).values
-    if not node or not versions then
+    local cols = package.cols
+    if not cols then
         return nil
     end
-
-    local result = {} ---@type lsp.CompletionItem[]
     ---@type lsp.Range
     local range = {
-        ['start'] = { line = row, character = node.col[1] },
-        ['end'] = { line = row, character = node.col[2] },
+        ['start'] = { line = row, character = cols[1] },
+        ['end'] = { line = row, character = cols[2] },
     }
-    for i, version in ipairs(vim.fn.reverse(versions)) do
-        ---@type lsp.CompletionItem
-        local item = {
+
+    local result = {} ---@type lsp.CompletionItem[]
+    local versions = vim.fn.reverse(package:update())
+    for i, version in ipairs(versions) do
+        result[#result + 1] = {
             label = version,
             kind = 12,
             textEdit = { newText = version, insert = range, replace = range },
             sortText = ('%04d'):format(i),
         }
-        result[#result + 1] = item
     end
-    return result
+    return #result > 0 and result or nil
 end
 
 return M

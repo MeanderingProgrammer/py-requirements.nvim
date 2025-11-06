@@ -61,8 +61,9 @@ end
 ---@param params lsp.CompletionParams
 ---@return lsp.CompletionList?
 function M.completions(params)
+    -- lsp position: (0,0)-indexed
     local row = params.position.line
-    local items = source.completions(row)
+    local items = source.items(row)
     if not items then
         return nil
     end

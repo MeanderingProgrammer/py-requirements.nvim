@@ -1,4 +1,11 @@
-local requirements = require('py-requirements.parser.requirements')
+---@class py.reqs.parser.Language
+---@field packages fun(buf: integer): py.reqs.Package[]
+---@field line fun(str: string): py.reqs.Package?
+
+---@type table<string, py.reqs.parser.Language>
+local parsers = {
+    requirements = require('py-requirements.parser.requirements'),
+}
 
 ---@class py.reqs.Parser
 local M = {}
@@ -6,25 +13,23 @@ local M = {}
 ---@param buf integer
 ---@return py.reqs.Package[]
 function M.packages(buf)
-    return requirements.packages(buf)
-end
-
----@param line string
----@return py.reqs.Package?
-function M.line(line)
-    return requirements.line(line)
+    return M.get(buf).packages(buf)
 end
 
 ---@param buf integer
----@param packages py.reqs.Package[]
----@return integer
-function M.max_len(buf, packages)
-    local result = 0
-    local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
-    for _, package in ipairs(packages) do
-        result = math.max(result, #lines[package.row + 1])
-    end
-    return result
+---@param str string
+---@return py.reqs.Package?
+function M.line(buf, str)
+    -- adding a 0 to the end as if we started typing a version number
+    return M.get(buf).line(str .. '0')
+end
+
+---@private
+---@param buf integer
+---@return py.reqs.parser.Language
+function M.get(buf)
+    local filetype = vim.api.nvim_get_option_value('filetype', { buf = buf })
+    return parsers[filetype] or parsers.requirements
 end
 
 return M

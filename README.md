@@ -6,7 +6,7 @@ https://github.com/user-attachments/assets/d4aef6a7-deed-4c80-8db6-7d1499e11c64
 
 # Features
 
-- Integrated with `lsp`, `nvim-cmp`, and `blink.nvim`
+- Integrated with `lsp` and provides completions
 - Uses `treesitter` parser to read `requirements.txt`, more robust than ad-hoc parsing
 - Displays diagnostics in `normal` mode with warnings for not using latest version
 - Cache `pypi` responses within a session to improve performance
@@ -67,10 +67,10 @@ require('py-requirements').setup({
     -- For available options, see :h vim.lsp.util.open_floating_preview
     float_opts = { border = 'rounded' },
     filter = {
-        -- If set to true pull only final release versions, this will ignore alpha,
-        -- beta, release candidate, post release, and developmental release versions
+        -- Pull only final release versions, this will ignore alpha, beta,
+        -- release candidate, post release, and developmental release versions
         final_release = false,
-        -- If set to true (default value) filter out yanked package versions
+        -- Ignore yanked package versions
         yanked = true,
     },
 })
@@ -81,9 +81,9 @@ require('py-requirements').setup({
 ```lua
 local requirements = require('py-requirements')
 requirements.setup({...})
-vim.keymap.set('n', '<leader>ru', requirements.upgrade, { silent = true, desc = 'Requirements: Upgrade' })
-vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, { silent = true, desc = 'Requirements: Upgrade All' })
-vim.keymap.set('n', '<leader>rK', requirements.show_description, { silent = true, desc = 'Requirements: Show package description' })
+vim.keymap.set('n', '<leader>ru', requirements.upgrade, {})
+vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, {})
+vim.keymap.set('n', '<leader>rK', requirements.show_description, {})
 ```
 
 ## Completions

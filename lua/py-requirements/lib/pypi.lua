@@ -1,5 +1,6 @@
-local curl = require('py-requirements.curl')
+local curl = require('py-requirements.lib.curl')
 local state = require('py-requirements.state')
+local util = require('py-requirements.lib.util')
 
 ---@class py.reqs.pypi.package.Response
 ---@field versions string[]
@@ -20,8 +21,8 @@ local state = require('py-requirements.state')
 ---@field description_content_type string
 
 ---@class py.reqs.pypi.Description
----@field content? string[]
----@field type? string
+---@field lines? string[]
+---@field syntax? string
 
 ---@class py.reqs.pypi.Cache
 local cache = {
@@ -48,17 +49,13 @@ function M.get_versions(name)
         if not index then
             return nil
         end
-        -- curl -isSL \
-        --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
-        --   -H 'Accept: application/vnd.pypi.simple.v1+json' \
-        --   https://pypi.org/simple/[name]/
-        return M.call_pypi(('%s%s/'):format(index, name:lower()), {
+        return curl.get(('%s%s/'):format(index, name:lower()), {
             Accept = 'application/vnd.pypi.simple.v1+json',
         })
     end
 
     local response = call_index(state.config.index_url)
-    response = response or call_index(state.config.extra_index_url)
+        or call_index(state.config.extra_index_url)
 
     if not response then
         result = {}
@@ -66,14 +63,13 @@ function M.get_versions(name)
         local values = {} ---@type string[]
         for _, version in ipairs(response.versions) do
             local valid = true
-            local filter = state.config.filter
-            if filter.final_release then
+            if state.config.filter.final_release then
                 -- https://packaging.python.org/en/latest/specifications/version-specifiers
                 if not vim.version.parse(version, { strict = true }) then
                     valid = false
                 end
             end
-            if filter.yanked then
+            if state.config.filter.yanked then
                 -- Based on observations of API responses, unsure if this is the correct approach
                 -- Calling description API for every version seems too expensive
                 local filename = ('%s-%s.tar.gz'):format(name, version)
@@ -115,36 +111,23 @@ function M.get_description(name, version)
     end
     endpoint = ('%s/json'):format(endpoint)
 
-    -- curl -isSL \
-    --   -A 'py-requirements.nvim (https://github.com/MeanderingProgrammer/py-requirements.nvim)' \
-    --   https://pypi.org/pypi/[name]/[version?]/json
-    local response = M.call_pypi(endpoint) ---@type py.reqs.pypi.project.Response?
+    local response = curl.get(endpoint) ---@type py.reqs.pypi.project.Response?
     if not response then
         result = {}
     else
+        local info = response.info
+        local syntax = {
+            ['text/x-rst'] = 'rst',
+            ['text/markdown'] = 'markdown',
+        }
         result = {
-            content = vim.split(response.info.description, '\n'),
-            type = response.info.description_content_type,
+            lines = util.split(info.description, '\n'),
+            syntax = syntax[info.description_content_type],
         }
     end
 
     cache.descriptions[name] = result
     return result
-end
-
----@private
----@param endpoint string
----@param headers? table<string,string>
----@return any?
-function M.call_pypi(endpoint, headers)
-    local url = 'https://github.com/MeanderingProgrammer'
-    local repo = 'py-requirements.nvim'
-    local user_agent = ('%s (%s/%s)'):format(repo, url, repo)
-    local result = curl.get(endpoint, '-isSL', user_agent, headers)
-    if not result or not vim.tbl_contains({ 200, 301 }, result.status) then
-        return nil
-    end
-    return vim.json.decode(result.body)
 end
 
 return M
