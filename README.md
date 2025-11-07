@@ -14,18 +14,13 @@ https://github.com/user-attachments/assets/d4aef6a7-deed-4c80-8db6-7d1499e11c64
 - Display package description from PyPI in a floating window with syntax highlighting
 - Supports custom `index-url` and `extra-index-url` for finding packages
 
-# Limitations
-
-- Only supports `requirements.txt` files, if there's interest this can be
-  expanded, more details in [ISSUE-10](https://github.com/MeanderingProgrammer/py-requirements.nvim/issues/10)
-- Does not read or otherwise interact with `pip.conf` file
-
 # Dependencies
 
 - neovim `>= 0.10.0`
 - [treesitter](https://github.com/nvim-treesitter/nvim-treesitter) parser:
   - [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements):
-    Used to parse `requirements` files
+    For `requirements.txt`
+  - [toml](https://github.com/ikatyang/tree-sitter-toml): For `pyproject.toml`
 - System dependencies:
   - `curl`: Used to call pypi API
 
@@ -61,7 +56,7 @@ require('py-requirements').setup({
     extra_index_url = nil,
     -- Specify which file patterns plugin is active on
     -- For info on patterns, see :h pattern
-    file_patterns = { 'requirements.txt' },
+    file_patterns = { '.*requirements.*.txt', '.*pyproject.*.toml' },
     -- Options for how diagnostics are displayed
     diagnostic_opts = { padding = 5 },
     -- For available options, see :h vim.lsp.util.open_floating_preview
@@ -93,6 +88,10 @@ vim.keymap.set('n', '<leader>rK', requirements.show_description, {})
 On by default and the recommended way of getting version completions from this plugin.
 Requires no additional configuration, assuming you have general LSP completions.
 Works with any completion engine out of the box!
+
+# Limitations
+
+- Does not read or otherwise interact with `pip.conf` file
 
 # Acknowledgments / Related Projects
 

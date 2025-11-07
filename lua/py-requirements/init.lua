@@ -25,7 +25,7 @@ M.default = {
     enable_cmp = false,
     index_url = 'https://pypi.org/simple/',
     extra_index_url = nil,
-    file_patterns = { 'requirements.txt' },
+    file_patterns = { '.*requirements.*.txt', '.*pyproject.*.toml' },
     diagnostic_opts = { padding = 5 },
     float_opts = { border = 'rounded' },
     filter = {

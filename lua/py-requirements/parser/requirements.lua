@@ -10,8 +10,8 @@ M.lang = 'requirements'
 ---@param buf integer
 ---@return py.reqs.Package[]
 function M.packages(buf)
-    local ok, tree = pcall(vim.treesitter.get_parser, buf, M.lang)
-    if not ok or not tree then
+    local root = util.root(buf, M.lang)
+    if not root then
         return {}
     end
     local query = util.query(M.lang, '(requirement) @requirement')
@@ -19,7 +19,6 @@ function M.packages(buf)
         return {}
     end
     local result = {} ---@type py.reqs.Package[]
-    local root = tree:parse()[1]:root()
     for _, node in query:iter_captures(root, buf) do
         local package = M.parse(buf, node)
         if package then
@@ -32,11 +31,8 @@ end
 ---@param str string
 ---@return py.reqs.Package?
 function M.line(str)
-    local ok, tree = pcall(vim.treesitter.get_string_parser, str, M.lang)
-    if not ok or not tree then
-        return nil
-    end
-    return M.parse(str, tree:parse()[1]:root())
+    local root = util.root(str, M.lang)
+    return root and M.parse(str, root)
 end
 
 ---@private

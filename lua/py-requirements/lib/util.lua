@@ -4,6 +4,20 @@ local cache = {}
 ---@class py.reqs.Util
 local M = {}
 
+---@param source integer|string
+---@param lang string
+---@return TSNode?
+function M.root(source, lang)
+    local ok = nil ---@type boolean?
+    local tree = nil ---@type vim.treesitter.LanguageTree?
+    if type(source) == 'number' then
+        ok, tree = pcall(vim.treesitter.get_parser, source, lang)
+    else
+        ok, tree = pcall(vim.treesitter.get_string_parser, source, lang)
+    end
+    return ok and tree and tree:parse()[1]:root() or nil
+end
+
 ---@param lang string
 ---@param query string
 ---@return vim.treesitter.Query?

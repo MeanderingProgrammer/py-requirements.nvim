@@ -8,7 +8,7 @@ function M.setup(opts)
     require('py-requirements').setup(opts)
 end
 
----@alias py.reqs.test.Filetype 'requirements'
+---@alias py.reqs.test.Filetype 'requirements'|'toml'
 
 ---@param filetype py.reqs.test.Filetype
 ---@param lines string[]
@@ -17,6 +17,7 @@ function M.create(filetype, lines)
     ---@type table<py.reqs.test.Filetype, string>
     local names = {
         ['requirements'] = 'requirements.txt',
+        ['toml'] = 'pyproject.toml',
     }
     local buf = vim.api.nvim_create_buf(false, true)
     vim.api.nvim_buf_set_name(buf, names[filetype])

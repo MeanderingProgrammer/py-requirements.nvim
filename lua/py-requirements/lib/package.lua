@@ -33,6 +33,16 @@ function Package.new(source, name, version)
     return self
 end
 
+---@param row integer
+---@param col integer
+function Package:shift(row, col)
+    self.row = self.row + row
+    if self.cols then
+        self.cols[1] = self.cols[1] + col
+        self.cols[2] = self.cols[2] + col
+    end
+end
+
 ---@return py.reqs.pypi.Description
 function Package:description()
     return pypi.get_description(self.name, self.version)

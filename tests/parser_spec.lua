@@ -95,4 +95,49 @@ describe('parser', function()
             end)
         end)
     end)
+
+    describe('toml', function()
+        local filetype = 'toml'
+
+        describe('packages', function()
+            ---@param lines string[]
+            ---@param expected py.reqs.test.Package[]
+            local function validate(lines, expected)
+                local buf = util.create(filetype, lines)
+                local actual = packages(buf)
+                assert.same(expected, actual)
+            end
+
+            it('pep name', function()
+                validate(
+                    { '[project]', 'dependencies = ["toml"]' },
+                    { { 'toml', nil, 1, nil } }
+                )
+            end)
+
+            it('pep version', function()
+                validate(
+                    { '[project]', 'dependencies = ["click>=8.1.7"]' },
+                    { { 'click', '8.1.7', 1, { 24, 29 } } }
+                )
+            end)
+
+            it('poetry version string', function()
+                validate(
+                    { '[tool.poetry.dependencies]', 'click = ">=8.1.7"' },
+                    { { 'click', '8.1.7', 1, nil } }
+                )
+            end)
+
+            it('poetry version table', function()
+                validate(
+                    {
+                        '[tool.poetry.dependencies]',
+                        'click = { version = ">=8.1.7" }',
+                    },
+                    { { 'click', '8.1.7', 1, nil } }
+                )
+            end)
+        end)
+    end)
 end)

@@ -5,6 +5,7 @@
 ---@type table<string, py.reqs.parser.Language>
 local parsers = {
     requirements = require('py-requirements.parser.requirements'),
+    toml = require('py-requirements.parser.toml'),
 }
 
 ---@class py.reqs.Parser

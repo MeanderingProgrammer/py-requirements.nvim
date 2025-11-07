@@ -18,4 +18,4 @@ vim.opt.rtp:prepend('.')
 vim.opt.rtp:prepend(get_path('plenary.nvim'))
 vim.cmd.runtime('plugin/plenary.vim')
 
-require('nvim-treesitter').install({ 'requirements' }):wait()
+require('nvim-treesitter').install({ 'requirements', 'toml' }):wait()
