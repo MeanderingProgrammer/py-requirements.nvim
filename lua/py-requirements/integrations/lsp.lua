@@ -1,3 +1,4 @@
+local actions = require('py-requirements.actions')
 local source = require('py-requirements.integrations.source')
 
 ---@class py.reqs.integ.Lsp
@@ -29,12 +30,15 @@ function M.server(dispatchers)
                         completionProvider = {
                             triggerCharacters = source.trigger_characters(),
                         },
+                        hoverProvider = true,
                     },
                 })
             elseif method == 'textDocument/completion' then
                 vim.schedule(function()
                     callback(nil, M.completions(params))
                 end)
+            elseif method == 'textDocument/hover' then
+                actions.show_description()
             elseif method == 'shutdown' then
                 callback(nil, nil)
             end

@@ -14,7 +14,7 @@ function M.packages(buf)
     if not root then
         return {}
     end
-    local query = util.query(M.lang, '(requirement) @requirement')
+    local query = util.query(M.lang, '(requirement) @package')
     if not query then
         return {}
     end

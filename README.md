@@ -46,10 +46,6 @@ Below is the default configuration, any part of it can be modified.
 
 ```lua
 require('py-requirements').setup({
-    -- Enabled by default if you want to disable lsp completions set to false
-    enable_lsp = true,
-    -- Disabled by default if you want to use `nvim-cmp` source set to true
-    enable_cmp = false,
     -- Endpoint used for getting package versions
     index_url = 'https://pypi.org/simple/',
     -- Fallback endpoint in case 'index_url' fails to find a package
@@ -68,17 +64,19 @@ require('py-requirements').setup({
         -- Ignore yanked package versions
         yanked = true,
     },
+    -- Enabled by default if you want to disable lsp completions set to false
+    enable_lsp = true,
 })
 ```
 
 ## Keymaps
 
 ```lua
-local requirements = require('py-requirements')
-requirements.setup({...})
-vim.keymap.set('n', '<leader>ru', requirements.upgrade, {})
-vim.keymap.set('n', '<leader>rU', requirements.upgrade_all, {})
-vim.keymap.set('n', '<leader>rK', requirements.show_description, {})
+local py = require('py-requirements')
+py.setup({...})
+vim.keymap.set('n', '<leader>ru', py.upgrade, {})
+vim.keymap.set('n', '<leader>rU', py.upgrade_all, {})
+vim.keymap.set('n', '<leader>rK', py.show_description, {})
 ```
 
 ## Completions

@@ -36,12 +36,12 @@ function M.prefix(diagnostic)
     if diagnostic.message == 'Loading' then
         return ' '
     end
-    local severity_mapping = {
-        [vim.diagnostic.severity.ERROR] = ' ',
-        [vim.diagnostic.severity.WARN] = ' ',
+    local mapping = {
         [vim.diagnostic.severity.INFO] = ' ',
+        [vim.diagnostic.severity.WARN] = ' ',
+        [vim.diagnostic.severity.ERROR] = ' ',
     }
-    return severity_mapping[diagnostic.severity]
+    return mapping[diagnostic.severity]
 end
 
 ---@param buf integer

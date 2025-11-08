@@ -29,6 +29,17 @@ function M.query(lang, query)
     return cache[query]
 end
 
+---@return integer
+function M.buffer()
+    return vim.api.nvim_get_current_buf()
+end
+
+---@return integer
+function M.row()
+    -- nvim_win_get_cursor: (1,0)-indexed
+    return vim.api.nvim_win_get_cursor(0)[1] - 1
+end
+
 ---@param s string
 ---@param sep string
 ---@return string[]

@@ -1,21 +1,23 @@
 local parser = require('py-requirements.parser')
 local ui = require('py-requirements.lib.ui')
+local util = require('py-requirements.lib.util')
 
 ---@class py.reqs.Actions
 local M = {}
 
----@param buf integer
----@param row? integer
-function M.upgrade(buf, row)
+---@param all boolean
+function M.upgrade(all)
+    local buf = util.buffer()
+    local row = not all and util.row() or nil
     M.run(buf, row, function(package)
         package:update()
         ui.upgrade(buf, package)
     end)
 end
 
----@param buf integer
----@param row integer
-function M.show_description(buf, row)
+function M.show_description()
+    local buf = util.buffer()
+    local row = util.row()
     M.run(buf, row, function(package)
         ui.description(package)
     end)
