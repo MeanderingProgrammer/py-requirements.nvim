@@ -116,13 +116,13 @@ function M.get_description(name, version)
         result = {}
     else
         local info = response.info
-        local syntax = {
+        local mapping = {
             ['text/x-rst'] = 'rst',
             ['text/markdown'] = 'markdown',
         }
         result = {
             lines = util.split(info.description, '\n'),
-            syntax = syntax[info.description_content_type],
+            syntax = mapping[info.description_content_type],
         }
     end
 

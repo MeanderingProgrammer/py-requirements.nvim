@@ -1,12 +1,13 @@
 local manager = require('py-requirements.manager')
 local parser = require('py-requirements.parser')
+local util = require('py-requirements.lib.util')
 
 ---@class py.reqs.Source
 local M = {}
 
 ---@return boolean
 function M.enabled()
-    return manager.active(vim.api.nvim_get_current_buf())
+    return manager.active(util.buffer())
 end
 
 ---@return string[]
@@ -18,7 +19,7 @@ end
 ---@param row integer 0-indexed
 ---@return lsp.CompletionItem[]?
 function M.items(row)
-    local buf = vim.api.nvim_get_current_buf()
+    local buf = util.buffer()
     local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1]
     if not line then
         return nil

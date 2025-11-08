@@ -56,6 +56,7 @@ end
 ---@param root TSNode
 ---@return py.reqs.Package?
 function M.parse_pep(buf, root)
+    -- "requests==2.0.0"
     local text = vim.treesitter.get_node_text(root, buf)
     text = text:sub(2, -2) .. '\n'
     local package = requirements.line(text)
@@ -71,6 +72,8 @@ end
 ---@param root TSNode
 ---@return py.reqs.Package?
 function M.parse_poetry(buf, root)
+    -- requests = "==2.0.0"
+    -- requests = { version = "==2.0.0" }
     local name = root:named_child(0)
     local version = root:named_child(1)
     if version and version:type() == 'inline_table' then
