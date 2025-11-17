@@ -7,14 +7,15 @@ describe('parser', function()
     ---@class py.reqs.test.Package
     ---@field [1] string
     ---@field [2]? string
-    ---@field [3] integer
-    ---@field [4]? Range2
+    ---@field [3]? string
+    ---@field [4] integer
+    ---@field [5]? Range2
 
-    ---@param package py.reqs.Package
+    ---@param p py.reqs.Package
     ---@return py.reqs.test.Package
-    local function convert(package)
+    local function convert(p)
         ---@type py.reqs.test.Package
-        return { package.name, package.version, package.row, package.cols }
+        return { p.name, p:cmp(), p:version(), p.row, p:cols() }
     end
 
     ---@param buf integer
@@ -50,30 +51,30 @@ describe('parser', function()
             end
 
             it('name', function()
-                validate({ 'toml' }, { { 'toml', nil, 0, nil } })
+                validate({ 'toml' }, { { 'toml', nil, nil, 0, nil } })
             end)
 
             it('version', function()
                 validate(
-                    { 'click>=8.1.7' },
-                    { { 'click', '8.1.7', 0, { 7, 12 } } }
+                    { 'click==8.1.7' },
+                    { { 'click', '==', '8.1.7', 0, { 7, 12 } } }
                 )
             end)
 
             it('comments', function()
                 validate(
                     { '# Comment Line', 'argcomplete>3.2.2 # Comment After' },
-                    { { 'argcomplete', '3.2.2', 1, { 12, 17 } } }
+                    { { 'argcomplete', '>', '3.2.2', 1, { 12, 17 } } }
                 )
             end)
 
             it('hashes', function()
                 validate({
-                    'asgiref==3.6.0 \\',
+                    'asgiref>=3.6.0 \\',
                     '    --hash=sha256:71e68008da809b957b7ee4b43dbccff33d1b23519fb8344e33f049897077afac \\',
                     '    --hash=sha256:9567dfe7bd8d3c8c892227827c41cce860b368104c3431da67a0c5a65a949506',
                     '    # via django',
-                }, { { 'asgiref', '3.6.0', 0, { 9, 14 } } })
+                }, { { 'asgiref', '>=', '3.6.0', 0, { 9, 14 } } })
             end)
         end)
 
@@ -87,7 +88,7 @@ describe('parser', function()
             end
 
             it('valid', function()
-                validate('click==', { 'click', '0', 0, { 7, 8 } })
+                validate('click==', { 'click', '==', '0', 0, { 7, 8 } })
             end)
 
             it('invalid', function()
@@ -111,43 +112,43 @@ describe('parser', function()
             it('project dependencies name', function()
                 validate(
                     { '[project]', 'dependencies = ["toml"]' },
-                    { { 'toml', nil, 1, nil } }
+                    { { 'toml', nil, nil, 1, nil } }
                 )
             end)
 
             it('project dependencies version', function()
                 validate(
-                    { '[project]', 'dependencies = ["click>=8.1.7"]' },
-                    { { 'click', '8.1.7', 1, { 24, 29 } } }
+                    { '[project]', 'dependencies = ["click==8.1.7"]' },
+                    { { 'click', '==', '8.1.7', 1, { 24, 29 } } }
                 )
             end)
 
             it('dependency-groups', function()
                 validate(
                     { '[dependency-groups]', 'name = ["click>=8.1.7"]' },
-                    { { 'click', '8.1.7', 1, { 16, 21 } } }
+                    { { 'click', '>=', '8.1.7', 1, { 16, 21 } } }
                 )
             end)
 
             it('project optional-dependencies', function()
                 validate({
                     '[project.optional-dependencies]',
-                    'name = ["click>=8.1.7"]',
-                }, { { 'click', '8.1.7', 1, { 16, 21 } } })
+                    'name = ["click<=8.1.7"]',
+                }, { { 'click', '<=', '8.1.7', 1, { 16, 21 } } })
             end)
 
             it('poetry version string', function()
                 validate(
-                    { '[tool.poetry.dependencies]', 'click = ">=8.1.7"' },
-                    { { 'click', '8.1.7', 1, nil } }
+                    { '[tool.poetry.dependencies]', 'click = ">8.1.7"' },
+                    { { 'click', '>', '8.1.7', 1, nil } }
                 )
             end)
 
             it('poetry version table', function()
                 validate({
                     '[tool.poetry.dependencies]',
-                    'click = { version = ">=8.1.7" }',
-                }, { { 'click', '8.1.7', 1, nil } })
+                    'click = { version = ">8,<8.1.7" }',
+                }, { { 'click', '<', '8.1.7', 1, nil } })
             end)
         end)
     end)

@@ -48,7 +48,7 @@ end
 ---@param package py.reqs.Package
 function M.upgrade(buf, package)
     local row = package.row
-    local cols = package.cols
+    local cols = package:cols()
     local latest = package:latest()
     if cols and latest then
         vim.api.nvim_buf_set_text(buf, row, cols[1], row, cols[2], { latest })

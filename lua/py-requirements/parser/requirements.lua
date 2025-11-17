@@ -43,22 +43,29 @@ function M.parse(source, root)
     -- stylua: ignore
     local query = util.query(M.lang, [[
         (requirement (package) @name)
+        (version_spec (version_cmp) @cmp)
         (version_spec (version) @version)
     ]])
     if not query then
         return nil
     end
     local name = nil ---@type TSNode?
-    local version = nil ---@type TSNode?
+    local cmps = {} ---@type TSNode[]
+    local versions = {} ---@type TSNode[]
     for id, node in query:iter_captures(root, source) do
         local capture = query.captures[id]
         if capture == 'name' then
             name = node
+        elseif capture == 'cmp' then
+            cmps[#cmps + 1] = node
         elseif capture == 'version' then
-            version = node
+            versions[#versions + 1] = node
         end
     end
-    return Package.new(source, name, version)
+    if not name then
+        return nil
+    end
+    return Package.new(source, name, cmps, versions)
 end
 
 return M

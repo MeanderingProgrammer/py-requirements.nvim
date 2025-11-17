@@ -54,15 +54,15 @@ describe('pypi', function()
         it('final release filter enabled', function()
             util.setup({ filter = { final_release = true } })
             setup({
-            -- stylua: ignore
-            versions = {
-                '2.3.0a1',     -- Alpha release
-                '2.3.0b2',     -- Beta release
-                '2.3.0rc3',    -- Release candidate
-                '2.3.0.dev1',  -- Developmental release
-                '2.3.0',       -- Final release
-                '2.3.0.post1', -- Post release
-            },
+                -- stylua: ignore
+                versions = {
+                    '2.3.0a1',     -- Alpha release
+                    '2.3.0b2',     -- Beta release
+                    '2.3.0rc3',    -- Release candidate
+                    '2.3.0.dev1',  -- Developmental release
+                    '2.3.0',       -- Final release
+                    '2.3.0.post1', -- Post release
+                },
                 files = {},
             })
             validate({ values = { '2.3.0' } })

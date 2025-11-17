@@ -30,7 +30,7 @@ function M.items(row)
         return nil
     end
 
-    local cols = package.cols
+    local cols = package:cols()
     if not cols then
         return nil
     end

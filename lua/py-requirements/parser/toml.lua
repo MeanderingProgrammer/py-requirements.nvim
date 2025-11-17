@@ -98,11 +98,10 @@ function M.parse_poetry(buf, root)
     local package = requirements.line(text)
     if package then
         local row = version:range()
-        package:shift(row, 0)
         -- TODO: need to adjust columns correctly to support completions and
         --       upgrading but is not straight forward, for now nil them out
         --       to avoid writing text in the wrong location
-        package.cols = nil
+        package:shift(row, nil)
     end
     return package
 end
