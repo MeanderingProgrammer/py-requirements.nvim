@@ -23,6 +23,11 @@ function M.packages(buf)
             (#eq? @key "dependencies"))
 
         (table
+            (bare_key) @name
+            (pair (array (string) @pep))
+            (#eq? @name "dependency-groups"))
+
+        (table
             (dotted_key) @name
             (pair (array (string) @pep))
             (#eq? @name "project.optional-dependencies"))

@@ -7,8 +7,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-all = ["plotly==5.22.0"]
-test = ["tabulate==0.9.0"]
+name = ["plotly==5.22.0"]
+
+[dependency-groups]
+name = ["tabulate==0.9.0"]
 
 [tool.poetry.dependencies]
 termcolor = "==2.4.0"

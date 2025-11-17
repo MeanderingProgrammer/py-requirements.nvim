@@ -108,18 +108,32 @@ describe('parser', function()
                 assert.same(expected, actual)
             end
 
-            it('pep name', function()
+            it('project dependencies name', function()
                 validate(
                     { '[project]', 'dependencies = ["toml"]' },
                     { { 'toml', nil, 1, nil } }
                 )
             end)
 
-            it('pep version', function()
+            it('project dependencies version', function()
                 validate(
                     { '[project]', 'dependencies = ["click>=8.1.7"]' },
                     { { 'click', '8.1.7', 1, { 24, 29 } } }
                 )
+            end)
+
+            it('dependency-groups', function()
+                validate(
+                    { '[dependency-groups]', 'name = ["click>=8.1.7"]' },
+                    { { 'click', '8.1.7', 1, { 16, 21 } } }
+                )
+            end)
+
+            it('project optional-dependencies', function()
+                validate({
+                    '[project.optional-dependencies]',
+                    'name = ["click>=8.1.7"]',
+                }, { { 'click', '8.1.7', 1, { 16, 21 } } })
             end)
 
             it('poetry version string', function()
@@ -130,13 +144,10 @@ describe('parser', function()
             end)
 
             it('poetry version table', function()
-                validate(
-                    {
-                        '[tool.poetry.dependencies]',
-                        'click = { version = ">=8.1.7" }',
-                    },
-                    { { 'click', '8.1.7', 1, nil } }
-                )
+                validate({
+                    '[tool.poetry.dependencies]',
+                    'click = { version = ">=8.1.7" }',
+                }, { { 'click', '8.1.7', 1, nil } })
             end)
         end)
     end)

@@ -19,7 +19,7 @@ https://github.com/user-attachments/assets/d4aef6a7-deed-4c80-8db6-7d1499e11c64
 - neovim `>= 0.10.0`
 - [treesitter](https://github.com/nvim-treesitter/nvim-treesitter) parser:
   - [requirements](https://github.com/ObserverOfTime/tree-sitter-requirements):
-    For `requirements.txt`
+    For `requirements.txt` and parsing versions in other languages
   - [toml](https://github.com/ikatyang/tree-sitter-toml): For `pyproject.toml`
 - System dependencies:
   - `curl`: Used to call pypi API
