@@ -11,11 +11,18 @@ describe('parser', function()
     ---@field [4] integer
     ---@field [5]? Range2
 
-    ---@param p py.reqs.Package
+    ---@param package py.reqs.Package
     ---@return py.reqs.test.Package
-    local function convert(p)
+    local function convert(package)
+        local spec = package:spec()
         ---@type py.reqs.test.Package
-        return { p.name, p:cmp(), p:version(), p.row, p:cols() }
+        return {
+            package.name,
+            spec and spec.cmp,
+            spec and spec.version,
+            package.row,
+            spec and spec.cols,
+        }
     end
 
     ---@param buf integer

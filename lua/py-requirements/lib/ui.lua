@@ -11,7 +11,14 @@ M.ns = vim.api.nvim_create_namespace('py-requirements.nvim')
 function M.diagnostics(buf, packages)
     local diagnostics = {} ---@type vim.Diagnostic[]
     for _, package in ipairs(packages) do
-        diagnostics[#diagnostics + 1] = package:diagnostic()
+        local message, severity = package:info()
+        diagnostics[#diagnostics + 1] = {
+            lnum = package.row,
+            col = 0,
+            severity = severity,
+            message = message,
+            source = 'py-requirements',
+        }
     end
 
     local width = 0
@@ -48,9 +55,10 @@ end
 ---@param package py.reqs.Package
 function M.upgrade(buf, package)
     local row = package.row
-    local cols = package:cols()
+    local spec = package:spec()
     local latest = package:latest()
-    if cols and latest then
+    if spec and latest then
+        local cols = spec.cols
         vim.api.nvim_buf_set_text(buf, row, cols[1], row, cols[2], { latest })
     end
 end

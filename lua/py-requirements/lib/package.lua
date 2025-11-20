@@ -70,7 +70,8 @@ end
 
 ---@return py.reqs.pypi.Description
 function Package:description()
-    return pypi.get_description(self.name, self:version())
+    local spec = self:spec()
+    return pypi.get_description(self.name, spec and spec.version)
 end
 
 ---@return string[]
@@ -85,22 +86,9 @@ function Package:update()
     return self.versions
 end
 
----@return string?
-function Package:cmp()
-    local spec = self.specs[#self.specs]
-    return spec and spec.cmp
-end
-
----@return string?
-function Package:version()
-    local spec = self.specs[#self.specs]
-    return spec and spec.version
-end
-
----@return Range2?
-function Package:cols()
-    local spec = self.specs[#self.specs]
-    return spec and spec.cols
+---@return py.reqs.package.Spec?
+function Package:spec()
+    return self.specs[#self.specs]
 end
 
 ---@return string?
@@ -108,57 +96,38 @@ function Package:latest()
     return self.versions[#self.versions]
 end
 
----@return vim.Diagnostic
-function Package:diagnostic()
-    local message = nil ---@type string?
-    local severity = nil ---@type vim.diagnostic.Severity?
+---@return string, vim.diagnostic.Severity
+function Package:info()
     if self.status == 'loading' then
-        message = 'Loading'
-        severity = vim.diagnostic.severity.INFO
-    elseif self.status == 'invalid' then
-        message = 'Error fetching versions'
-        severity = vim.diagnostic.severity.ERROR
-    elseif self.status == 'valid' then
-        local latest = self:latest()
-        if not latest then
-            message = 'No versions found'
-            severity = vim.diagnostic.severity.ERROR
-        elseif not self:valid() then
-            message = 'Invalid version'
-            severity = vim.diagnostic.severity.ERROR
-        else
-            message = latest
-            if self:version() == latest then
-                severity = vim.diagnostic.severity.INFO
-            else
-                severity = vim.diagnostic.severity.WARN
-            end
-        end
+        return 'Loading', vim.diagnostic.severity.INFO
     end
-    if not message or not severity then
-        error(('Unhandled package status: %s'):format(self.status))
-    end
-    ---@type vim.Diagnostic
-    return {
-        source = 'py-requirements',
-        col = 0,
-        lnum = self.row,
-        severity = severity,
-        message = message,
-    }
-end
 
----@private
----@return boolean
-function Package:valid()
-    local cmp, version = self:cmp(), self:version()
-    if not cmp or not version then
-        return true
+    if self.status == 'invalid' then
+        return 'Error fetching versions', vim.diagnostic.severity.ERROR
     end
-    if vim.tbl_contains(self.versions, version) then
-        return true
+
+    assert(self.status == 'valid', ('invalid status: %s'):format(self.status))
+    local latest = self:latest()
+    if not latest then
+        return 'No versions found', vim.diagnostic.severity.ERROR
     end
-    return not vim.tbl_contains({ '==', '===' }, cmp)
+
+    local spec = self:spec()
+    if not spec then
+        return latest, vim.diagnostic.severity.WARN
+    end
+
+    if spec.version == latest then
+        return latest, vim.diagnostic.severity.INFO
+    end
+
+    local matches = vim.tbl_contains(self.versions, spec.version)
+    local equality = vim.tbl_contains({ '==', '===' }, spec.cmp)
+    if not matches and equality then
+        return 'Invalid version', vim.diagnostic.severity.ERROR
+    end
+
+    return latest, vim.diagnostic.severity.WARN
 end
 
 return Package

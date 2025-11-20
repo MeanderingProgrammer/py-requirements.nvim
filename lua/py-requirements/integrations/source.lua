@@ -30,14 +30,14 @@ function M.items(row)
         return nil
     end
 
-    local cols = package:cols()
-    if not cols then
+    local spec = package:spec()
+    if not spec then
         return nil
     end
     ---@type lsp.Range
     local range = {
-        ['start'] = { line = row, character = cols[1] },
-        ['end'] = { line = row, character = cols[2] },
+        ['start'] = { line = row, character = spec.cols[1] },
+        ['end'] = { line = row, character = spec.cols[2] },
     }
 
     local result = {} ---@type lsp.CompletionItem[]
