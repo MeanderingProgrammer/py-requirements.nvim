@@ -1,4 +1,5 @@
 local pypi = require('py-requirements.lib.pypi')
+local specifier = require('py-requirements.lib.specifier')
 
 ---@alias py.reqs.package.Status 'loading'|'invalid'|'valid'
 
@@ -112,22 +113,15 @@ function Package:info()
         return 'No versions found', vim.diagnostic.severity.ERROR
     end
 
-    local spec = self:spec()
-    if not spec then
+    local matches = true
+    for _, spec in ipairs(self.specs) do
+        matches = matches and specifier.matches(latest, spec.cmp, spec.version)
+    end
+    if not matches then
         return latest, vim.diagnostic.severity.WARN
     end
 
-    if spec.version == latest then
-        return latest, vim.diagnostic.severity.INFO
-    end
-
-    local matches = vim.tbl_contains(self.versions, spec.version)
-    local equality = vim.tbl_contains({ '==', '===' }, spec.cmp)
-    if not matches and equality then
-        return 'Invalid version', vim.diagnostic.severity.ERROR
-    end
-
-    return latest, vim.diagnostic.severity.WARN
+    return latest, vim.diagnostic.severity.INFO
 end
 
 return Package
