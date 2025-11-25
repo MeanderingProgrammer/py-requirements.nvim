@@ -54,10 +54,10 @@ end
 ---@param buf integer
 ---@param package py.reqs.Package
 function M.upgrade(buf, package)
-    local row = package.row
     local spec = package:spec()
     local latest = package:latest()
     if spec and latest then
+        local row = package.row
         local cols = spec.cols
         vim.api.nvim_buf_set_text(buf, row, cols[1], row, cols[2], { latest })
     end

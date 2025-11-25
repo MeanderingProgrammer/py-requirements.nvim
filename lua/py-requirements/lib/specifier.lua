@@ -13,8 +13,10 @@ function M.matches(version1, cmp, version2)
     local v2 = vim.version.parse(version2)
     if not v1 or not v2 then
         return false
-    elseif cmp == '==' or cmp == '===' then
+    elseif cmp == '===' or cmp == '==' then
         return v1 == v2
+    elseif cmp == '!=' then
+        return v1 ~= v2
     elseif cmp == '<' then
         return v1 < v2
     elseif cmp == '<=' then

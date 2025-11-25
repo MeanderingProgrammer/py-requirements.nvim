@@ -7,15 +7,20 @@ describe('specifier', function()
 
     ---@type table<string, table<string, boolean>>
     local cases = {
+        ['==='] = {
+            ['0.9.0'] = false,
+            ['1.0.0'] = true,
+            ['1.1.0'] = false,
+        },
         ['=='] = {
             ['0.9.0'] = false,
             ['1.0.0'] = true,
             ['1.1.0'] = false,
         },
-        ['==='] = {
-            ['0.9.0'] = false,
-            ['1.0.0'] = true,
-            ['1.1.0'] = false,
+        ['!='] = {
+            ['0.9.0'] = true,
+            ['1.0.0'] = false,
+            ['1.1.0'] = true,
         },
         ['<'] = {
             ['0.9.0'] = false,
