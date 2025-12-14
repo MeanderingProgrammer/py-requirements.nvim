@@ -1,3 +1,4 @@
+local Version = require('py-requirements.lib.version')
 local curl = require('py-requirements.lib.curl')
 local state = require('py-requirements.state')
 local util = require('py-requirements.lib.util')
@@ -64,8 +65,7 @@ function M.get_versions(name)
         for _, version in ipairs(response.versions) do
             local valid = true
             if state.config.filter.final_release then
-                -- https://packaging.python.org/en/latest/specifications/version-specifiers
-                if not vim.version.parse(version, { strict = true }) then
+                if not Version.new(version):final() then
                     valid = false
                 end
             end

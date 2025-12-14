@@ -56,16 +56,18 @@ describe('pypi', function()
             setup({
                 -- stylua: ignore
                 versions = {
-                    '2.3.0a1',     -- Alpha release
-                    '2.3.0b2',     -- Beta release
-                    '2.3.0rc3',    -- Release candidate
-                    '2.3.0.dev1',  -- Developmental release
-                    '2.3.0',       -- Final release
-                    '2.3.0.post1', -- Post release
+                    '2.3.0a1',        -- alpha
+                    '2.3.0b2',        -- beta
+                    '2.3.0rc3',       -- candidate
+                    '2.3.0.dev1',     -- developmental
+                    '2.3.0.post1',    -- post
+                    '2.3',            -- final
+                    '2.3.0',          -- final
+                    '2.3.0.20200101', -- final
                 },
                 files = {},
             })
-            validate({ values = { '2.3.0' } })
+            validate({ values = { '2.3', '2.3.0', '2.3.0.20200101' } })
         end)
 
         it('yanked filter default', function()
