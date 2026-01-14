@@ -24,8 +24,7 @@ function Source:complete(params, callback)
     -- nvim_win_get_cursor: (1,0)-indexed
     -- nvim-cmp col + 1   : (1,1)-indexed
     local row = params.context.cursor.row - 1
-    vim.schedule(function()
-        local items = source.items(row)
+    source.items(row, function(items)
         if not items then
             callback(nil)
         else

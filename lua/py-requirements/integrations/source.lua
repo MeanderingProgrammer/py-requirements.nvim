@@ -17,40 +17,49 @@ function M.trigger_characters()
 end
 
 ---@param row integer 0-indexed
----@return lsp.CompletionItem[]?
-function M.items(row)
+---@param callback fun(items?: lsp.CompletionItem[])
+function M.items(row, callback)
     local buf = util.buffer()
     local line = vim.api.nvim_buf_get_lines(buf, row, row + 1, false)[1]
     if not line then
-        return nil
+        callback(nil)
+        return
     end
 
     local pack = parser.line(buf, line)
     if not pack then
-        return nil
+        callback(nil)
+        return
     end
 
     local spec = pack:spec()
     if not spec then
-        return nil
+        callback(nil)
+        return
     end
+
     ---@type lsp.Range
     local range = {
         ['start'] = { line = row, character = spec.cols[1] },
         ['end'] = { line = row, character = spec.cols[2] },
     }
 
-    local result = {} ---@type lsp.CompletionItem[]
-    local versions = vim.fn.reverse(pack:update())
-    for i, version in ipairs(versions) do
-        result[#result + 1] = {
-            label = version,
-            kind = 12,
-            textEdit = { newText = version, insert = range, replace = range },
-            sortText = ('%04d'):format(i),
-        }
-    end
-    return #result > 0 and result or nil
+    pack:update(function(versions)
+        local result = {} ---@type lsp.CompletionItem[]
+        for i, version in ipairs(vim.fn.reverse(versions)) do
+            result[#result + 1] = {
+                label = version,
+                kind = 12,
+                textEdit = {
+                    newText = version,
+                    insert = range,
+                    replace = range,
+                },
+                sortText = ('%04d'):format(i),
+            }
+        end
+        callback(#result > 0 and result or nil)
+    end)
 end
 
 return M

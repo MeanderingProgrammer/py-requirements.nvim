@@ -17,22 +17,34 @@ describe('pypi', function()
     end)
 
     describe('versions', function()
-        ---@param response py.reqs.pypi.package.Response
+        ---@param response? py.reqs.pypi.package.Response
         local function setup(response)
-            local endpoint = ('https://pypi.org/simple/%s/'):format(name)
-            local headers = { Accept = 'application/vnd.pypi.simple.v1+json' }
-            curl.get.on_call_with(endpoint, headers).returns(response)
+            curl.get.invokes(function(endpoint, headers, callback)
+                assert.same(
+                    ('https://pypi.org/simple/%s/'):format(name),
+                    endpoint
+                )
+                assert.same(
+                    { Accept = 'application/vnd.pypi.simple.v1+json' },
+                    headers
+                )
+                callback(response)
+            end)
         end
 
         ---@param expected py.reqs.pypi.Versions
         local function validate(expected)
             -- first call fetches
-            assert.same(expected, pypi.get_versions(name))
+            pypi.get_versions(name, function(actual)
+                assert.same(expected, actual)
+            end)
             assert.stub(curl.get).was.called(1)
 
             -- subsequent calls uses cache
             for _ = 1, 10 do
-                assert.same(expected, pypi.get_versions(name))
+                pypi.get_versions(name, function(actual)
+                    assert.same(expected, actual)
+                end)
             end
             assert.stub(curl.get).was.called(1)
         end
@@ -48,6 +60,7 @@ describe('pypi', function()
 
         it('no response', function()
             util.setup({})
+            setup(nil)
             validate({})
         end)
 

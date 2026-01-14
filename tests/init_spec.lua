@@ -17,11 +17,11 @@ describe('init', function()
 
     ---@param packs table<string, string[]>
     local function setup(packs)
-        for name, versions in pairs(packs) do
+        pypi.get_versions.invokes(function(name, callback)
             ---@type py.reqs.pypi.Versions
-            local response = { values = versions, files = {} }
-            pypi.get_versions.on_call_with(name).returns(response)
-        end
+            local response = { values = packs[name] }
+            callback(response)
+        end)
     end
 
     ---@class py.reqs.test.Diagnostic
@@ -49,7 +49,7 @@ describe('init', function()
         end
 
         assert.same(expected, actual)
-        assert.stub(pypi.get_versions).was.called(4)
+        assert.stub(pypi.get_versions).was.called(2)
     end
 
     it('requirements', function()

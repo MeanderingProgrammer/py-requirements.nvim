@@ -37,62 +37,78 @@ local cache = {
 local M = {}
 
 ---@param name string
----@return py.reqs.pypi.Versions
-function M.get_versions(name)
+---@param callback fun(versions: py.reqs.pypi.Versions)
+function M.get_versions(name, callback)
     local cached = cache.versions[name]
     if cached then
-        return cached
+        callback(cached)
+        return
     end
 
     ---@param index? string
-    ---@return py.reqs.pypi.package.Response?
-    local function call_index(index)
+    ---@param done fun(out?: py.reqs.pypi.package.Response)
+    local function call(index, done)
         if not index then
-            return nil
+            done(nil)
+        else
+            curl.get(
+                ('%s%s/'):format(index, name:lower()),
+                { Accept = 'application/vnd.pypi.simple.v1+json' },
+                done
+            )
         end
-        return curl.get(('%s%s/'):format(index, name:lower()), {
-            Accept = 'application/vnd.pypi.simple.v1+json',
-        })
     end
 
-    local response = call_index(state.config.index_url)
-        or call_index(state.config.extra_index_url)
+    call(state.config.index_url, function(out1)
+        if out1 then
+            local result = M.parse_versions(name, out1)
+            cache.versions[name] = result
+            callback(result)
+        else
+            call(state.config.extra_index_url, function(out2)
+                local result = out2 and M.parse_versions(name, out2) or {}
+                cache.versions[name] = result
+                callback(result)
+            end)
+        end
+    end)
+end
 
-    local result = {} ---@type py.reqs.pypi.Versions
-    if response then
-        local values = {} ---@type string[]
-        for _, version in ipairs(response.versions) do
-            local valid = true
-            if state.config.filter.final_release then
-                if not Version.new(version):final() then
+---@private
+---@param name string
+---@param out py.reqs.pypi.package.Response
+---@return py.reqs.pypi.Versions
+function M.parse_versions(name, out)
+    local values = {} ---@type string[]
+    for _, version in ipairs(out.versions) do
+        local valid = true
+        if state.config.filter.final_release then
+            if not Version.new(version):final() then
+                valid = false
+            end
+        end
+        if state.config.filter.yanked then
+            -- Based on observations of API responses, unsure if this is the correct approach
+            -- Calling description API for every version seems too expensive
+            local filename = ('%s-%s.tar.gz'):format(name, version)
+            for _, file in ipairs(out.files) do
+                if file.filename == filename and file.yanked then
                     valid = false
                 end
             end
-            if state.config.filter.yanked then
-                -- Based on observations of API responses, unsure if this is the correct approach
-                -- Calling description API for every version seems too expensive
-                local filename = ('%s-%s.tar.gz'):format(name, version)
-                for _, file in ipairs(response.files) do
-                    if file.filename == filename and file.yanked then
-                        valid = false
-                    end
-                end
-            end
-            if valid then
-                values[#values + 1] = version
-            end
         end
-
-        -- If there are no versions left after filtering fallback to all
-        if #values == 0 then
-            values = response.versions
+        if valid then
+            values[#values + 1] = version
         end
-
-        result = { values = values }
     end
 
-    cache.versions[name] = result
-    return result
+    -- If there are no versions left after filtering fallback to all
+    if #values == 0 then
+        values = out.versions
+    end
+
+    ---@type py.reqs.pypi.Versions
+    return { values = values }
 end
 
 ---@param name string
@@ -110,22 +126,31 @@ function M.get_description(name, version)
     end
     endpoint = ('%s/json'):format(endpoint)
 
+    local out = curl.get(endpoint) ---@type py.reqs.pypi.project.Response?
+
     local result = {} ---@type py.reqs.pypi.Description
-    local response = curl.get(endpoint) ---@type py.reqs.pypi.project.Response?
-    if response then
-        local info = response.info
-        local mapping = {
-            ['text/x-rst'] = 'rst',
-            ['text/markdown'] = 'markdown',
-        }
-        result = {
-            lines = util.split(info.description, '\n'),
-            syntax = mapping[info.description_content_type],
-        }
+    if out then
+        result = M.parse_description(out)
     end
 
     cache.descriptions[name] = result
     return result
+end
+
+---@private
+---@param out py.reqs.pypi.project.Response
+---@return py.reqs.pypi.Description
+function M.parse_description(out)
+    local info = out.info
+    local mapping = {
+        ['text/x-rst'] = 'rst',
+        ['text/markdown'] = 'markdown',
+    }
+    ---@type py.reqs.pypi.Description
+    return {
+        lines = util.split(info.description, '\n'),
+        syntax = mapping[info.description_content_type],
+    }
 end
 
 return M

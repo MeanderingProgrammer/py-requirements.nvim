@@ -47,8 +47,8 @@ function M.server(dispatchers)
             elseif method == 'textDocument/codeAction' then
                 callback(nil, M.code_actions())
             elseif method == 'textDocument/completion' then
-                vim.schedule(function()
-                    callback(nil, M.completions(params))
+                M.completions(params, function(list)
+                    callback(nil, list)
                 end)
             elseif method == 'textDocument/hover' then
                 api.show_description()
@@ -108,19 +108,20 @@ end
 
 ---@private
 ---@param params lsp.CompletionParams
----@return lsp.CompletionList?
-function M.completions(params)
+---@param callback fun(list?: lsp.CompletionList)
+function M.completions(params, callback)
     -- lsp position: (0,0)-indexed
     local row = params.position.line
-    local items = source.items(row)
-    if not items then
-        return nil
-    end
-    ---@type lsp.CompletionList
-    return {
-        isIncomplete = false,
-        items = items,
-    }
+    source.items(row, function(items)
+        if not items then
+            callback(nil)
+        else
+            callback({
+                isIncomplete = false,
+                items = items,
+            })
+        end
+    end)
 end
 
 return M

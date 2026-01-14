@@ -50,7 +50,7 @@ function M.attach(buf)
         require('py-requirements.integrations.cmp').setup()
     end
 
-    M.initialize(buf)
+    M.update(buf)
 end
 
 ---@private
@@ -69,26 +69,20 @@ end
 
 ---@private
 ---@param buf integer
-function M.initialize(buf)
-    local packs = parser.buf(buf)
-    ui.diagnostics(buf, packs)
-    for _, pack in ipairs(packs) do
-        vim.schedule(function()
-            pack:update()
-        end)
-    end
-    M.update(buf)
-end
-
----@private
----@param buf integer
 function M.update(buf)
     vim.schedule(function()
         local packs = parser.buf(buf)
-        for _, pack in ipairs(packs) do
-            pack:update()
-        end
         ui.diagnostics(buf, packs)
+
+        local tasks = #packs
+        for _, pack in ipairs(packs) do
+            pack:update(function()
+                tasks = tasks - 1
+                if tasks == 0 then
+                    ui.diagnostics(buf, packs)
+                end
+            end)
+        end
     end)
 end
 

@@ -8,8 +8,9 @@ local M = {}
 
 ---@param endpoint string
 ---@param headers? table<string, string>
+---@param callback? fun(out: any)
 ---@return any
-function M.get(endpoint, headers)
+function M.get(endpoint, headers, callback)
     local cmd = { 'curl', '-isSL' } ---@type string[]
     cmd[#cmd + 1] = '-A'
     cmd[#cmd + 1] = ('%s (%s/%s)'):format(repo, url, repo)
@@ -19,13 +20,28 @@ function M.get(endpoint, headers)
     end
     cmd[#cmd + 1] = endpoint
 
-    local response = vim.system(cmd, { text = true }):wait()
-    if response.code ~= 0 then
+    if callback then
+        vim.system(cmd, { text = true }, function(out)
+            vim.schedule(function()
+                callback(M.parse(out))
+            end)
+        end)
+    else
+        local out = vim.system(cmd, { text = true }):wait()
+        return M.parse(out)
+    end
+end
+
+---@private
+---@param out vim.SystemCompleted
+---@return any
+function M.parse(out)
+    if out.code ~= 0 then
         return nil
     end
 
     -- must contain a set of headers and a body
-    local sections = util.split(vim.trim(response.stdout), '\n\n')
+    local sections = util.split(vim.trim(out.stdout), '\n\n')
     if #sections < 2 then
         return nil
     end

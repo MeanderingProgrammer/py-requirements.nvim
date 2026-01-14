@@ -75,16 +75,14 @@ function Pack:description()
     return pypi.get_description(self.name, spec and spec.version)
 end
 
----@return string[]
-function Pack:update()
-    local values = pypi.get_versions(self.name).values
-    if values then
-        self.status = 'valid'
-        self.versions = values
-    else
-        self.status = 'invalid'
-    end
-    return self.versions
+---@param callback fun(versions: string[])
+function Pack:update(callback)
+    pypi.get_versions(self.name, function(versions)
+        local values = versions.values
+        self.status = values and 'valid' or 'invalid'
+        self.versions = values or {}
+        callback(self.versions)
+    end)
 end
 
 ---@return py.reqs.pack.Spec?
