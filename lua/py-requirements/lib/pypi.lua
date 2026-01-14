@@ -39,9 +39,9 @@ local M = {}
 ---@param name string
 ---@return py.reqs.pypi.Versions
 function M.get_versions(name)
-    local result = cache.versions[name]
-    if result then
-        return result
+    local cached = cache.versions[name]
+    if cached then
+        return cached
     end
 
     ---@param index? string
@@ -58,9 +58,8 @@ function M.get_versions(name)
     local response = call_index(state.config.index_url)
         or call_index(state.config.extra_index_url)
 
-    if not response then
-        result = {}
-    else
+    local result = {} ---@type py.reqs.pypi.Versions
+    if response then
         local values = {} ---@type string[]
         for _, version in ipairs(response.versions) do
             local valid = true
@@ -100,9 +99,9 @@ end
 ---@param version? string
 ---@return py.reqs.pypi.Description
 function M.get_description(name, version)
-    local result = cache.descriptions[name]
-    if result then
-        return result
+    local cached = cache.descriptions[name]
+    if cached then
+        return cached
     end
 
     local endpoint = ('https://pypi.org/pypi/%s'):format(name:lower())
@@ -111,10 +110,9 @@ function M.get_description(name, version)
     end
     endpoint = ('%s/json'):format(endpoint)
 
+    local result = {} ---@type py.reqs.pypi.Description
     local response = curl.get(endpoint) ---@type py.reqs.pypi.project.Response?
-    if not response then
-        result = {}
-    else
+    if response then
         local info = response.info
         local mapping = {
             ['text/x-rst'] = 'rst',

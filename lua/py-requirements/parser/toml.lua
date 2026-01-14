@@ -8,8 +8,8 @@ local M = {}
 M.lang = 'toml'
 
 ---@param buf integer
----@return py.reqs.Package[]
-function M.packages(buf)
+---@return py.reqs.Pack[]
+function M.buf(buf)
     local root = util.root(buf, M.lang)
     if not root then
         return {}
@@ -40,17 +40,17 @@ function M.packages(buf)
     if not query then
         return {}
     end
-    local result = {} ---@type py.reqs.Package[]
+    local result = {} ---@type py.reqs.Pack[]
     for id, node in query:iter_captures(root, buf) do
         local capture = query.captures[id]
-        local package = nil ---@type py.reqs.Package?
+        local pack = nil ---@type py.reqs.Pack?
         if capture == 'pep' then
-            package = M.parse_pep(buf, node)
+            pack = M.parse_pep(buf, node)
         elseif capture == 'poetry' then
-            package = M.parse_poetry(buf, node)
+            pack = M.parse_poetry(buf, node)
         end
-        if package then
-            result[#result + 1] = package
+        if pack then
+            result[#result + 1] = pack
         end
     end
     return result
@@ -59,23 +59,23 @@ end
 ---@private
 ---@param buf integer
 ---@param root TSNode
----@return py.reqs.Package?
+---@return py.reqs.Pack?
 function M.parse_pep(buf, root)
     -- "requests==2.0.0"
     local text = vim.treesitter.get_node_text(root, buf)
     text = text:sub(2, -2) .. '\n'
-    local package = requirements.line(text)
-    if package then
+    local pack = requirements.line(text)
+    if pack then
         local row, col = root:range()
-        package:shift(row, col + 1)
+        pack:shift(row, col + 1)
     end
-    return package
+    return pack
 end
 
 ---@private
 ---@param buf integer
 ---@param root TSNode
----@return py.reqs.Package?
+---@return py.reqs.Pack?
 function M.parse_poetry(buf, root)
     -- requests = "==2.0.0"
     -- requests = { version = "==2.0.0" }
@@ -95,19 +95,19 @@ function M.parse_poetry(buf, root)
     local text = vim.treesitter.get_node_text(name, buf)
         .. vim.treesitter.get_node_text(version, buf):sub(2, -2)
         .. '\n'
-    local package = requirements.line(text)
-    if package then
+    local pack = requirements.line(text)
+    if pack then
         local row = version:range()
         -- TODO: need to adjust columns correctly to support completions and
         --       upgrading but is not straight forward, for now nil them out
         --       to avoid writing text in the wrong location
-        package:shift(row, nil)
+        pack:shift(row, nil)
     end
-    return package
+    return pack
 end
 
 ---@param str string
----@return py.reqs.Package?
+---@return py.reqs.Pack?
 function M.line(str)
     -- TODO: implement this to support version completions
     return nil

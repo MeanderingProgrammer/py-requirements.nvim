@@ -1,9 +1,9 @@
 local pypi = require('py-requirements.lib.pypi')
 local specifier = require('py-requirements.lib.specifier')
 
----@alias py.reqs.package.Status 'loading'|'invalid'|'valid'
+---@alias py.reqs.pack.Status 'loading'|'invalid'|'valid'
 
----@class py.reqs.package.Spec
+---@class py.reqs.pack.Spec
 ---@field cmp string
 ---@field version string
 ---@field cols Range2
@@ -13,7 +13,7 @@ Spec.__index = Spec
 ---@param source integer|string
 ---@param cmp TSNode
 ---@param version TSNode
----@return py.reqs.package.Spec
+---@return py.reqs.pack.Spec
 function Spec.new(source, cmp, version)
     local self = setmetatable({}, Spec)
     self.cmp = vim.treesitter.get_node_text(cmp, source)
@@ -33,22 +33,22 @@ function Spec:shift(col)
     end
 end
 
----@class py.reqs.Package
+---@class py.reqs.Pack
 ---@field row integer
 ---@field name string
----@field private specs py.reqs.package.Spec[]
----@field private status py.reqs.package.Status
+---@field private specs py.reqs.pack.Spec[]
+---@field private status py.reqs.pack.Status
 ---@field private versions string[]
-local Package = {}
-Package.__index = Package
+local Pack = {}
+Pack.__index = Pack
 
 ---@param source integer|string
 ---@param name TSNode
 ---@param cmps TSNode[]
 ---@param versions TSNode[]
----@return py.reqs.Package
-function Package.new(source, name, cmps, versions)
-    local self = setmetatable({}, Package)
+---@return py.reqs.Pack
+function Pack.new(source, name, cmps, versions)
+    local self = setmetatable({}, Pack)
     self.row = name:range()
     self.name = vim.treesitter.get_node_text(name, source)
     self.specs = {}
@@ -62,7 +62,7 @@ end
 
 ---@param row integer
 ---@param col? integer
-function Package:shift(row, col)
+function Pack:shift(row, col)
     self.row = self.row + row
     for _, spec in ipairs(self.specs) do
         spec:shift(col)
@@ -70,13 +70,13 @@ function Package:shift(row, col)
 end
 
 ---@return py.reqs.pypi.Description
-function Package:description()
+function Pack:description()
     local spec = self:spec()
     return pypi.get_description(self.name, spec and spec.version)
 end
 
 ---@return string[]
-function Package:update()
+function Pack:update()
     local values = pypi.get_versions(self.name).values
     if values then
         self.status = 'valid'
@@ -87,18 +87,18 @@ function Package:update()
     return self.versions
 end
 
----@return py.reqs.package.Spec?
-function Package:spec()
+---@return py.reqs.pack.Spec?
+function Pack:spec()
     return self.specs[#self.specs]
 end
 
 ---@return string?
-function Package:latest()
+function Pack:latest()
     return self.versions[#self.versions]
 end
 
 ---@return string, vim.diagnostic.Severity
-function Package:info()
+function Pack:info()
     if self.status == 'loading' then
         return 'Loading', vim.diagnostic.severity.INFO
     end
@@ -124,4 +124,4 @@ function Package:info()
     return latest, vim.diagnostic.severity.INFO
 end
 
-return Package
+return Pack

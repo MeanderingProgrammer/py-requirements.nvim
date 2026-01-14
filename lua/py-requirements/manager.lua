@@ -70,11 +70,11 @@ end
 ---@private
 ---@param buf integer
 function M.initialize(buf)
-    local packages = parser.packages(buf)
-    ui.diagnostics(buf, packages)
-    for _, package in ipairs(packages) do
+    local packs = parser.buf(buf)
+    ui.diagnostics(buf, packs)
+    for _, pack in ipairs(packs) do
         vim.schedule(function()
-            package:update()
+            pack:update()
         end)
     end
     M.update(buf)
@@ -84,11 +84,11 @@ end
 ---@param buf integer
 function M.update(buf)
     vim.schedule(function()
-        local packages = parser.packages(buf)
-        for _, package in ipairs(packages) do
-            package:update()
+        local packs = parser.buf(buf)
+        for _, pack in ipairs(packs) do
+            pack:update()
         end
-        ui.diagnostics(buf, packages)
+        ui.diagnostics(buf, packs)
     end)
 end
 

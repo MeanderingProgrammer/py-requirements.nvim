@@ -4,33 +4,33 @@ local parser = require('py-requirements.parser')
 local util = require('tests.util')
 
 describe('parser', function()
-    ---@class py.reqs.test.Package
+    ---@class py.reqs.test.Pack
     ---@field [1] string
     ---@field [2]? string
     ---@field [3]? string
     ---@field [4] integer
     ---@field [5]? Range2
 
-    ---@param package py.reqs.Package
-    ---@return py.reqs.test.Package
-    local function convert(package)
-        local spec = package:spec()
-        ---@type py.reqs.test.Package
+    ---@param pack py.reqs.Pack
+    ---@return py.reqs.test.Pack
+    local function convert(pack)
+        local spec = pack:spec()
+        ---@type py.reqs.test.Pack
         return {
-            package.name,
+            pack.name,
             spec and spec.cmp,
             spec and spec.version,
-            package.row,
+            pack.row,
             spec and spec.cols,
         }
     end
 
     ---@param buf integer
-    ---@return py.reqs.test.Package[]
-    local function packages(buf)
-        local result = {} ---@type py.reqs.test.Package[]
-        for _, package in ipairs(parser.packages(buf)) do
-            result[#result + 1] = convert(package)
+    ---@return py.reqs.test.Pack[]
+    local function parse_buf(buf)
+        local result = {} ---@type py.reqs.test.Pack[]
+        for _, pack in ipairs(parser.buf(buf)) do
+            result[#result + 1] = convert(pack)
         end
         util.delete(buf)
         return result
@@ -38,22 +38,22 @@ describe('parser', function()
 
     ---@param buf integer
     ---@param str string
-    ---@return py.reqs.test.Package?
-    local function line(buf, str)
-        local package = parser.line(buf, str)
+    ---@return py.reqs.test.Pack?
+    local function parse_line(buf, str)
+        local pack = parser.line(buf, str)
         util.delete(buf)
-        return package and convert(package)
+        return pack and convert(pack)
     end
 
     describe('requirements', function()
         local filetype = 'requirements'
 
-        describe('packages', function()
+        describe('buf', function()
             ---@param lines string[]
-            ---@param expected py.reqs.test.Package[]
+            ---@param expected py.reqs.test.Pack[]
             local function validate(lines, expected)
                 local buf = util.create(filetype, lines)
-                local actual = packages(buf)
+                local actual = parse_buf(buf)
                 assert.same(expected, actual)
             end
 
@@ -87,10 +87,10 @@ describe('parser', function()
 
         describe('line', function()
             ---@param str string
-            ---@param expected py.reqs.test.Package?
+            ---@param expected py.reqs.test.Pack?
             local function validate(str, expected)
                 local buf = util.create(filetype, {})
-                local actual = line(buf, str)
+                local actual = parse_line(buf, str)
                 assert.same(expected, actual)
             end
 
@@ -107,12 +107,12 @@ describe('parser', function()
     describe('toml', function()
         local filetype = 'toml'
 
-        describe('packages', function()
+        describe('buf', function()
             ---@param lines string[]
-            ---@param expected py.reqs.test.Package[]
+            ---@param expected py.reqs.test.Pack[]
             local function validate(lines, expected)
                 local buf = util.create(filetype, lines)
-                local actual = packages(buf)
+                local actual = parse_buf(buf)
                 assert.same(expected, actual)
             end
 

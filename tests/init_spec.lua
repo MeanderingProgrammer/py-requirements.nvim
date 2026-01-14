@@ -15,9 +15,9 @@ describe('init', function()
         pypi.get_versions:clear()
     end)
 
-    ---@param packages table<string, string[]>
-    local function setup(packages)
-        for name, versions in pairs(packages) do
+    ---@param packs table<string, string[]>
+    local function setup(packs)
+        for name, versions in pairs(packs) do
             ---@type py.reqs.pypi.Versions
             local response = { values = versions, files = {} }
             pypi.get_versions.on_call_with(name).returns(response)

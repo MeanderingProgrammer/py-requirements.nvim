@@ -1,6 +1,6 @@
 ---@class py.reqs.parser.Language
----@field packages fun(buf: integer): py.reqs.Package[]
----@field line fun(str: string): py.reqs.Package?
+---@field buf fun(buf: integer): py.reqs.Pack[]
+---@field line fun(str: string): py.reqs.Pack?
 
 ---@type table<string, py.reqs.parser.Language>
 local parsers = {
@@ -12,14 +12,14 @@ local parsers = {
 local M = {}
 
 ---@param buf integer
----@return py.reqs.Package[]
-function M.packages(buf)
-    return M.get(buf).packages(buf)
+---@return py.reqs.Pack[]
+function M.buf(buf)
+    return M.get(buf).buf(buf)
 end
 
 ---@param buf integer
 ---@param str string
----@return py.reqs.Package?
+---@return py.reqs.Pack?
 function M.line(buf, str)
     -- adding a 0 to the end as if we started typing a version number
     return M.get(buf).line(str .. '0')

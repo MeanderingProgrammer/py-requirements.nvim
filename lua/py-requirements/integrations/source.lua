@@ -25,12 +25,12 @@ function M.items(row)
         return nil
     end
 
-    local package = parser.line(buf, line)
-    if not package then
+    local pack = parser.line(buf, line)
+    if not pack then
         return nil
     end
 
-    local spec = package:spec()
+    local spec = pack:spec()
     if not spec then
         return nil
     end
@@ -41,7 +41,7 @@ function M.items(row)
     }
 
     local result = {} ---@type lsp.CompletionItem[]
-    local versions = vim.fn.reverse(package:update())
+    local versions = vim.fn.reverse(pack:update())
     for i, version in ipairs(versions) do
         result[#result + 1] = {
             label = version,

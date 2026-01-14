@@ -9,30 +9,30 @@ local M = {}
 function M.upgrade(all)
     local buf = util.buffer()
     local row = not all and util.row() or nil
-    M.run(buf, row, function(package)
-        package:update()
-        ui.upgrade(buf, package)
+    M.run(buf, row, function(pack)
+        pack:update()
+        ui.upgrade(buf, pack)
     end)
 end
 
 function M.show_description()
     local buf = util.buffer()
     local row = util.row()
-    M.run(buf, row, function(package)
-        ui.description(package)
+    M.run(buf, row, function(pack)
+        ui.description(pack)
     end)
 end
 
 ---@private
 ---@param buf integer
 ---@param row? integer
----@param callback fun(package: py.reqs.Package)
+---@param callback fun(pack: py.reqs.Pack)
 function M.run(buf, row, callback)
-    local packages = parser.packages(buf)
-    for _, package in ipairs(packages) do
-        if not row or package.row == row then
+    local packs = parser.buf(buf)
+    for _, pack in ipairs(packs) do
+        if not row or pack.row == row then
             vim.schedule(function()
-                callback(package)
+                callback(pack)
             end)
         end
     end
