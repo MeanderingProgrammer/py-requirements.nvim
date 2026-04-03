@@ -22,7 +22,14 @@ end
 ---@param other py.reqs.Version
 ---@return boolean
 function Version:__eq(other)
-    return self.value == other.value
+    for i = 1, math.max(#self.parts, #other.parts) do
+        local v1 = self.parts[i] or 0
+        local v2 = other.parts[i] or 0
+        if v1 ~= v2 then
+            return false
+        end
+    end
+    return true
 end
 
 ---@param other py.reqs.Version
