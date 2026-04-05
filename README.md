@@ -26,6 +26,16 @@ https://github.com/user-attachments/assets/d4aef6a7-deed-4c80-8db6-7d1499e11c64
 
 # Install
 
+## vim.pack
+
+```lua
+vim.pack.add({
+    'https://github.com/nvim-treesitter/nvim-treesitter',
+    'https://github.com/MeanderingProgrammer/py-requirements.nvim',
+})
+require('py-requirements').setup({})
+```
+
 ## lazy.nvim
 
 ```lua
