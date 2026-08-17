@@ -1,5 +1,6 @@
 [project]
 dependencies = [
+  "aworkspace",
   "click==8.1.7",
   "kaleido==0.2.0",
   "matplotlib==3.9.0",
@@ -18,3 +19,6 @@ toml = { version = "==0.10.2" }
 
 [tool.poetry.group.dev.dependencies]
 pytest = "==8.0.0"
+
+[tool.uv.sources]
+aworkspace = { workspace = true }

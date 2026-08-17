@@ -1,6 +1,7 @@
 local pypi = require('py-requirements.lib.pypi')
 local specifier = require('py-requirements.lib.specifier')
 
+---@alias py.reqs.pack.Kind 'registry'|'workspace'
 ---@alias py.reqs.pack.Status 'loading'|'invalid'|'valid'
 
 ---@class py.reqs.pack.Spec
@@ -36,6 +37,7 @@ end
 ---@class py.reqs.Pack
 ---@field row integer
 ---@field name string
+---@field kind py.reqs.pack.Kind
 ---@field private specs py.reqs.pack.Spec[]
 ---@field private status py.reqs.pack.Status
 ---@field private versions string[]
@@ -52,6 +54,7 @@ function Pack.new(source, name, cmps, versions)
     self.row = name:range()
     self.name = vim.treesitter.get_node_text(name, source)
     self.specs = {}
+    self.kind = 'registry'
     for i = 1, math.min(#cmps, #versions) do
         self.specs[#self.specs + 1] = Spec.new(source, cmps[i], versions[i])
     end
@@ -77,12 +80,18 @@ end
 
 ---@param callback fun(versions: string[])
 function Pack:update(callback)
-    pypi.get_versions(self.name, function(versions)
-        local values = versions.values
-        self.status = values and 'valid' or 'invalid'
-        self.versions = values or {}
-        callback(self.versions)
-    end)
+    if self.kind == 'registry' then
+        pypi.get_versions(self.name, function(versions)
+            local values = versions.values
+            self.status = values and 'valid' or 'invalid'
+            self.versions = values or {}
+            callback(self.versions)
+        end)
+    else
+        self.status = 'valid'
+        self.versions = { 'workspace' }
+        callback({})
+    end
 end
 
 ---@return py.reqs.pack.Spec?

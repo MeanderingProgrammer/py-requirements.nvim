@@ -36,11 +36,21 @@ function M.buf(buf)
             (dotted_key) @name
             (pair) @poetry
             (#lua-match? @name "^tool.poetry.*.dependencies$"))
+
+        (table
+            (dotted_key) @name
+            (pair
+                (bare_key) @workspace
+                (inline_table (pair (bare_key) @key (boolean) @value)))
+            (#eq? @name "tool.uv.sources")
+            (#eq? @key "workspace")
+            (#eq? @value "true"))
     ]])
     if not query then
         return {}
     end
     local result = {} ---@type py.reqs.Pack[]
+    local workspace_packs = {} ---@type string[]
     for id, node in query:iter_captures(root, buf) do
         local capture = query.captures[id]
         local pack = nil ---@type py.reqs.Pack?
@@ -48,9 +58,19 @@ function M.buf(buf)
             pack = M.parse_pep(buf, node)
         elseif capture == 'poetry' then
             pack = M.parse_poetry(buf, node)
+        elseif capture == 'workspace' then
+            local name = vim.treesitter.get_node_text(node, buf)
+            workspace_packs[#workspace_packs + 1] = name
         end
         if pack then
             result[#result + 1] = pack
+        end
+    end
+    for _, workspace_pack in ipairs(workspace_packs) do
+        for _, pack in ipairs(result) do
+            if pack.name == workspace_pack then
+                pack.kind = 'workspace'
+            end
         end
     end
     return result
